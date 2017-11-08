@@ -1,0 +1,7 @@
+Netsukuku daemon
+
+It uses some convenience libraries that live in their own repos.
+So, before bootstrapping the build system, you need to run:
+ "git submodule update --init"
+
+

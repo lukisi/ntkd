@@ -1,0 +1,12 @@
+[submodule "qspn"]
+	path = qspn
+	url = https://github.com/lukisi/qspn.git
+[submodule "identities"]
+	path = identities
+	url = https://github.com/lukisi/identities.git
+[submodule "neighborhood"]
+	path = neighborhood
+	url = https://github.com/lukisi/neighborhood.git
+[submodule "coordinator"]
+	path = coordinator
+	url = https://github.com/lukisi/coordinator.git
