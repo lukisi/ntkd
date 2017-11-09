@@ -21,6 +21,9 @@ using Netsukuku;
 using Netsukuku.Neighborhood;
 using Netsukuku.Identities;
 using Netsukuku.Qspn;
+using Netsukuku.Coordinator;
+using Netsukuku.Hooking;
+using Netsukuku.Andna;
 using TaskletSystem;
 
 namespace Netsukuku
@@ -46,6 +49,10 @@ namespace Netsukuku
 
         // Pass tasklet system to the RPC library (ntkdrpc)
         init_tasklet_system(tasklet);
+
+        // TODO remove
+        AndnaClass del_x = new AndnaClass();
+        HookingClass del_y = new HookingClass();
 
         dlg = new ServerDelegate();
         err = new ServerErrorHandler();

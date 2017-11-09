@@ -13,3 +13,6 @@
 [submodule "andna"]
 	path = andna
 	url = https://github.com/lukisi/andna.git
+[submodule "hooking"]
+	path = hooking
+	url = https://github.com/lukisi/hooking.git

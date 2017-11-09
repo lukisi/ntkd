@@ -6,6 +6,7 @@ SUBDIRS = \
 	identities \
 	qspn \
 	coordinator \
+	hooking \
 	andna \
 	$(NULL)
 
@@ -36,6 +37,7 @@ ntkd_SOURCES =  \
 	neighborhood/neighborhood.vapi \
 	qspn/qspn.vapi \
 	coordinator/coord.vapi \
+	hooking/hooking.vapi \
 	andna/andna.vapi \
 	$(NULL)
 
@@ -68,6 +70,7 @@ ntkd_CPPFLAGS = \
 	-I$(srcdir)/neighborhood \
 	-I$(srcdir)/qspn \
 	-I$(srcdir)/coordinator \
+	-I$(srcdir)/hooking \
 	-I$(srcdir)/andna \
 	$(NULL)
 
@@ -85,6 +88,7 @@ ntkd_LDADD = \
 	$(builddir)/identities/libidentities.la \
 	$(builddir)/qspn/libqspn.la \
 	$(builddir)/coordinator/libcoord.la \
+	$(builddir)/hooking/libhooking.la \
 	$(builddir)/andna/libandna.la \
 	$(NULL)
 
