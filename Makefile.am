@@ -30,6 +30,7 @@ libmacgetter_la_LIBADD = \
 
 ntkd_SOURCES =  \
 	ntkd.vala \
+	neighborhood_helpers.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -51,6 +52,7 @@ ntkd_VALAFLAGS = \
 	--pkg pth-tasklet \
 	--pkg ntkdrpc \
 	--pkg peers \
+	--pkg posix \
 	$(NULL)
 
 ntkd_CPPFLAGS = \
