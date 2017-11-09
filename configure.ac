@@ -39,5 +39,6 @@ AC_CONFIG_SUBDIRS([neighborhood])
 AC_CONFIG_SUBDIRS([identities])
 AC_CONFIG_SUBDIRS([qspn])
 AC_CONFIG_SUBDIRS([coordinator])
+AC_CONFIG_SUBDIRS([andna])
 AC_OUTPUT
 

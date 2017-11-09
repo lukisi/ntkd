@@ -10,3 +10,6 @@
 [submodule "coordinator"]
 	path = coordinator
 	url = https://github.com/lukisi/coordinator.git
+[submodule "andna"]
+	path = andna
+	url = https://github.com/lukisi/andna.git
