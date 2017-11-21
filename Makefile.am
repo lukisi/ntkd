@@ -32,6 +32,7 @@ libmacgetter_la_LIBADD = \
 ntkd_SOURCES =  \
 	ntkd.vala \
 	neighborhood_helpers.vala \
+	neighborhood_signals.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \

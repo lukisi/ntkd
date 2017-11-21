@@ -1,5 +1,6 @@
 ntkd.c
 neighborhood_helpers.c
+neighborhood_signals.c
 *.stamp
 Makefile.in
 aclocal.m4

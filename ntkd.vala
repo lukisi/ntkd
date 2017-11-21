@@ -33,8 +33,19 @@ namespace Netsukuku
     const double max_common_hops_ratio = 0.6;
     const int arc_timeout = 10000;
 
+    [CCode (array_length = false, array_null_terminated = true)]
+    string[] interfaces;
+    bool accept_anonymous_requests;
+    bool no_anonymize;
+    int subnetlevel;
+
     ITasklet tasklet;
+    ArrayList<int> gsizes;
+    ArrayList<int> g_exp;
+    int levels;
     NeighborhoodManager? neighborhood_mgr;
+    ArrayList<string> real_nics;
+    ArrayList<HandledNic> handlednics;
 
     AddressManagerForNode node_skeleton;
     ServerDelegate dlg;
@@ -43,6 +54,51 @@ namespace Netsukuku
 
     int main(string[] _args)
     {
+        subnetlevel = 0; // default
+        accept_anonymous_requests = false; // default
+        no_anonymize = false; // default
+        OptionContext oc = new OptionContext("<options>");
+        OptionEntry[] entries = new OptionEntry[5];
+        int index = 0;
+        entries[index++] = {"subnetlevel", 's', 0, OptionArg.INT, ref subnetlevel, "Level of g-node for autonomous subnet", null};
+        entries[index++] = {"interfaces", 'i', 0, OptionArg.STRING_ARRAY, ref interfaces, "Interface (e.g. -i eth1). You can use it multiple times.", null};
+        entries[index++] = {"serve-anonymous", 'k', 0, OptionArg.NONE, ref accept_anonymous_requests, "Accept anonymous requests", null};
+        entries[index++] = {"no-anonymize", 'j', 0, OptionArg.NONE, ref no_anonymize, "Disable anonymizer", null};
+        entries[index++] = { null };
+        oc.add_main_entries(entries, null);
+        try {
+            oc.parse(ref _args);
+        }
+        catch (OptionError e) {
+            print(@"Error parsing options: $(e.message)\n");
+            return 1;
+        }
+
+        ArrayList<string> args = new ArrayList<string>.wrap(_args);
+        // TODO some argument?
+
+        ArrayList<int> naddr = new ArrayList<int>();
+        gsizes = new ArrayList<int>();
+        g_exp = new ArrayList<int>();
+        foreach (int gsize in new int[]{4,2,2,2}) // hard-wired topology.
+        {
+            if (gsize < 2) error(@"Bad gsize $(gsize).");
+            int _g_exp = 0;
+            for (int k = 1; k < 17; k++)
+            {
+                if (gsize == (1 << k)) _g_exp = k;
+            }
+            if (_g_exp == 0) error(@"Bad gsize $(gsize): must be power of 2 up to 2^16.");
+            g_exp.insert(0, _g_exp);
+            gsizes.insert(0, gsize);
+
+            naddr.insert(0, 0); // Random(0..gsize-1) or 0.
+        }
+
+        ArrayList<string> devs = new ArrayList<string>();
+        foreach (string dev in interfaces) devs.add(dev);
+        levels = gsizes.size;
+
         // Initialize tasklet system
         PthTaskletImplementer.init();
         tasklet = PthTaskletImplementer.get_tasklet_system();
@@ -65,6 +121,9 @@ namespace Netsukuku
         // start listen TCP
         t_tcp = tcp_listen(dlg, err, ntkd_port);
 
+        real_nics = new ArrayList<string>();
+        handlednics = new ArrayList<HandledNic>();
+
         // Init module Neighborhood
         NeighborhoodManager.init(tasklet);
         node_skeleton = new AddressManagerForNode();
@@ -77,7 +136,17 @@ namespace Netsukuku
             new NeighborhoodIPRouteManager(),
             () => @"169.254.$(Random.int_range(0, 255)).$(Random.int_range(0, 255))");
         node_skeleton.neighborhood_mgr = neighborhood_mgr;
-        // TODO connect signals
+        // connect signals
+        neighborhood_mgr.nic_address_set.connect(neighborhood_nic_address_set);
+        neighborhood_mgr.arc_added.connect(neighborhood_arc_added);
+        neighborhood_mgr.arc_changed.connect(neighborhood_arc_changed);
+        neighborhood_mgr.arc_removing.connect(neighborhood_arc_removing);
+        neighborhood_mgr.arc_removed.connect(neighborhood_arc_removed);
+        neighborhood_mgr.nic_address_unset.connect(neighborhood_nic_address_unset);
+        foreach (string dev in devs) manage_real_nic(dev);
+        // Here (for each dev) the linklocal address has been added, and the signal handler for
+        //  nic_address_set has been processed, so we have in `handlednics` the informations
+        //  for the module Identities.
 
         // register handlers for SIGINT and SIGTERM to exit
         Posix.@signal(Posix.SIGINT, safe_exit);
@@ -101,6 +170,25 @@ namespace Netsukuku
     {
         // We got here because of a signal. Quick processing.
         do_me_exit = true;
+    }
+
+    void manage_real_nic(string dev)
+    {
+        real_nics.add(dev);
+
+        // TODO setup NIC
+
+        // Start listen UDP on dev
+        t_udp_list.add(udp_listen(dlg, err, ntkd_port, dev));
+        // Run monitor
+        neighborhood_mgr.start_monitor(new NeighborhoodNetworkInterface(dev));
+    }
+
+    class HandledNic : Object
+    {
+        public string dev;
+        public string mac;
+        public string linklocal;
     }
 
 
