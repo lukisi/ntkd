@@ -111,6 +111,7 @@ namespace Netsukuku
 
         // Commander
         cm = Commander.get_singleton();
+        cm.start_console_log();
 
         // TODO remove
         AndnaClass del_x = new AndnaClass();
