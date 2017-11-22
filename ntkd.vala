@@ -40,6 +40,7 @@ namespace Netsukuku
     int subnetlevel;
 
     ITasklet tasklet;
+    Commander cm;
     ArrayList<int> gsizes;
     ArrayList<int> g_exp;
     int levels;
@@ -108,6 +109,9 @@ namespace Netsukuku
         // Pass tasklet system to the RPC library (ntkdrpc)
         init_tasklet_system(tasklet);
 
+        // Commander
+        cm = Commander.get_singleton();
+
         // TODO remove
         AndnaClass del_x = new AndnaClass();
         HookingClass del_y = new HookingClass();
@@ -124,6 +128,16 @@ namespace Netsukuku
         t_tcp = tcp_listen(dlg, err, ntkd_port);
         // The UDP tasklets will be launched after the NeighborhoodManager is
         // created and ready to start_monitor.
+
+        string ntklocalhost = ip_internal_node(naddr, 0);
+        int bid = cm.begin_block();
+        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+            @"sysctl", @"net.ipv4.ip_forward=1"}));
+        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+            @"sysctl", @"net.ipv4.conf.all.rp_filter=0"}));
+        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+            @"ip", @"address", @"add", @"$(ntklocalhost)", @"dev", @"lo"}));
+        cm.end_block(bid);
 
         real_nics = new ArrayList<string>();
         handlednics = new ArrayList<HandledNic>();
@@ -151,6 +165,8 @@ namespace Netsukuku
         // Here (for each dev) the linklocal address has been added, and the signal handler for
         //  nic_address_set has been processed, so we have in `handlednics` the informations
         //  for the module Identities.
+        
+        // TODO continue
 
         // register handlers for SIGINT and SIGTERM to exit
         Posix.@signal(Posix.SIGINT, safe_exit);
@@ -161,6 +177,23 @@ namespace Netsukuku
             tasklet.ms_wait(100);
             if (do_me_exit) break;
         }
+
+        // Cleanup
+
+        // Call stop_monitor_all of NeighborhoodManager.
+        neighborhood_mgr.stop_monitor_all();
+
+        // remove local addresses (global, anon, intern, localhost)
+        cm.single_command(new ArrayList<string>.wrap({
+            @"ip", @"address", @"del", @"$(ntklocalhost)/32", @"dev", @"lo"}));
+
+        // Then we destroy the object NeighborhoodManager.
+        // Beware that node_skeleton.neighborhood_mgr is a weak reference.
+        neighborhood_mgr = null;
+
+        // Kill the tasklets that were used by the RPC library.
+        foreach (ITaskletHandle t_udp in t_udp_list) t_udp.kill();
+        t_tcp.kill();
 
         tasklet.ms_wait(100);
 
@@ -180,7 +213,17 @@ namespace Netsukuku
     {
         real_nics.add(dev);
 
-        // TODO setup NIC
+        // Set up NIC
+        int bid = cm.begin_block();
+        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+            @"sysctl", @"net.ipv4.conf.$(dev).rp_filter=0"}));
+        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+            @"sysctl", @"net.ipv4.conf.$(dev).arp_ignore=1"}));
+        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+            @"sysctl", @"net.ipv4.conf.$(dev).arp_announce=2"}));
+        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+            @"ip", @"link", @"set", @"dev", @"$(dev)", @"up"}));
+        cm.end_block(bid);
 
         // Start listen UDP on dev
         t_udp_list.add(udp_listen(dlg, err, ntkd_port, dev));

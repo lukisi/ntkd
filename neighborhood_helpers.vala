@@ -29,22 +29,26 @@ namespace Netsukuku
     {
         public void add_address(string my_addr, string my_dev)
         {
-            error("not implemented yet");
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"address", @"add", @"$(my_addr)", @"dev", @"$(my_dev)"}));
         }
 
         public void add_neighbor(string my_addr, string my_dev, string neighbor_addr)
         {
-            error("not implemented yet");
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"route", @"add", @"$(neighbor_addr)", @"dev", @"$(my_dev)", @"src", @"$(my_addr)"}));
         }
 
         public void remove_neighbor(string my_addr, string my_dev, string neighbor_addr)
         {
-            error("not implemented yet");
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"route", @"del", @"$(neighbor_addr)", @"dev", @"$(my_dev)", @"src", @"$(my_addr)"}));
         }
 
         public void remove_address(string my_addr, string my_dev)
         {
-            error("not implemented yet");
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"address", @"del", @"$(my_addr)/32", @"dev", @"$(my_dev)"}));
         }
     }
 

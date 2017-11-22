@@ -33,6 +33,7 @@ ntkd_SOURCES =  \
 	ntkd.vala \
 	serialize_helpers.vala \
 	commander.vala \
+	ipv4_compute.vala \
 	neighborhood_helpers.vala \
 	neighborhood_signals.vala \
 	mac-getter/hw.vapi \

@@ -3,7 +3,9 @@ neighborhood_helpers.c
 neighborhood_signals.c
 serialize_helpers.c
 commander.c
+ipv4_compute.c
 *.stamp
+*.stamp-t
 Makefile.in
 aclocal.m4
 autom4te.cache/
