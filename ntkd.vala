@@ -77,6 +77,7 @@ namespace Netsukuku
         ArrayList<string> args = new ArrayList<string>.wrap(_args);
         // TODO some argument?
 
+        // First network: the node on its own. Topoplogy of the network and address of the node.
         ArrayList<int> naddr = new ArrayList<int>();
         gsizes = new ArrayList<int>();
         g_exp = new ArrayList<int>();
@@ -94,10 +95,11 @@ namespace Netsukuku
 
             naddr.insert(0, 0); // Random(0..gsize-1) or 0.
         }
+        levels = gsizes.size;
 
+        // Names of the network interfaces to monitor.
         ArrayList<string> devs = new ArrayList<string>();
         foreach (string dev in interfaces) devs.add(dev);
-        levels = gsizes.size;
 
         // Initialize tasklet system
         PthTaskletImplementer.init();
@@ -110,16 +112,18 @@ namespace Netsukuku
         AndnaClass del_x = new AndnaClass();
         HookingClass del_y = new HookingClass();
 
+        // The RPC library will need a tasklet for TCP connections and many
+        // tasklets (one per NIC) for UDP connecions.
         dlg = new ServerDelegate();
         err = new ServerErrorHandler();
-
         // Handle for TCP
         ITaskletHandle t_tcp;
         // Handles for UDP
         t_udp_list = new ArrayList<ITaskletHandle>();
-
-        // start listen TCP
+        // Start listen TCP
         t_tcp = tcp_listen(dlg, err, ntkd_port);
+        // The UDP tasklets will be launched after the NeighborhoodManager is
+        // created and ready to start_monitor.
 
         real_nics = new ArrayList<string>();
         handlednics = new ArrayList<HandledNic>();
