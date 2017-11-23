@@ -35,33 +35,28 @@ namespace Netsukuku
         handlednics.add(n);
     }
 
-    string key_for_physical_arc(string mymac, string peermac)
-    {
-        return @"$(mymac)-$(peermac)";
-    }
-
     void neighborhood_arc_added(INeighborhoodArc arc)
     {
-        error("not implemented yet");
+        // TODO add arc to identity_manager
     }
 
     void neighborhood_arc_changed(INeighborhoodArc arc)
     {
-        error("not implemented yet");
+        // TODO if qspn_arc is present, change cost
     }
 
     void neighborhood_arc_removing(INeighborhoodArc arc, bool is_still_usable)
     {
-        error("not implemented yet");
+        // TODO remove arc from identity_manager
     }
 
     void neighborhood_arc_removed(INeighborhoodArc arc)
     {
-        error("not implemented yet");
+        // TODO ?
     }
 
     void neighborhood_nic_address_unset(string my_dev, string my_addr)
     {
-        error("not implemented yet");
+        // TODO remove from handlednics
     }
 }
