@@ -1,9 +1,10 @@
 ntkd.c
-neighborhood_helpers.c
-neighborhood_signals.c
+ntkd_rpc.c
 serialize_helpers.c
 commander.c
 ipv4_compute.c
+neighborhood_helpers.c
+neighborhood_signals.c
 *.stamp
 *.stamp-t
 Makefile.in

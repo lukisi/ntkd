@@ -31,6 +31,7 @@ libmacgetter_la_LIBADD = \
 
 ntkd_SOURCES =  \
 	ntkd.vala \
+	ntkd_rpc.vala \
 	serialize_helpers.vala \
 	commander.vala \
 	ipv4_compute.vala \
