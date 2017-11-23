@@ -62,7 +62,10 @@ namespace Netsukuku
             IBroadcastID broadcast_id,
             IAckCommunicator? ack_com = null)
         {
-            error("not implemented yet");
+            assert(! devs.is_empty);
+            assert(devs.size == src_ips.size);
+            var bc = get_addr_broadcast(devs, src_ips, ntkd_port, source_id, broadcast_id, ack_com);
+            return bc;
         }
 
         public IAddressManagerStub
@@ -73,7 +76,8 @@ namespace Netsukuku
             IUnicastID unicast_id,
             bool wait_reply = true)
         {
-            error("not implemented yet");
+            var uc = get_addr_unicast(dev, ntkd_port, src_ip, source_id, unicast_id, wait_reply);
+            return uc;
         }
 
         public IAddressManagerStub
@@ -83,7 +87,10 @@ namespace Netsukuku
             IUnicastID unicast_id,
             bool wait_reply = true)
         {
-            error("not implemented yet");
+            var tc = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
+            assert(tc is ITcpClientRootStub);
+            ((ITcpClientRootStub)tc).wait_reply = wait_reply;
+            return tc;
         }
     }
 
@@ -111,15 +118,33 @@ namespace Netsukuku
 
         public long measure_rtt(string peer_addr, string peer_mac, string my_dev, string my_addr) throws NeighborhoodGetRttError
         {
-            error("not implemented yet");
-        }
-    }
-
-    class NeighborhoodMissingArcHandler : Object, INeighborhoodMissingArcHandler
-    {
-        public void missing(INeighborhoodArc arc)
-        {
-            error("not implemented yet");
+            TaskletCommandResult com_ret;
+            try {
+                //print(@"ping -n -q -c 1 $(peer_addr)\n");
+                com_ret = tasklet.exec_command(@"ping -n -q -c 1 $(peer_addr)");
+            } catch (Error e) {
+                throw new NeighborhoodGetRttError.GENERIC(@"Unable to spawn a command: $(e.message)");
+            }
+            if (com_ret.exit_status != 0)
+                throw new NeighborhoodGetRttError.GENERIC(@"ping: error $(com_ret.stdout)");
+            foreach (string line in com_ret.stdout.split("\n"))
+            {
+                /*  """rtt min/avg/max/mdev = 2.854/2.854/2.854/0.000 ms"""  */
+                if (line.has_prefix("rtt ") && line.has_suffix(" ms"))
+                {
+                    string s2 = line.substring(line.index_of(" = ") + 3);
+                    string s3 = s2.substring(0, s2.index_of("/"));
+                    double x;
+                    bool res = double.try_parse (s3, out x);
+                    if (res)
+                    {
+                        long ret = (long)(x * 1000);
+                        //print(@" returned $(ret) microseconds.\n");
+                        return ret;
+                    }
+                }
+            }
+            throw new NeighborhoodGetRttError.GENERIC(@"could not parse $(com_ret.stdout)");
         }
     }
 

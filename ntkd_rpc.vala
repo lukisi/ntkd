@@ -152,4 +152,92 @@ namespace Netsukuku
             tasklet.exit_tasklet(null);
         }
     }
+
+    class IdentityManagerStubHolder : Object, IIdentityManagerStub
+    {
+        public IdentityManagerStubHolder(IAddressManagerStub addr)
+        {
+            this.addr = addr;
+        }
+        private IAddressManagerStub addr;
+
+        public IIdentityID get_peer_main_id()
+        throws StubError, DeserializeError
+        {
+            return addr.identity_manager.get_peer_main_id();
+        }
+
+        public IDuplicationData? match_duplication
+        (int migration_id, IIdentityID peer_id, IIdentityID old_id,
+        IIdentityID new_id, string old_id_new_mac, string old_id_new_linklocal)
+        throws StubError, DeserializeError
+        {
+            return addr.identity_manager.match_duplication
+                (migration_id, peer_id, old_id,
+                 new_id, old_id_new_mac, old_id_new_linklocal);
+        }
+
+        public void notify_identity_arc_removed(IIdentityID peer_id, IIdentityID my_id)
+        throws StubError, DeserializeError
+        {
+            addr.identity_manager.notify_identity_arc_removed(peer_id, my_id);
+        }
+    }
+
+    class QspnManagerStubHolder : Object, IQspnManagerStub
+    {
+        public QspnManagerStubHolder(IAddressManagerStub addr)
+        {
+            this.addr = addr;
+        }
+        private IAddressManagerStub addr;
+
+        public IQspnEtpMessage get_full_etp(IQspnAddress requesting_address)
+        throws QspnNotAcceptedError, QspnBootstrapInProgressError, StubError, DeserializeError
+        {
+            return addr.qspn_manager.get_full_etp(requesting_address);
+        }
+
+        public void got_destroy()
+        throws StubError, DeserializeError
+        {
+            addr.qspn_manager.got_destroy();
+        }
+
+        public void got_prepare_destroy()
+        throws StubError, DeserializeError
+        {
+            addr.qspn_manager.got_prepare_destroy();
+        }
+
+        public void send_etp(IQspnEtpMessage etp, bool is_full)
+        throws QspnNotAcceptedError, StubError, DeserializeError
+        {
+            addr.qspn_manager.send_etp(etp, is_full);
+        }
+    }
+
+    class QspnManagerStubVoid : Object, IQspnManagerStub
+    {
+        public IQspnEtpMessage get_full_etp(IQspnAddress requesting_address)
+        throws QspnNotAcceptedError, QspnBootstrapInProgressError, StubError, DeserializeError
+        {
+            assert_not_reached();
+        }
+
+        public void got_destroy()
+        throws StubError, DeserializeError
+        {
+        }
+
+        public void got_prepare_destroy()
+        throws StubError, DeserializeError
+        {
+        }
+
+        public void send_etp(IQspnEtpMessage etp, bool is_full)
+        throws QspnNotAcceptedError, StubError, DeserializeError
+        {
+        }
+    }
 }
