@@ -5,6 +5,8 @@ commander.c
 ipv4_compute.c
 neighborhood_helpers.c
 neighborhood_signals.c
+identities_helpers.c
+identities_signals.c
 *.stamp
 *.stamp-t
 Makefile.in

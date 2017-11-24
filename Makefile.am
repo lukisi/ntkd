@@ -37,6 +37,8 @@ ntkd_SOURCES =  \
 	ipv4_compute.vala \
 	neighborhood_helpers.vala \
 	neighborhood_signals.vala \
+	identities_helpers.vala \
+	identities_signals.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \

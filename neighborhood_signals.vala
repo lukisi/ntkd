@@ -27,17 +27,28 @@ namespace Netsukuku
 {
     void neighborhood_nic_address_set(string my_dev, string my_addr)
     {
+        if (identity_mgr != null)
+        {
+            print(@"Warning: Signal `nic_address_set($(my_dev),$(my_addr))` when module Identities is already initialized.\n");
+            print(@"         This should not happen and will be ignored.\n");
+            return;
+        }
         string my_mac = macgetter.get_mac(my_dev).up();
         HandledNic n = new HandledNic();
         n.dev = my_dev;
         n.mac = my_mac;
         n.linklocal = my_addr;
-        handlednics.add(n);
+        handlednic_list.add(n);
     }
 
     void neighborhood_arc_added(INeighborhoodArc arc)
     {
-        // TODO add arc to identity_manager
+        // Add arc to identity_manager
+        Arc _arc = new Arc();
+        _arc.neighborhood_arc = arc;
+        _arc.idmgmt_arc = new IdmgmtArc(_arc);
+        arc_list.add(_arc);
+        identity_mgr.add_arc(_arc.idmgmt_arc);
     }
 
     void neighborhood_arc_changed(INeighborhoodArc arc)
@@ -47,7 +58,11 @@ namespace Netsukuku
 
     void neighborhood_arc_removing(INeighborhoodArc arc, bool is_still_usable)
     {
-        // TODO remove arc from identity_manager
+        // Remove arc from identity_manager
+        Arc? to_del = null;
+        foreach (Arc _a in arc_list) if (_a.neighborhood_arc == arc) {to_del = _a; break;}
+        if (to_del == null) return;
+        identity_mgr.remove_arc(to_del.idmgmt_arc);
     }
 
     void neighborhood_arc_removed(INeighborhoodArc arc)

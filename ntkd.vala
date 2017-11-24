@@ -45,8 +45,10 @@ namespace Netsukuku
     ArrayList<int> g_exp;
     int levels;
     NeighborhoodManager? neighborhood_mgr;
+    IdentityManager? identity_mgr;
     ArrayList<string> real_nics;
-    ArrayList<HandledNic> handlednics;
+    ArrayList<HandledNic> handlednic_list;
+    ArrayList<Arc> arc_list;
 
     ServerDelegate dlg;
     ServerErrorHandler err;
@@ -142,9 +144,11 @@ namespace Netsukuku
         cm.end_block(bid);
 
         real_nics = new ArrayList<string>();
-        handlednics = new ArrayList<HandledNic>();
+        handlednic_list = new ArrayList<HandledNic>();
+        arc_list = new ArrayList<Arc>();
 
         // Init module Neighborhood
+        identity_mgr = null;
         node_skeleton = new AddressManagerForNode();
         neighborhood_mgr = new NeighborhoodManager(
             get_identity_skeleton,
@@ -164,9 +168,31 @@ namespace Netsukuku
         neighborhood_mgr.nic_address_unset.connect(neighborhood_nic_address_unset);
         foreach (string dev in devs) manage_real_nic(dev);
         // Here (for each dev) the linklocal address has been added, and the signal handler for
-        //  nic_address_set has been processed, so we have in `handlednics` the informations
+        //  nic_address_set has been processed, so we have in `handlednic_list` the informations
         //  for the module Identities.
-        
+
+        Gee.List<string> if_list_dev = new ArrayList<string>();
+        Gee.List<string> if_list_mac = new ArrayList<string>();
+        Gee.List<string> if_list_linklocal = new ArrayList<string>();
+        foreach (HandledNic n in handlednic_list)
+        {
+            if_list_dev.add(n.dev);
+            if_list_mac.add(n.mac);
+            if_list_linklocal.add(n.linklocal);
+        }
+        identity_mgr = new IdentityManager(
+            tasklet,
+            if_list_dev, if_list_mac, if_list_linklocal,
+            new IdmgmtNetnsManager(),
+            new IdmgmtStubFactory(),
+            () => @"169.254.$(Random.int_range(0, 255)).$(Random.int_range(0, 255))");
+        node_skeleton.identity_mgr = identity_mgr;
+        identity_mgr.identity_arc_added.connect(identities_identity_arc_added);
+        identity_mgr.identity_arc_changed.connect(identities_identity_arc_changed);
+        identity_mgr.identity_arc_removing.connect(identities_identity_arc_removing);
+        identity_mgr.identity_arc_removed.connect(identities_identity_arc_removed);
+        identity_mgr.arc_removed.connect(identities_arc_removed);
+
         // TODO continue
 
         // register handlers for SIGINT and SIGTERM to exit
@@ -237,6 +263,12 @@ namespace Netsukuku
         public string dev;
         public string mac;
         public string linklocal;
+    }
+
+    class Arc : Object
+    {
+        public INeighborhoodArc neighborhood_arc;
+        public IdmgmtArc idmgmt_arc;
     }
 }
 
