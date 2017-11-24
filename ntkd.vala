@@ -48,7 +48,6 @@ namespace Netsukuku
     ArrayList<string> real_nics;
     ArrayList<HandledNic> handlednics;
 
-    AddressManagerForNode node_skeleton;
     ServerDelegate dlg;
     ServerErrorHandler err;
     ArrayList<ITaskletHandle> t_udp_list;
@@ -106,16 +105,18 @@ namespace Netsukuku
         PthTaskletImplementer.init();
         tasklet = PthTaskletImplementer.get_tasklet_system();
 
+        // Initialize modules that have remotable methods.
+        NeighborhoodManager.init(tasklet);
+        // ...
+        HookingManager.init(tasklet);
+        AndnaManager.init(tasklet);
+
         // Pass tasklet system to the RPC library (ntkdrpc)
         init_tasklet_system(tasklet);
 
         // Commander
         cm = Commander.get_singleton();
         cm.start_console_log();
-
-        // TODO remove
-        AndnaClass del_x = new AndnaClass();
-        HookingClass del_y = new HookingClass();
 
         // The RPC library will need a tasklet for TCP connections and many
         // tasklets (one per NIC) for UDP connecions.
@@ -144,7 +145,6 @@ namespace Netsukuku
         handlednics = new ArrayList<HandledNic>();
 
         // Init module Neighborhood
-        NeighborhoodManager.init(tasklet);
         node_skeleton = new AddressManagerForNode();
         neighborhood_mgr = new NeighborhoodManager(
             get_identity_skeleton,

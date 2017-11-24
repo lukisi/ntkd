@@ -148,6 +148,8 @@ namespace Netsukuku
         }
     }
 
+    AddressManagerForNode node_skeleton;
+
     IAddressManagerSkeleton?
     get_identity_skeleton(
         NodeID source_id,
