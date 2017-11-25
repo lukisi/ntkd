@@ -41,6 +41,7 @@ namespace Netsukuku
 
     ITasklet tasklet;
     Commander cm;
+    TableNames tn;
     ArrayList<int> gsizes;
     ArrayList<int> g_exp;
     int levels;
@@ -119,6 +120,8 @@ namespace Netsukuku
         // Commander
         cm = Commander.get_singleton();
         cm.start_console_log();
+        // TableNames
+        tn = TableNames.get_singleton(cm);
 
         // The RPC library will need a tasklet for TCP connections and many
         // tasklets (one per NIC) for UDP connecions.

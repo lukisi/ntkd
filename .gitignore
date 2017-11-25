@@ -2,6 +2,7 @@ ntkd.c
 ntkd_rpc.c
 serialize_helpers.c
 commander.c
+table_names.c
 ipv4_compute.c
 neighborhood_helpers.c
 neighborhood_signals.c

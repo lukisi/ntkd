@@ -34,6 +34,7 @@ ntkd_SOURCES =  \
 	ntkd_rpc.vala \
 	serialize_helpers.vala \
 	commander.vala \
+	table_names.vala \
 	ipv4_compute.vala \
 	neighborhood_helpers.vala \
 	neighborhood_signals.vala \
