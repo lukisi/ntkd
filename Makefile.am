@@ -31,6 +31,10 @@ libmacgetter_la_LIBADD = \
 
 ntkd_SOURCES =  \
 	ntkd.vala \
+	configuration.vala \
+	startup.vala \
+	mainloop.vala \
+	cleanup.vala \
 	ntkd_rpc.vala \
 	serialize_helpers.vala \
 	commander.vala \

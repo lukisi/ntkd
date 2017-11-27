@@ -1,4 +1,8 @@
 ntkd.c
+configuration.c
+startup.c
+mainloop.c
+cleanup.c
 ntkd_rpc.c
 serialize_helpers.c
 commander.c
