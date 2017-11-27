@@ -27,11 +27,25 @@ namespace Netsukuku
 {
     void identities_identity_arc_added(IIdmgmtArc arc, NodeID id, IIdmgmtIdentityArc id_arc)
     {
-        warning("unused signal identities_identity_arc_added");
+        IdentityData identity_data = find_or_create_local_identity(id);
+        IdentityArc ia = new IdentityArc(identity_data, arc, id_arc);
+        identity_data.identity_arcs.add(ia);
     }
 
     void identities_identity_arc_changed(IIdmgmtArc arc, NodeID id, IIdmgmtIdentityArc id_arc, bool only_neighbour_migrated)
     {
+        // Retrieve my identity.
+        IdentityData identity_data = find_or_create_local_identity(id);
+        // Retrieve peer_nodeid
+        NodeID peer_nodeid = id_arc.get_peer_nodeid();
+        // Retrieve IdentityArc
+        IdentityArc ia = find_identity_arc(identity_data, arc, peer_nodeid);
+
+        ia.prev_peer_mac = ia.peer_mac;
+        ia.prev_peer_linklocal = ia.peer_linklocal;
+        ia.peer_mac = ia.id_arc.get_peer_mac();
+        ia.peer_linklocal = ia.id_arc.get_peer_linklocal();
+
         if (only_neighbour_migrated)
             warning("unused signal identities_identity_arc_changed(only_neighbour_migrated)");
         else

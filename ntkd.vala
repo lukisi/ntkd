@@ -50,6 +50,37 @@ namespace Netsukuku
     ArrayList<string> real_nics;
     ArrayList<HandledNic> handlednic_list;
     ArrayList<Arc> arc_list;
+    ArrayList<IdentityData> local_identities;
+
+    IdentityData find_or_create_local_identity(NodeID node_id)
+    {
+        foreach (IdentityData k in local_identities)
+        {
+            if (k.nodeid.equals(node_id))
+            {
+                return k;
+            }
+        }
+        IdentityData ret = new IdentityData(node_id);
+        local_identities.add(ret);
+        return ret;
+    }
+
+    void remove_local_identity(NodeID node_id)
+    {
+        local_identities.remove(find_or_create_local_identity(node_id));
+    }
+
+    IdentityArc find_identity_arc(IdentityData identity_data, IIdmgmtArc arc, NodeID peer_nodeid)
+    {
+        foreach (IdentityArc ia in identity_data.identity_arcs)
+        {
+            if (ia.arc == arc)
+             if (ia.id_arc.get_peer_nodeid().equals(peer_nodeid))
+                return ia;
+        }
+        error("IdentityArc not found");
+    }
 
     ServerDelegate dlg;
     ServerErrorHandler err;
@@ -196,6 +227,11 @@ namespace Netsukuku
         identity_mgr.identity_arc_removed.connect(identities_identity_arc_removed);
         identity_mgr.arc_removed.connect(identities_arc_removed);
 
+        // First identity
+        NodeID nodeid = identity_mgr.get_main_id();
+        IdentityData first_identity_data = find_or_create_local_identity(nodeid);
+        first_identity_data.addr_man = new AddressManagerForIdentity();
+
         // TODO continue
 
         // register handlers for SIGINT and SIGTERM to exit
@@ -272,6 +308,65 @@ namespace Netsukuku
     {
         public INeighborhoodArc neighborhood_arc;
         public IdmgmtArc idmgmt_arc;
+    }
+
+    class IdentityData : Object
+    {
+        public IdentityData(NodeID nodeid)
+        {
+            this.nodeid = nodeid;
+            identity_arcs = new ArrayList<IdentityArc>();
+            connectivity_from_level = 0;
+            connectivity_to_level = 0;
+        }
+
+        public NodeID nodeid;
+        public int connectivity_from_level;
+        public int connectivity_to_level;
+        public AddressManagerForIdentity addr_man;
+
+        public ArrayList<IdentityArc> identity_arcs;
+
+        private string _network_namespace;
+        public string network_namespace {
+            get {
+                _network_namespace = identity_mgr.get_namespace(nodeid);
+                return _network_namespace;
+            }
+        }
+
+        public bool main_id {
+            get {
+                return nodeid.equals(identity_mgr.get_main_id());
+            }
+        }
+
+    }
+
+    class IdentityArc : Object
+    {
+        public IIdmgmtArc arc;
+        public NodeID id;
+        public IIdmgmtIdentityArc id_arc;
+        public weak IdentityData identity_data;
+        public string peer_mac;
+        public string peer_linklocal;
+
+        public string? prev_peer_mac;
+        public string? prev_peer_linklocal;
+
+        public IdentityArc(IdentityData identity_data, IIdmgmtArc arc, IIdmgmtIdentityArc id_arc)
+        {
+            this.identity_data = identity_data;
+            this.arc = arc;
+            id = identity_data.nodeid;
+            this.id_arc = id_arc;
+            peer_mac = id_arc.get_peer_mac();
+            peer_linklocal = id_arc.get_peer_linklocal();
+
+            prev_peer_mac = null;
+            prev_peer_linklocal = null;
+        }
     }
 }
 

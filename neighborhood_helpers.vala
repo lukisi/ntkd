@@ -156,7 +156,26 @@ namespace Netsukuku
         NodeID unicast_id,
         string peer_address)
     {
-        error("not implemented yet");
+        foreach (IdentityData local_identity_data in local_identities)
+        {
+            NodeID local_nodeid = local_identity_data.nodeid;
+            if (local_nodeid.equals(unicast_id))
+            {
+                foreach (IdentityArc ia in local_identity_data.identity_arcs)
+                {
+                    IdmgmtArc __arc = (IdmgmtArc)ia.arc;
+                    Arc _arc = __arc.arc;
+                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address)
+                    {
+                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
+                        {
+                            return local_identity_data.addr_man;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     Gee.List<IAddressManagerSkeleton>
@@ -166,6 +185,27 @@ namespace Netsukuku
         string peer_address,
         string dev)
     {
-        error("not implemented yet");
+        ArrayList<IAddressManagerSkeleton> ret = new ArrayList<IAddressManagerSkeleton>();
+        foreach (IdentityData local_identity_data in local_identities)
+        {
+            NodeID local_nodeid = local_identity_data.nodeid;
+            if (local_nodeid in broadcast_set)
+            {
+                foreach (IdentityArc ia in local_identity_data.identity_arcs)
+                {
+                    IdmgmtArc __arc = (IdmgmtArc)ia.arc;
+                    Arc _arc = __arc.arc;
+                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address
+                        && _arc.neighborhood_arc.nic.dev == dev)
+                    {
+                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
+                        {
+                            ret.add(local_identity_data.addr_man);
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
     }
 }

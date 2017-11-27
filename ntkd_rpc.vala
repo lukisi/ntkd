@@ -81,6 +81,13 @@ namespace Netsukuku
 
     class AddressManagerForIdentity : Object, IAddressManagerSkeleton
     {
+        public AddressManagerForIdentity()
+        {
+            qspn_mgr = null;
+        }
+
+        public weak IQspnManagerSkeleton? qspn_mgr;
+
         public unowned INeighborhoodManagerSkeleton
         neighborhood_manager_getter()
         {
@@ -98,7 +105,7 @@ namespace Netsukuku
         public unowned IQspnManagerSkeleton
         qspn_manager_getter()
         {
-            error("not implemented yet");
+            return qspn_mgr;
         }
 
         public unowned IPeersManagerSkeleton
