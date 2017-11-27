@@ -180,6 +180,7 @@ namespace Netsukuku
         real_nics = new ArrayList<string>();
         handlednic_list = new ArrayList<HandledNic>();
         arc_list = new ArrayList<Arc>();
+        local_identities = new ArrayList<IdentityData>();
 
         // Init module Neighborhood
         identity_mgr = null;
