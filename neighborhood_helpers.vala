@@ -163,8 +163,7 @@ namespace Netsukuku
             {
                 foreach (IdentityArc ia in local_identity_data.identity_arcs)
                 {
-                    IdmgmtArc __arc = (IdmgmtArc)ia.arc;
-                    Arc _arc = __arc.arc;
+                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
                     if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address)
                     {
                         if (ia.id_arc.get_peer_nodeid().equals(source_id))
@@ -193,8 +192,7 @@ namespace Netsukuku
             {
                 foreach (IdentityArc ia in local_identity_data.identity_arcs)
                 {
-                    IdmgmtArc __arc = (IdmgmtArc)ia.arc;
-                    Arc _arc = __arc.arc;
+                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
                     if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address
                         && _arc.neighborhood_arc.nic.dev == dev)
                     {

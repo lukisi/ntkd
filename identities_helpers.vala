@@ -120,26 +120,23 @@ namespace Netsukuku
                 TcpclientCallerInfo c = (TcpclientCallerInfo)caller;
                 ISourceID sourceid = c.sourceid;
                 string my_address = c.my_address;
-                foreach (HandledNic n in handlednic_list)
+                foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address)
                 {
                     string dev = n.dev;
-                    if (n.linklocal == my_address)
+                    INeighborhoodArc? neighborhood_arc = neighborhood_mgr.get_node_arc(sourceid, dev);
+                    if (neighborhood_arc == null)
                     {
-                        INeighborhoodArc? neighborhood_arc = neighborhood_mgr.get_node_arc(sourceid, dev);
-                        if (neighborhood_arc == null)
-                        {
-                            // some warning message?
-                            return null;
-                        }
-                        foreach (Arc arc in arc_list)
-                        {
-                            if (arc.neighborhood_arc == neighborhood_arc)
-                            {
-                                return arc.idmgmt_arc;
-                            }
-                        }
-                        error("missing something?");
+                        // some warning message?
+                        return null;
                     }
+                    foreach (IdmgmtArc arc in arc_list)
+                    {
+                        if (arc.neighborhood_arc == neighborhood_arc)
+                        {
+                            return arc;
+                        }
+                    }
+                    error("missing something?");
                 }
                 print(@"got a unknown caller:\n");
                 print(@"  my_address was $(my_address).\n");
@@ -157,7 +154,7 @@ namespace Netsukuku
         {
             IdmgmtArc _arc = (IdmgmtArc)arc;
             IAddressManagerStub addrstub = 
-                neighborhood_mgr.get_stub_whole_node_unicast(_arc.arc.neighborhood_arc);
+                neighborhood_mgr.get_stub_whole_node_unicast(_arc.neighborhood_arc);
             IdentityManagerStubHolder ret = new IdentityManagerStubHolder(addrstub);
             return ret;
         }
@@ -165,25 +162,25 @@ namespace Netsukuku
 
     class IdmgmtArc : Object, IIdmgmtArc
     {
-        public IdmgmtArc(Arc arc)
+        public IdmgmtArc(INeighborhoodArc neighborhood_arc)
         {
-            this.arc = arc;
+            this.neighborhood_arc = neighborhood_arc;
         }
-        public weak Arc arc;
+        public INeighborhoodArc neighborhood_arc;
 
         public string get_dev()
         {
-            return arc.neighborhood_arc.nic.dev;
+            return neighborhood_arc.nic.dev;
         }
 
         public string get_peer_mac()
         {
-            return arc.neighborhood_arc.neighbour_mac;
+            return neighborhood_arc.neighbour_mac;
         }
 
         public string get_peer_linklocal()
         {
-            return arc.neighborhood_arc.neighbour_nic_addr;
+            return neighborhood_arc.neighbour_nic_addr;
         }
     }
 }

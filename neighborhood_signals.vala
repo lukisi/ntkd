@@ -41,32 +41,35 @@ namespace Netsukuku
         handlednic_list.add(n);
     }
 
-    void neighborhood_arc_added(INeighborhoodArc arc)
+    void neighborhood_arc_added(INeighborhoodArc neighborhood_arc)
     {
-        // Add arc to identity_manager
-        Arc _arc = new Arc();
-        _arc.neighborhood_arc = arc;
-        _arc.idmgmt_arc = new IdmgmtArc(_arc);
-        arc_list.add(_arc);
-        identity_mgr.add_arc(_arc.idmgmt_arc);
+        // Add arc to module Identities and to arc_list
+        IdmgmtArc arc = new IdmgmtArc(neighborhood_arc);
+        arc_list.add(arc);
+        identity_mgr.add_arc(arc);
     }
 
-    void neighborhood_arc_changed(INeighborhoodArc arc)
+    void neighborhood_arc_changed(INeighborhoodArc neighborhood_arc)
     {
         // TODO if qspn_arc is present, change cost
     }
 
-    void neighborhood_arc_removing(INeighborhoodArc arc, bool is_still_usable)
+    void neighborhood_arc_removing(INeighborhoodArc neighborhood_arc, bool is_still_usable)
     {
-        // Remove arc from identity_manager
-        Arc? to_del = null;
-        foreach (Arc _a in arc_list) if (_a.neighborhood_arc == arc) {to_del = _a; break;}
+        // Remove arc from module Identities
+        IdmgmtArc? to_del = null;
+        foreach (IdmgmtArc arc in arc_list) if (arc.neighborhood_arc == neighborhood_arc) {to_del = arc; break;}
         if (to_del == null) return;
-        identity_mgr.remove_arc(to_del.idmgmt_arc);
+        identity_mgr.remove_arc(to_del);
     }
 
-    void neighborhood_arc_removed(INeighborhoodArc arc)
+    void neighborhood_arc_removed(INeighborhoodArc neighborhood_arc)
     {
+        // Remove arc from arc_list
+        IdmgmtArc? to_del = null;
+        foreach (IdmgmtArc arc in arc_list) if (arc.neighborhood_arc == neighborhood_arc) {to_del = arc; break;}
+        if (to_del == null) return;
+        arc_list.remove(to_del);
         // TODO ?
     }
 

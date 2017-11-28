@@ -48,7 +48,7 @@ namespace Netsukuku
     NeighborhoodManager? neighborhood_mgr;
     IdentityManager? identity_mgr;
     ArrayList<HandledNic> handlednic_list;
-    ArrayList<Arc> arc_list;
+    ArrayList<IdmgmtArc> arc_list;
     ArrayList<IdentityData> local_identities;
 
     IdentityData find_or_create_local_identity(NodeID node_id)
@@ -136,12 +136,6 @@ namespace Netsukuku
         public string dev;
         public string mac;
         public string linklocal;
-    }
-
-    class Arc : Object
-    {
-        public INeighborhoodArc neighborhood_arc;
-        public IdmgmtArc idmgmt_arc;
     }
 
     class IdentityData : Object

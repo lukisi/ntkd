@@ -70,7 +70,7 @@ namespace Netsukuku
         cm.end_block(bid);
 
         handlednic_list = new ArrayList<HandledNic>();
-        arc_list = new ArrayList<Arc>();
+        arc_list = new ArrayList<IdmgmtArc>();
         local_identities = new ArrayList<IdentityData>();
 
         // Init module Neighborhood
