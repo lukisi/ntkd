@@ -75,6 +75,6 @@ namespace Netsukuku
 
     void neighborhood_nic_address_unset(string my_dev, string my_addr)
     {
-        // TODO remove from handlednics
+        // TODO ?
     }
 }
