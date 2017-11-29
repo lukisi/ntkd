@@ -33,8 +33,10 @@ namespace Netsukuku
             cm.single_command(new ArrayList<string>.wrap({
                 @"ip", @"netns", @"add", @"$(ns)"}));
             cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"netns", @"exec", @"$(ns)",
                 @"sysctl", @"net.ipv4.ip_forward=1"}));
             cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"netns", @"exec", @"$(ns)",
                 @"sysctl", @"net.ipv4.conf.all.rp_filter=0"}));
         }
 
@@ -48,15 +50,19 @@ namespace Netsukuku
                 @"ip", @"link", @"set", @"dev", @"$(pseudo_dev)", @"netns", @"$(ns)"}));
             // disable rp_filter
             cm.single_command(new ArrayList<string>.wrap({
-                @"ip", @"netns", @"exec", @"$(ns)", @"sysctl", @"net.ipv4.conf.$(pseudo_dev).rp_filter=0"}));
+                @"ip", @"netns", @"exec", @"$(ns)",
+                @"sysctl", @"net.ipv4.conf.$(pseudo_dev).rp_filter=0"}));
             // arp policies
             cm.single_command(new ArrayList<string>.wrap({
-                @"ip", @"netns", @"exec", @"$(ns)", @"sysctl", @"net.ipv4.conf.$(pseudo_dev).arp_ignore=1"}));
+                @"ip", @"netns", @"exec", @"$(ns)",
+                @"sysctl", @"net.ipv4.conf.$(pseudo_dev).arp_ignore=1"}));
             cm.single_command(new ArrayList<string>.wrap({
-                @"ip", @"netns", @"exec", @"$(ns)", @"sysctl", @"net.ipv4.conf.$(pseudo_dev).arp_announce=2"}));
+                @"ip", @"netns", @"exec", @"$(ns)",
+                @"sysctl", @"net.ipv4.conf.$(pseudo_dev).arp_announce=2"}));
             // up
             cm.single_command(new ArrayList<string>.wrap({
-                @"ip", @"netns", @"exec", @"$(ns)", @"ip", @"link", @"set", @"dev", @"$(pseudo_dev)", @"up"}));
+                @"ip", @"netns", @"exec", @"$(ns)",
+                @"ip", @"link", @"set", @"dev", @"$(pseudo_dev)", @"up"}));
         }
 
         public void add_address(string ns, string pseudo_dev, string linklocal)
