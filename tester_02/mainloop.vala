@@ -34,7 +34,7 @@ namespace Netsukuku
         Posix.@signal(Posix.SIGINT, safe_exit);
         Posix.@signal(Posix.SIGTERM, safe_exit);
 
-        Tester01Tasklet ts = new Tester01Tasklet();
+        Tester02Tasklet ts = new Tester02Tasklet();
         tasklet.spawn(ts);
 
         // Main loop
@@ -45,7 +45,7 @@ namespace Netsukuku
         }
     }
 
-    class Tester01Tasklet : Object, ITaskletSpawnable
+    class Tester02Tasklet : Object, ITaskletSpawnable
     {
         public void * func()
         {
@@ -54,7 +54,7 @@ namespace Netsukuku
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
 
-            tasklet.ms_wait(1000);
+            tasklet.ms_wait(5000);
             identity_mgr.prepare_add_identity(2, first_identity_data.nodeid);
             tasklet.ms_wait(0);
             NodeID second_nodeid = identity_mgr.add_identity(2, first_identity_data.nodeid);
@@ -62,11 +62,11 @@ namespace Netsukuku
             //  and stored in `second_identity_data.my_identityarcs`.
             IdentityData second_identity_data = find_or_create_local_identity(second_nodeid);
 
-            tasklet.ms_wait(8000);
+            tasklet.ms_wait(5000);
             identity_mgr.remove_identity(first_identity_data.nodeid);
             local_identities.remove(first_identity_data);
 
-            tasklet.ms_wait(5000);
+            tasklet.ms_wait(4000);
             identity_mgr.prepare_add_identity(3, second_identity_data.nodeid);
             tasklet.ms_wait(1000);
             NodeID third_nodeid = identity_mgr.add_identity(3, second_identity_data.nodeid);
