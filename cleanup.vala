@@ -30,6 +30,26 @@ namespace Netsukuku
 {
     void cleanup(ref string ntklocalhost)
     {
+        // Remove connectivity identities and their network namespaces and linklocal addresses.
+        ArrayList<IdentityData> local_identities_copy = new ArrayList<IdentityData>();
+        local_identities_copy.add_all(local_identities);
+        foreach (IdentityData identity_data in local_identities_copy)
+        {
+            if (! identity_data.main_id)
+            {
+                // TODO remove namespace
+                // TODO when needed, remove ntk_from_xxx from rt_tables
+                identity_mgr.remove_identity(identity_data.nodeid);
+                local_identities.remove(identity_data);
+            }
+        }
+
+        // For main identity...
+        assert(local_identities.size == 1);
+        IdentityData identity_data = local_identities[0];
+        assert(identity_data.main_id);
+        // ... TODO send "destroy" message to Qspn module.
+
         // Call stop_monitor_all of NeighborhoodManager.
         neighborhood_mgr.stop_monitor_all();
 
