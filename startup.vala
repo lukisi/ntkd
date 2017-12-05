@@ -34,11 +34,23 @@ namespace Netsukuku
         PthTaskletImplementer.init();
         tasklet = PthTaskletImplementer.get_tasklet_system();
 
-        // Initialize modules that have remotable methods.
+        // Initialize modules that have remotable methods (serializable classes need to be registered).
         NeighborhoodManager.init(tasklet);
+        IdentityManager.init(tasklet);
         // ...
         HookingManager.init(tasklet);
         AndnaManager.init(tasklet);
+
+        // Initialize pseudo-random number generators.
+        uint32 seed_prn = 0;
+        if (devs.size > 0)
+        {
+            string _seed = macgetter.get_mac(devs[0]).up();
+            seed_prn = (uint32)_seed.hash();
+        }
+        PRNGen.init_rngen(null, seed_prn);
+        NeighborhoodManager.init_rngen(null, seed_prn);
+        IdentityManager.init_rngen(null, seed_prn);
 
         // Pass tasklet system to the RPC library (ntkdrpc)
         init_tasklet_system(tasklet);
@@ -83,7 +95,7 @@ namespace Netsukuku
             1000 /*very high max_arcs*/,
             new NeighborhoodStubFactory(),
             new NeighborhoodIPRouteManager(),
-            () => @"169.254.$(Random.int_range(0, 255)).$(Random.int_range(0, 255))");
+            () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
         node_skeleton.neighborhood_mgr = neighborhood_mgr;
         // connect signals
         neighborhood_mgr.nic_address_set.connect(neighborhood_nic_address_set);
@@ -125,11 +137,10 @@ namespace Netsukuku
             if_list_linklocal.add(n.linklocal);
         }
         identity_mgr = new IdentityManager(
-            tasklet,
             if_list_dev, if_list_mac, if_list_linklocal,
             new IdmgmtNetnsManager(),
             new IdmgmtStubFactory(),
-            () => @"169.254.$(Random.int_range(0, 255)).$(Random.int_range(0, 255))");
+            () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
         node_skeleton.identity_mgr = identity_mgr;
         identity_mgr.identity_arc_added.connect(identities_identity_arc_added);
         identity_mgr.identity_arc_changed.connect(identities_identity_arc_changed);

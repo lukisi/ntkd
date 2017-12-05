@@ -33,6 +33,7 @@ libmacgetter_la_LIBADD = \
 
 ntkd_SOURCES =  \
 	ntkd.vala \
+	rngen.vala \
 	configuration.vala \
 	startup.vala \
 	mainloop.vala \
@@ -109,6 +110,7 @@ ntkd_LDADD = \
 
 ntkd_tester_01_SOURCES =  \
 	tester_01/ntkd.vala \
+	tester_01/rngen.vala \
 	tester_01/configuration.vala \
 	tester_01/startup.vala \
 	tester_01/mainloop.vala \
@@ -185,6 +187,7 @@ ntkd_tester_01_LDADD = \
 
 ntkd_tester_02_SOURCES =  \
 	tester_02/ntkd.vala \
+	tester_02/rngen.vala \
 	tester_02/configuration.vala \
 	tester_02/startup.vala \
 	tester_02/mainloop.vala \

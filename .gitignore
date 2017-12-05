@@ -1,4 +1,5 @@
 ntkd.c
+rngen.c
 configuration.c
 startup.c
 mainloop.c
