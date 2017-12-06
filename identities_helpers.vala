@@ -45,6 +45,16 @@ namespace Netsukuku
             assert(ns != "");
             cm.single_command(new ArrayList<string>.wrap({
                 @"ip", @"link", @"add", @"dev", @"$(pseudo_dev)", @"link", @"$(dev)", @"type", @"macvlan"}));
+            // (optional) set pseudo-random MAC
+            string newmac = "4E";
+            for (int i = 0; i < 5; i++)
+            {
+                uint8 b = (uint8)PRNGen.int_range(0, 256);
+                string sb = b.to_string("%02x").up();
+                newmac += @":$(sb)";
+            }
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"link", @"set", @"dev", @"$(pseudo_dev)", @"address", @"$(newmac)"}));
             pseudo_mac = macgetter.get_mac(pseudo_dev).up();
             cm.single_command(new ArrayList<string>.wrap({
                 @"ip", @"link", @"set", @"dev", @"$(pseudo_dev)", @"netns", @"$(ns)"}));
