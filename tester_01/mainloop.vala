@@ -55,9 +55,9 @@ namespace Netsukuku
             assert(first_identity_data.main_id);
 
             tasklet.ms_wait(1000);
-            identity_mgr.prepare_add_identity(2, first_identity_data.nodeid);
+            identity_mgr.prepare_add_identity(1, first_identity_data.nodeid);
             tasklet.ms_wait(0);
-            NodeID second_nodeid = identity_mgr.add_identity(2, first_identity_data.nodeid);
+            NodeID second_nodeid = identity_mgr.add_identity(1, first_identity_data.nodeid);
             // This produced some signal `identity_arc_added`: hence some IdentityArc instances have been created
             //  and stored in `second_identity_data.my_identityarcs`.
             IdentityData second_identity_data = find_or_create_local_identity(second_nodeid);
