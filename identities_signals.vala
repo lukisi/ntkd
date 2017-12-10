@@ -30,6 +30,7 @@ namespace Netsukuku
         IdentityData identity_data = find_or_create_local_identity(id);
         IdentityArc ia = new IdentityArc(identity_data, arc, id_arc);
         identity_data.identity_arcs.add(ia);
+        // TODO pass it to the Hooking module
     }
 
     void identities_identity_arc_changed(IIdmgmtArc arc, NodeID id, IIdmgmtIdentityArc id_arc, bool only_neighbour_migrated)
