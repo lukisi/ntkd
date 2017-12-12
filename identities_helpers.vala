@@ -181,8 +181,11 @@ namespace Netsukuku
         public IdmgmtArc(INeighborhoodArc neighborhood_arc)
         {
             this.neighborhood_arc = neighborhood_arc;
+            id = next_id++;
         }
         public INeighborhoodArc neighborhood_arc;
+        public int id;
+        private static int next_id = 0;
 
         public string get_dev()
         {

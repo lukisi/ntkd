@@ -70,7 +70,19 @@ namespace Netsukuku
         local_identities.remove(find_or_create_local_identity(node_id));
     }
 
-    IdentityArc find_identity_arc(IdentityData identity_data, IIdmgmtArc arc, NodeID peer_nodeid)
+    IdentityArc find_identity_arc(IIdmgmtIdentityArc id_arc)
+    {
+        foreach (IdentityData k in local_identities) foreach (IdentityArc ia in k.identity_arcs)
+        {
+            if (ia.id_arc == id_arc)
+            {
+                return ia;
+            }
+        }
+        error("IdentityArc not found");
+    }
+
+    IdentityArc find_identity_arc_by_peer_nodeid(IdentityData identity_data, IIdmgmtArc arc, NodeID peer_nodeid)
     {
         foreach (IdentityArc ia in identity_data.identity_arcs)
         {

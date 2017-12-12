@@ -51,7 +51,7 @@ namespace Netsukuku
 
     void neighborhood_arc_changed(INeighborhoodArc neighborhood_arc)
     {
-        // TODO if qspn_arc is present, change cost
+        // TODO for each identity, for each id-arc, if qspn_arc is present, change cost
     }
 
     void neighborhood_arc_removing(INeighborhoodArc neighborhood_arc, bool is_still_usable)
