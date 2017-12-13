@@ -48,12 +48,36 @@ namespace Netsukuku
         assert(local_identities.size == 1);
         IdentityData identity_data = local_identities[0];
         assert(identity_data.main_id);
-        // ... TODO send "destroy" message to Qspn module.
+
+        QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(identity_data.nodeid, "qspn");
+        // ... send "destroy" message.
+        qspn_mgr.destroy();
 
         // Call stop_monitor_all of NeighborhoodManager.
         neighborhood_mgr.stop_monitor_all();
 
-        // remove local addresses (global, anon, intern, localhost)
+        // ... disconnect signal handlers of qspn_mgr.
+        qspn_mgr.arc_removed.disconnect(identity_data.arc_removed);
+        qspn_mgr.changed_fp.disconnect(identity_data.changed_fp);
+        qspn_mgr.changed_nodes_inside.disconnect(identity_data.changed_nodes_inside);
+        qspn_mgr.destination_added.disconnect(identity_data.destination_added);
+        qspn_mgr.destination_removed.disconnect(identity_data.destination_removed);
+        qspn_mgr.gnode_splitted.disconnect(identity_data.gnode_splitted);
+        qspn_mgr.path_added.disconnect(identity_data.path_added);
+        qspn_mgr.path_changed.disconnect(identity_data.path_changed);
+        qspn_mgr.path_removed.disconnect(identity_data.path_removed);
+        qspn_mgr.presence_notified.disconnect(identity_data.presence_notified);
+        qspn_mgr.qspn_bootstrap_complete.disconnect(identity_data.qspn_bootstrap_complete);
+        qspn_mgr.remove_identity.disconnect(identity_data.remove_identity);
+        identity_data.qspn_handlers_disabled = true;
+        identity_mgr.unset_identity_module(identity_data.nodeid, "qspn");
+        qspn_mgr.stop_operations();
+        qspn_mgr = null;
+
+        // TODO iproute commands for cleanup main identity
+        // TODO remove local addresses (global, anon, intern)
+
+        // remove local address of localhost
         cm.single_command(new ArrayList<string>.wrap({
             @"ip", @"address", @"del", @"$(ntklocalhost)/32", @"dev", @"lo"}));
 

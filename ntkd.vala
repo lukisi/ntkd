@@ -161,6 +161,8 @@ namespace Netsukuku
         }
 
         public NodeID nodeid;
+        public Naddr my_naddr;
+        public Fingerprint my_fp;
         public int connectivity_from_level;
         public int connectivity_to_level;
         public AddressManagerForIdentity addr_man;
@@ -181,6 +183,81 @@ namespace Netsukuku
             }
         }
 
+        // handle signals from qspn_manager
+
+        public bool qspn_handlers_disabled = false;
+
+        public void arc_removed(IQspnArc arc, string message, bool bad_link)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_arc_removed(this, arc, message, bad_link);
+        }
+
+        public void changed_fp(int l)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_changed_fp(this, l);
+        }
+
+        public void changed_nodes_inside(int l)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_changed_nodes_inside(this, l);
+        }
+
+        public void destination_added(HCoord h)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_destination_added(this, h);
+        }
+
+        public void destination_removed(HCoord h)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_destination_removed(this, h);
+        }
+
+        public void gnode_splitted(IQspnArc a, HCoord d, IQspnFingerprint fp)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_gnode_splitted(this, a, d, fp);
+        }
+
+        public void path_added(IQspnNodePath p)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_path_added(this, p);
+        }
+
+        public void path_changed(IQspnNodePath p)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_path_changed(this, p);
+        }
+
+        public void path_removed(IQspnNodePath p)
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_path_removed(this, p);
+        }
+
+        public void presence_notified()
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_presence_notified(this);
+        }
+
+        public void qspn_bootstrap_complete()
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_qspn_bootstrap_complete(this);
+        }
+
+        public void remove_identity()
+        {
+            if (qspn_handlers_disabled) return;
+            per_identity_qspn_remove_identity(this);
+        }
     }
 
     class IdentityArc : Object
@@ -192,8 +269,15 @@ namespace Netsukuku
         public string peer_mac;
         public string peer_linklocal;
 
+        public QspnArc? qspn_arc;
+        public string? tablename;
+        public int? tid;
+        public bool? rule_added;
         public string? prev_peer_mac;
         public string? prev_peer_linklocal;
+        public string? prev_tablename;
+        public int? prev_tid;
+        public bool? prev_rule_added;
 
         public IdentityArc(IdentityData identity_data, IIdmgmtArc arc, IIdmgmtIdentityArc id_arc)
         {
@@ -204,8 +288,15 @@ namespace Netsukuku
             peer_mac = id_arc.get_peer_mac();
             peer_linklocal = id_arc.get_peer_linklocal();
 
+            qspn_arc = null;
+            tablename = null;
+            tid = null;
+            rule_added = null;
             prev_peer_mac = null;
             prev_peer_linklocal = null;
+            prev_tablename = null;
+            prev_tid = null;
+            prev_rule_added = null;
         }
     }
 }

@@ -152,6 +152,38 @@ namespace Netsukuku
         NodeID nodeid = identity_mgr.get_main_id();
         IdentityData first_identity_data = find_or_create_local_identity(nodeid);
         first_identity_data.addr_man = new AddressManagerForIdentity();
+        Naddr my_naddr = new Naddr(naddr.to_array(), gsizes.to_array());
+        ArrayList<int> elderships = new ArrayList<int>();
+        for (int i = 0; i < gsizes.size; i++) elderships.add(0);
+        Fingerprint my_fp = new Fingerprint(elderships.to_array());
+        first_identity_data.my_naddr = my_naddr;
+        first_identity_data.my_fp = my_fp;
+
+        // TODO iproute commands for startup first identity
+
+        // First qspn manager
+        QspnManager.init(tasklet, max_paths, max_common_hops_ratio, arc_timeout, new ThresholdCalculator());
+        QspnManager qspn_mgr = new QspnManager.create_net(
+            my_naddr,
+            my_fp,
+            new QspnStubFactory(first_identity_data));
+        // soon after creation, connect to signals.
+        qspn_mgr.arc_removed.connect(first_identity_data.arc_removed);
+        qspn_mgr.changed_fp.connect(first_identity_data.changed_fp);
+        qspn_mgr.changed_nodes_inside.connect(first_identity_data.changed_nodes_inside);
+        qspn_mgr.destination_added.connect(first_identity_data.destination_added);
+        qspn_mgr.destination_removed.connect(first_identity_data.destination_removed);
+        qspn_mgr.gnode_splitted.connect(first_identity_data.gnode_splitted);
+        qspn_mgr.path_added.connect(first_identity_data.path_added);
+        qspn_mgr.path_changed.connect(first_identity_data.path_changed);
+        qspn_mgr.path_removed.connect(first_identity_data.path_removed);
+        qspn_mgr.presence_notified.connect(first_identity_data.presence_notified);
+        qspn_mgr.qspn_bootstrap_complete.connect(first_identity_data.qspn_bootstrap_complete);
+        qspn_mgr.remove_identity.connect(first_identity_data.remove_identity);
+
+        identity_mgr.set_identity_module(nodeid, "qspn", qspn_mgr);
+        first_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
+        qspn_mgr = null;
 
         // TODO continue
     }

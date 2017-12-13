@@ -9,10 +9,14 @@ serialize_helpers.c
 commander.c
 table_names.c
 ipv4_compute.c
+naddr.c
+routing_table.c
 neighborhood_helpers.c
 neighborhood_signals.c
 identities_helpers.c
 identities_signals.c
+qspn_helpers.c
+qspn_signals.c
 *.stamp
 *.stamp-t
 Makefile.in

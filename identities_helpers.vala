@@ -169,7 +169,7 @@ namespace Netsukuku
         public IIdentityManagerStub get_stub(IIdmgmtArc arc)
         {
             IdmgmtArc _arc = (IdmgmtArc)arc;
-            IAddressManagerStub addrstub = 
+            IAddressManagerStub addrstub =
                 neighborhood_mgr.get_stub_whole_node_unicast(_arc.neighborhood_arc);
             IdentityManagerStubHolder ret = new IdentityManagerStubHolder(addrstub);
             return ret;

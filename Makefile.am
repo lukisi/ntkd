@@ -43,10 +43,14 @@ ntkd_SOURCES =  \
 	commander.vala \
 	table_names.vala \
 	ipv4_compute.vala \
+	naddr.vala \
+	routing_table.vala \
 	neighborhood_helpers.vala \
 	neighborhood_signals.vala \
 	identities_helpers.vala \
 	identities_signals.vala \
+	qspn_helpers.vala \
+	qspn_signals.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -120,10 +124,14 @@ ntkd_tester_01_SOURCES =  \
 	tester_01/commander.vala \
 	tester_01/table_names.vala \
 	tester_01/ipv4_compute.vala \
+	tester_01/naddr.vala \
+	tester_01/routing_table.vala \
 	tester_01/neighborhood_helpers.vala \
 	tester_01/neighborhood_signals.vala \
 	tester_01/identities_helpers.vala \
 	tester_01/identities_signals.vala \
+	tester_01/qspn_helpers.vala \
+	tester_01/qspn_signals.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -197,10 +205,14 @@ ntkd_tester_02_SOURCES =  \
 	tester_02/commander.vala \
 	tester_02/table_names.vala \
 	tester_02/ipv4_compute.vala \
+	tester_02/naddr.vala \
+	tester_02/routing_table.vala \
 	tester_02/neighborhood_helpers.vala \
 	tester_02/neighborhood_signals.vala \
 	tester_02/identities_helpers.vala \
 	tester_02/identities_signals.vala \
+	tester_02/qspn_helpers.vala \
+	tester_02/qspn_signals.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
