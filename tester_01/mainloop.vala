@@ -58,21 +58,98 @@ namespace Netsukuku
             identity_mgr.prepare_add_identity(1, first_identity_data.nodeid);
             tasklet.ms_wait(0);
             NodeID second_nodeid = identity_mgr.add_identity(1, first_identity_data.nodeid);
-            // This produced some signal `identity_arc_added`: hence some IdentityArc instances have been created
-            //  and stored in `second_identity_data.my_identityarcs`.
             IdentityData second_identity_data = find_or_create_local_identity(second_nodeid);
+
+            second_identity_data.addr_man = new AddressManagerForIdentity();
+            ArrayList<int> naddr = new ArrayList<int>.wrap({0,0,0,0});
+            Naddr my_naddr = new Naddr(naddr.to_array(), gsizes.to_array());
+            ArrayList<int> elderships = new ArrayList<int>.wrap({0,0,0,0});
+            Fingerprint my_fp = new Fingerprint(elderships.to_array());
+            second_identity_data.my_naddr = my_naddr;
+            second_identity_data.my_fp = my_fp;
+
+            // TODO iproute commands for startup second identity
+
+            QspnManager qspn_mgr = new QspnManager.create_net(
+                my_naddr,
+                my_fp,
+                new QspnStubFactory(second_identity_data));
+            // soon after creation, connect to signals.
+            qspn_mgr.arc_removed.connect(second_identity_data.arc_removed);
+            qspn_mgr.changed_fp.connect(second_identity_data.changed_fp);
+            qspn_mgr.changed_nodes_inside.connect(second_identity_data.changed_nodes_inside);
+            qspn_mgr.destination_added.connect(second_identity_data.destination_added);
+            qspn_mgr.destination_removed.connect(second_identity_data.destination_removed);
+            qspn_mgr.gnode_splitted.connect(second_identity_data.gnode_splitted);
+            qspn_mgr.path_added.connect(second_identity_data.path_added);
+            qspn_mgr.path_changed.connect(second_identity_data.path_changed);
+            qspn_mgr.path_removed.connect(second_identity_data.path_removed);
+            qspn_mgr.presence_notified.connect(second_identity_data.presence_notified);
+            qspn_mgr.qspn_bootstrap_complete.connect(second_identity_data.qspn_bootstrap_complete);
+            qspn_mgr.remove_identity.connect(second_identity_data.remove_identity);
+
+            identity_mgr.set_identity_module(second_nodeid, "qspn", qspn_mgr);
+            second_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
+            qspn_mgr = null;
 
             tasklet.ms_wait(8000);
             identity_mgr.remove_identity(first_identity_data.nodeid);
             local_identities.remove(first_identity_data);
 
+/*
             tasklet.ms_wait(5000);
             identity_mgr.prepare_add_identity(3, second_identity_data.nodeid);
             tasklet.ms_wait(1000);
             NodeID third_nodeid = identity_mgr.add_identity(3, second_identity_data.nodeid);
-            // This produced some signal `identity_arc_added`: hence some IdentityArc instances have been created
-            //  and stored in `third_identity_data.my_identityarcs`.
             IdentityData third_identity_data = find_or_create_local_identity(third_nodeid);
+
+            third_identity_data.addr_man = new AddressManagerForIdentity();
+            naddr = new ArrayList<int>.wrap({0,1,0,0});
+            my_naddr = new Naddr(naddr.to_array(), gsizes.to_array());
+            ArrayList<int> elderships = new ArrayList<int>.wrap({0,1,0,0});
+            my_fp = new Fingerprint(elderships.to_array());
+            third_identity_data.my_naddr = my_naddr;
+            third_identity_data.my_fp = my_fp;
+
+            // TODO iproute commands for startup third identity
+
+            qspn_mgr = new QspnManager.enter_net(
+                my_naddr,
+                my_fp,
+                new QspnStubFactory(third_identity_data));
+
+            public QspnManager.enter_net(
+                           Gee.List<IQspnArc> internal_arc_set,
+                           Gee.List<IQspnArc> internal_arc_prev_arc_set,
+                           Gee.List<IQspnNaddr> internal_arc_peer_naddr_set,
+                           Gee.List<IQspnArc> external_arc_set,
+                           IQspnMyNaddr my_naddr,
+                           IQspnFingerprint my_fingerprint,
+                           ChangeFingerprintDelegate update_internal_fingerprints,
+                           IQspnStubFactory stub_factory,
+                           int hooking_gnode_level,
+                           int into_gnode_level,
+                           QspnManager previous_identity
+                           )
+
+            // soon after creation, connect to signals.
+            qspn_mgr.arc_removed.connect(third_identity_data.arc_removed);
+            qspn_mgr.changed_fp.connect(third_identity_data.changed_fp);
+            qspn_mgr.changed_nodes_inside.connect(third_identity_data.changed_nodes_inside);
+            qspn_mgr.destination_added.connect(third_identity_data.destination_added);
+            qspn_mgr.destination_removed.connect(third_identity_data.destination_removed);
+            qspn_mgr.gnode_splitted.connect(third_identity_data.gnode_splitted);
+            qspn_mgr.path_added.connect(third_identity_data.path_added);
+            qspn_mgr.path_changed.connect(third_identity_data.path_changed);
+            qspn_mgr.path_removed.connect(third_identity_data.path_removed);
+            qspn_mgr.presence_notified.connect(third_identity_data.presence_notified);
+            qspn_mgr.qspn_bootstrap_complete.connect(third_identity_data.qspn_bootstrap_complete);
+            qspn_mgr.remove_identity.connect(third_identity_data.remove_identity);
+
+            identity_mgr.set_identity_module(third_nodeid, "qspn", qspn_mgr);
+            third_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
+            qspn_mgr = null;
+*/
 
             return null;
         }

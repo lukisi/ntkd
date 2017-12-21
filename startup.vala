@@ -154,7 +154,7 @@ namespace Netsukuku
         first_identity_data.addr_man = new AddressManagerForIdentity();
         Naddr my_naddr = new Naddr(naddr.to_array(), gsizes.to_array());
         ArrayList<int> elderships = new ArrayList<int>();
-        for (int i = 0; i < gsizes.size; i++) elderships.add(0);
+        for (int i = 0; i < levels; i++) elderships.add(0);
         Fingerprint my_fp = new Fingerprint(elderships.to_array());
         first_identity_data.my_naddr = my_naddr;
         first_identity_data.my_fp = my_fp;

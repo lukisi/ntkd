@@ -158,6 +158,7 @@ namespace Netsukuku
             identity_arcs = new ArrayList<IdentityArc>();
             connectivity_from_level = 0;
             connectivity_to_level = 0;
+            copy_of_identity = null;
         }
 
         public NodeID nodeid;
@@ -165,6 +166,7 @@ namespace Netsukuku
         public Fingerprint my_fp;
         public int connectivity_from_level;
         public int connectivity_to_level;
+        public IdentityData? copy_of_identity;
         public AddressManagerForIdentity addr_man;
 
         public ArrayList<IdentityArc> identity_arcs;

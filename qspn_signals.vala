@@ -72,7 +72,7 @@ namespace Netsukuku
 
     void per_identity_qspn_presence_notified(IdentityData id)
     {
-        error("per_identity_qspn_presence_notified: not implemented yet");
+        warning("per_identity_qspn_presence_notified: not implemented yet");
     }
 
     void per_identity_qspn_qspn_bootstrap_complete(IdentityData id)

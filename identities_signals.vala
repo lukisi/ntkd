@@ -61,6 +61,22 @@ namespace Netsukuku
         if (only_neighbour_migrated) print(@" only_neighbour_migrated.\n");
         print(@" prev_peer_linklocal = $(ia.prev_peer_linklocal).");
         print(@" peer_linklocal = $(ia.peer_linklocal).\n");
+
+        // This signal might happen when the module Identities of this system is doing `add_identity` on
+        //  this very identity (identity_data).
+        //  In this case the program does some further operations on its own (see user_commands.vala).
+        //  But this might also happen when only our neighbour is doing `add_identity`.
+        if (only_neighbour_migrated)
+        {
+            // TODO In this case we must do some work if we have a qspn_arc on this identity_arc.
+
+            // After that, we need no more to keep old values.
+            ia.prev_peer_mac = null;
+            ia.prev_peer_linklocal = null;
+            ia.prev_tablename = null;
+            ia.prev_tid = null;
+            ia.prev_rule_added = null;
+        }
     }
 
     void identities_identity_arc_removing(IIdmgmtArc arc, NodeID id, NodeID peer_nodeid)
