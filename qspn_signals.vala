@@ -27,27 +27,27 @@ namespace Netsukuku
 {
     void per_identity_qspn_arc_removed(IdentityData id, IQspnArc arc, string message, bool bad_link)
     {
-        error("per_identity_qspn_arc_removed: not implemented yet");
+        warning("per_identity_qspn_arc_removed: not implemented yet");
     }
 
     void per_identity_qspn_changed_fp(IdentityData id, int l)
     {
-        error("per_identity_qspn_changed_fp: not implemented yet");
+        warning("per_identity_qspn_changed_fp: not implemented yet");
     }
 
     void per_identity_qspn_changed_nodes_inside(IdentityData id, int l)
     {
-        error("per_identity_qspn_changed_nodes_inside: not implemented yet");
+        warning("per_identity_qspn_changed_nodes_inside: not implemented yet");
     }
 
     void per_identity_qspn_destination_added(IdentityData id, HCoord h)
     {
-        error("per_identity_qspn_destination_added: not implemented yet");
+        warning("per_identity_qspn_destination_added: not implemented yet");
     }
 
     void per_identity_qspn_destination_removed(IdentityData id, HCoord h)
     {
-        error("per_identity_qspn_destination_removed: not implemented yet");
+        warning("per_identity_qspn_destination_removed: not implemented yet");
     }
 
     void per_identity_qspn_gnode_splitted(IdentityData id, IQspnArc a, HCoord d, IQspnFingerprint fp)
@@ -57,17 +57,17 @@ namespace Netsukuku
 
     void per_identity_qspn_path_added(IdentityData id, IQspnNodePath p)
     {
-        error("per_identity_qspn_path_added: not implemented yet");
+        warning("per_identity_qspn_path_added: not implemented yet");
     }
 
     void per_identity_qspn_path_changed(IdentityData id, IQspnNodePath p)
     {
-        error("per_identity_qspn_path_changed: not implemented yet");
+        warning("per_identity_qspn_path_changed: not implemented yet");
     }
 
     void per_identity_qspn_path_removed(IdentityData id, IQspnNodePath p)
     {
-        error("per_identity_qspn_path_removed: not implemented yet");
+        warning("per_identity_qspn_path_removed: not implemented yet");
     }
 
     void per_identity_qspn_presence_notified(IdentityData id)

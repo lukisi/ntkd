@@ -92,7 +92,35 @@ namespace Netsukuku
             second_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
             qspn_mgr = null;
 
-            tasklet.ms_wait(8000);
+            tasklet.ms_wait(5000);
+            // an id-arc has been added to second_id with peer_id 992832884 and it needs an qspn_arc.
+            assert(second_identity_data.identity_arcs.size == 2);
+            bool found = false;
+            IdentityArc? id_arc = null;
+            foreach (IdentityArc w0 in second_identity_data.identity_arcs)
+            {
+                if (w0.id_arc.get_peer_nodeid().id == 992832884)
+                {
+                    assert(!found);
+                    found = true;
+                    id_arc = w0;
+                }
+            }
+            assert(found);
+            {
+                qspn_mgr = (QspnManager)identity_mgr.get_identity_module(second_identity_data.nodeid, "qspn");
+
+                NodeID destid = id_arc.id_arc.get_peer_nodeid();
+                NodeID sourceid = id_arc.id; // == new_id
+                id_arc.qspn_arc = new QspnArc(sourceid, destid, id_arc, id_arc.peer_mac);
+                // tn.get_table(null, id_arc.peer_mac, out id_arc.tid, out id_arc.tablename);
+                // id_arc.rule_added = false;
+                qspn_mgr.arc_add(id_arc.qspn_arc);
+
+                qspn_mgr = null;
+            }
+
+            tasklet.ms_wait(3000);
             identity_mgr.remove_identity(first_identity_data.nodeid);
             local_identities.remove(first_identity_data);
 
