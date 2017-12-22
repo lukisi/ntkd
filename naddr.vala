@@ -58,6 +58,7 @@ namespace Netsukuku
             }
             return virtual_up_to;
         }
+        */
 
         public bool is_real_from_to(int from, int to)
         {
@@ -65,7 +66,6 @@ namespace Netsukuku
                 if (pos[i] >= sizes[i]) return false;
             return true;
         }
-        */
 
         public bool deserialize_property
         (string property_name,

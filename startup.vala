@@ -159,7 +159,52 @@ namespace Netsukuku
         first_identity_data.my_naddr = my_naddr;
         first_identity_data.my_fp = my_fp;
 
-        // TODO iproute commands for startup first identity
+        // iproute commands for startup first identity
+        cm.single_command(new ArrayList<string>.wrap({
+            @"ip", @"rule", @"add", @"table", @"ntk"}));
+
+        compute_local_ip_set(first_identity_data.local_ip_set, my_naddr);
+        foreach (HandledNic n in handlednic_list)
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"address", @"add", @"$(first_identity_data.local_ip_set.global)", @"dev", @"$(n.dev)"}));
+        if (accept_anonymous_requests)
+        {
+            foreach (HandledNic n in handlednic_list)
+                cm.single_command(new ArrayList<string>.wrap({
+                    @"ip", @"address", @"add", @"$(first_identity_data.local_ip_set.anonymous)", @"dev", @"$(n.dev)"}));
+        }
+        for (int i = levels-1; i >= 1; i--)
+        {
+            foreach (HandledNic n in handlednic_list)
+                cm.single_command(new ArrayList<string>.wrap({
+                    @"ip", @"address", @"add", @"$(first_identity_data.local_ip_set.intern[i])", @"dev", @"$(n.dev)"}));
+        }
+
+        bid = cm.begin_block();
+        compute_destination_ip_set(first_identity_data.destination_ip_set, my_naddr);
+        for (int i = levels-1; i >= subnetlevel; i--)
+         for (int j = 0; j < gsizes[i]; j++)
+        {
+            if (first_identity_data.destination_ip_set[i][j].global != "")
+            {
+                string ipaddr = first_identity_data.destination_ip_set[i][j].global;
+                cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+                    @"ip", @"route", @"add", @"unreachable", @"$(ipaddr)", @"table", @"ntk"}));
+                ipaddr = first_identity_data.destination_ip_set[i][j].anonymous;
+                cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+                    @"ip", @"route", @"add", @"unreachable", @"$(ipaddr)", @"table", @"ntk"}));
+            }
+            for (int k = levels-1; k >= i+1; k--)
+            {
+                if (first_identity_data.destination_ip_set[i][j].intern[k] != "")
+                {
+                    string ipaddr = first_identity_data.destination_ip_set[i][j].intern[k];
+                    cm.single_command_in_block(bid, new ArrayList<string>.wrap({
+                        @"ip", @"route", @"add", @"unreachable", @"$(ipaddr)", @"table", @"ntk"}));
+                }
+            }
+        }
+        cm.end_block(bid);
 
         // First qspn manager
         QspnManager.init(tasklet, max_paths, max_common_hops_ratio, arc_timeout, new ThresholdCalculator());
