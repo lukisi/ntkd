@@ -87,5 +87,39 @@ namespace Netsukuku
         public string gw;
         public string dev;
     }
+
+    IQspnNodePath? best_path(QspnManager qspn_mgr, HCoord hc)
+    {
+        // Retrieve all routes towards `hc`.
+        try {
+            Gee.List<IQspnNodePath> paths = qspn_mgr.get_paths_to(hc);
+            return paths[0];
+        } catch (QspnBootstrapInProgressError e) {
+            return null;
+        }
+    }
+
+    IQspnNodePath? best_path_forward(QspnManager qspn_mgr, HCoord hc, HCoord prev_hc)
+    {
+        // Retrieve all routes towards `hc`.
+        Gee.List<IQspnNodePath> paths;
+        try {
+            paths = qspn_mgr.get_paths_to(hc);
+        } catch (QspnBootstrapInProgressError e) {
+            return null;
+        }
+
+        foreach (IQspnNodePath path in paths)
+        {
+            // path contains prev_hc?
+            bool found = false;
+            foreach (IQspnHop path_h in path.i_qspn_get_hops())
+                if (path_h.i_qspn_get_hcoord().equals(prev_hc))
+                found = true;
+            if (found) continue;
+            return path;
+        }
+        return null;
+    }
 }
 
