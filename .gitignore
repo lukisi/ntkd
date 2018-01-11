@@ -9,6 +9,7 @@ serialize_helpers.c
 commander.c
 table_names.c
 ipv4_compute.c
+identity_ip_compute.c
 naddr.c
 routing_table.c
 neighborhood_helpers.c

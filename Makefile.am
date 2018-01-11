@@ -43,6 +43,7 @@ ntkd_SOURCES =  \
 	commander.vala \
 	table_names.vala \
 	ipv4_compute.vala \
+	identity_ip_compute.vala \
 	naddr.vala \
 	routing_table.vala \
 	neighborhood_helpers.vala \
@@ -124,6 +125,7 @@ ntkd_tester_01_SOURCES =  \
 	tester_01/commander.vala \
 	tester_01/table_names.vala \
 	tester_01/ipv4_compute.vala \
+	tester_01/identity_ip_compute.vala \
 	tester_01/naddr.vala \
 	tester_01/routing_table.vala \
 	tester_01/neighborhood_helpers.vala \
@@ -205,6 +207,7 @@ ntkd_tester_02_SOURCES =  \
 	tester_02/commander.vala \
 	tester_02/table_names.vala \
 	tester_02/ipv4_compute.vala \
+	tester_02/identity_ip_compute.vala \
 	tester_02/naddr.vala \
 	tester_02/routing_table.vala \
 	tester_02/neighborhood_helpers.vala \
