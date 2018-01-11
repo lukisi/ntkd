@@ -193,4 +193,66 @@ namespace Netsukuku
         string ret = @"10.$(i2).$(i1).$(i0)/$(prefix)";
         return ret;
     }
+
+    string ip_anonymizing_range()
+    {
+        // Fake n_addr
+        Gee.List<int> n_addr = new ArrayList<int>();
+        for (int i = 0; i < levels; i++) n_addr.add(0);
+        // Range of addresses anonymizing which comprises all the nodes of the whole network.
+        //  It does not depend on n_addr.
+        return ip_anonymizing_gnode(n_addr, levels);
+    }
+
+    string ip_netmap_range1()
+    {
+        // Fake n_addr
+        Gee.List<int> n_addr = new ArrayList<int>();
+        for (int i = 0; i < levels; i++) n_addr.add(0);
+        // Range of addresses internal to a g-node of level "subnetlevel" which comprises all the nodes
+        //  in our g-node of level "subnetlevel". It does not depend on n_addr.
+        return ip_internal_gnode(n_addr, subnetlevel, subnetlevel);
+    }
+
+    string ip_netmap_range2(Gee.List<int> n_addr, int inside_level)
+    {
+        // Range of addresses internal to a g-node of level "inside_level+1" which comprises all the nodes
+        //  in our g-node of level "subnetlevel". It does depend on n_addr positions at
+        //  levels from "subnetlevel" to "inside_level".
+        return ip_internal_gnode(n_addr, subnetlevel, inside_level+1);
+    }
+
+    string ip_netmap_range3(int inside_level)
+    {
+        // Fake n_addr
+        Gee.List<int> n_addr = new ArrayList<int>();
+        // Range of addresses internal to a g-node of level "inside_level+1" which comprises all the nodes
+        //  in our g-node of level "inside_level+1". It does not depend on n_addr.
+        return ip_internal_gnode(n_addr, inside_level+1, inside_level+1);
+    }
+
+    string ip_netmap_range2_upper(Gee.List<int> n_addr)
+    {
+        // Range of addresses global which comprises all the nodes
+        //  in our g-node of level "subnetlevel". It does depend on n_addr positions at
+        //  levels from "subnetlevel" to "levels-1".
+        return ip_global_gnode(n_addr, subnetlevel);
+    }
+
+    string ip_netmap_range3_upper()
+    {
+        // Fake n_addr
+        Gee.List<int> n_addr = new ArrayList<int>();
+        // Range of addresses global which comprises all the nodes of the whole network.
+        //  It does not depend on n_addr.
+        return ip_global_gnode(n_addr, levels);
+    }
+
+    string ip_netmap_range4(Gee.List<int> n_addr)
+    {
+        // Range of addresses anonymizing which comprises all the nodes
+        //  in our g-node of level "subnetlevel". It does depend on n_addr positions at
+        //  levels from "subnetlevel" to "levels-1".
+        return ip_anonymizing_gnode(n_addr, subnetlevel);
+    }
 }
