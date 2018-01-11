@@ -176,7 +176,7 @@ namespace Netsukuku
         public ArrayList<IdentityArc> identity_arcs;
 
         public LocalIPSet local_ip_set;
-        public HashMap<int,HashMap<int,DestinationIPSet>> destination_ip_set;
+        public DestinationIPSet dest_ip_set;
 
         private string _network_namespace;
         public string network_namespace {
@@ -312,127 +312,78 @@ namespace Netsukuku
     class LocalIPSet : Object
     {
         public string global;
-        public string anonymous;
+        public string anonymizing;
         public HashMap<int,string> intern;
-    }
+        public string anonymizing_range;
+        public string netmap_range1;
+        public HashMap<int,string> netmap_range2;
+        public HashMap<int,string> netmap_range3;
+        public string netmap_range2_upper;
+        public string netmap_range3_upper;
+        public string netmap_range4;
 
-    LocalIPSet init_local_ip_set()
-    {
-        LocalIPSet local_ip_set = new LocalIPSet();
-        local_ip_set.global = "";
-        local_ip_set.anonymous = "";
-        local_ip_set.intern = new HashMap<int,string>();
-        for (int j = 1; j < levels; j++) local_ip_set.intern[j] = "";
-        return local_ip_set;
-    }
-
-    LocalIPSet copy_local_ip_set(LocalIPSet orig)
-    {
-        LocalIPSet ret = new LocalIPSet();
-        ret.global = orig.global;
-        ret.anonymous = orig.anonymous;
-        ret.intern = new HashMap<int,string>();
-        for (int k = 1; k < levels; k++)
-            ret.intern[k] = orig.intern[k];
-        return ret;
-    }
-
-    void compute_local_ip_set(LocalIPSet local_ip_set, Naddr my_naddr)
-    {
-        if (my_naddr.is_real_from_to(0, levels-1))
+        public LocalIPSet()
         {
-            local_ip_set.global = ip_global_node(my_naddr.pos);
-            local_ip_set.anonymous = ip_anonymizing_node(my_naddr.pos);
+            intern = new HashMap<int,string>();
+            netmap_range2 = new HashMap<int,string>();
+            netmap_range3 = new HashMap<int,string>();
         }
-        else
+
+        public LocalIPSet copy()
         {
-            local_ip_set.global = "";
-            local_ip_set.anonymous = "";
+            LocalIPSet ret = new LocalIPSet();
+            ret.global = this.global;
+            ret.anonymizing = this.anonymizing;
+            foreach (int k in this.intern.keys) ret.intern[k] = this.intern[k];
+            ret.anonymizing_range = this.anonymizing_range;
+            ret.netmap_range1 = this.netmap_range1;
+            foreach (int k in this.netmap_range2.keys) ret.netmap_range2[k] = this.netmap_range2[k];
+            foreach (int k in this.netmap_range3.keys) ret.netmap_range3[k] = this.netmap_range3[k];
+            ret.netmap_range2_upper = this.netmap_range2_upper;
+            ret.netmap_range3_upper = this.netmap_range3_upper;
+            ret.netmap_range4 = this.netmap_range4;
+            return ret;
         }
-        for (int i = levels-1; i >= 1; i--)
+    }
+
+    class DestinationIPSetGnode : Object
+    {
+        public string global;
+        public string anonymizing;
+        public HashMap<int,string> intern;
+
+        public DestinationIPSetGnode()
         {
-            if (my_naddr.is_real_from_to(0, i-1))
-                local_ip_set.intern[i] = ip_internal_node(my_naddr.pos, i);
-            else
-                local_ip_set.intern[i] = "";
+            intern = new HashMap<int,string>();
+        }
+
+        public DestinationIPSetGnode copy()
+        {
+            DestinationIPSetGnode ret = new DestinationIPSetGnode();
+            ret.global = this.global;
+            ret.anonymizing = this.anonymizing;
+            foreach (int k in this.intern.keys) ret.intern[k] = this.intern[k];
+            return ret;
         }
     }
 
     class DestinationIPSet : Object
     {
-        public string global;
-        public string anonymous;
-        public HashMap<int,string> intern;
-    }
+        public HashMap<HCoord,DestinationIPSetGnode> gnode;
 
-    HashMap<int,HashMap<int,DestinationIPSet>> init_destination_ip_set()
-    {
-        HashMap<int,HashMap<int,DestinationIPSet>> ret;
-        ret = new HashMap<int,HashMap<int,DestinationIPSet>>();
-        for (int i = subnetlevel; i < levels; i++)
+        public DestinationIPSet()
         {
-            ret[i] = new HashMap<int,DestinationIPSet>();
-            for (int j = 0; j < gsizes[i]; j++)
-            {
-                ret[i][j] = new DestinationIPSet();
-                ret[i][j].global = "";
-                ret[i][j].anonymous = "";
-                ret[i][j].intern = new HashMap<int,string>();
-                for (int k = i + 1; k < levels; k++) ret[i][j].intern[k] = "";
-            }
+            gnode = new HashMap<HCoord,DestinationIPSetGnode>(null, (a, b) => a.equals(b));
         }
-        return ret;
-    }
 
-    HashMap<int,HashMap<int,DestinationIPSet>> copy_destination_ip_set(HashMap<int,HashMap<int,DestinationIPSet>> orig)
-    {
-        HashMap<int,HashMap<int,DestinationIPSet>> ret;
-        ret = new HashMap<int,HashMap<int,DestinationIPSet>>();
-        for (int i = subnetlevel; i < levels; i++)
+        public DestinationIPSet copy()
         {
-            ret[i] = new HashMap<int,DestinationIPSet>();
-            for (int j = 0; j < gsizes[i]; j++)
+            DestinationIPSet ret = new DestinationIPSet();
+            foreach (HCoord hc in gnode.keys)
             {
-                ret[i][j] = new DestinationIPSet();
-                ret[i][j].global = orig[i][j].global;
-                ret[i][j].anonymous = orig[i][j].anonymous;
-                ret[i][j].intern = new HashMap<int,string>();
-                for (int k = i + 1; k < levels; k++)
-                    ret[i][j].intern[k] = orig[i][j].intern[k];
+                ret.gnode[hc] = gnode[hc].copy();
             }
-        }
-        return ret;
-    }
-
-    void compute_destination_ip_set(HashMap<int,HashMap<int,DestinationIPSet>> destination_ip_set, Naddr my_naddr)
-    {
-        for (int i = subnetlevel; i < levels; i++)
-         for (int j = 0; j < gsizes[i]; j++)
-        {
-            ArrayList<int> naddr = new ArrayList<int>();
-            naddr.add_all(my_naddr.pos);
-            naddr[i] = j;
-            if (my_naddr.is_real_from_to(i+1, levels-1) && my_naddr.pos[i] != j)
-            {
-                destination_ip_set[i][j].global = ip_global_gnode(naddr, i);
-                destination_ip_set[i][j].anonymous = ip_anonymizing_gnode(naddr, i);
-            }
-            else
-            {
-                destination_ip_set[i][j].global = "";
-                destination_ip_set[i][j].anonymous = "";
-            }
-            for (int k = i + 1; k < levels; k++)
-            {
-                if (my_naddr.is_real_from_to(i+1, k-1) && my_naddr.pos[i] != j)
-                {
-                    destination_ip_set[i][j].intern[k] = ip_internal_gnode(naddr, i, k);
-                }
-                else
-                {
-                    destination_ip_set[i][j].intern[k] = "";
-                }
-            }
+            return ret;
         }
     }
 }

@@ -17,9 +17,57 @@
  */
 
 using Gee;
+using Netsukuku;
 
-namespace Netsukuku
+namespace Netsukuku.IpCommands
 {
-    
-}
+    void main_start(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
 
+    void main_dup(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void gone_connectivity(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void connectivity_dup(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void new_arc(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void map_update(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void changed_arc(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void removed_arc(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void connectivity_stop(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+
+    void main_stop(IdentityData id)
+    {
+        warning("not implemented yet");
+    }
+}
