@@ -159,10 +159,8 @@ namespace Netsukuku
             connectivity_from_level = 0;
             connectivity_to_level = 0;
             copy_of_identity = null;
-
-            local_ip_set = init_local_ip_set();
-
-            destination_ip_set = init_destination_ip_set();
+            local_ip_set = null;
+            dest_ip_set = null;
         }
 
         public NodeID nodeid;
@@ -175,8 +173,8 @@ namespace Netsukuku
 
         public ArrayList<IdentityArc> identity_arcs;
 
-        public LocalIPSet local_ip_set;
-        public DestinationIPSet dest_ip_set;
+        public LocalIPSet? local_ip_set;
+        public DestinationIPSet? dest_ip_set;
 
         private string _network_namespace;
         public string network_namespace {

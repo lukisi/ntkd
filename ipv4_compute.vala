@@ -70,11 +70,15 @@ namespace Netsukuku
         return ret;
     }
 
-    string ip_global_gnode(Gee.List<int> n_addr, int n_level)
+    string ip_global_gnode(Gee.List<int> hc_addr)
     {
         // 1·2·3·* in public-range
         // Used to set a route to a destination.
-        assert(n_addr.size == levels);
+        assert(hc_addr.size <= levels);
+        Gee.List<int> n_addr = new ArrayList<int>();
+        int n_level = levels - hc_addr.size;
+        for (int i = 0; i < n_level; i++) n_addr.add(0);
+        n_addr.add_all(hc_addr);
         for (int l = n_level; l < levels; l++)
         {
             assert(n_addr[l] < gsizes[l]);
@@ -100,11 +104,15 @@ namespace Netsukuku
         return ret;
     }
 
-    string ip_anonymizing_gnode(Gee.List<int> n_addr, int n_level)
+    string ip_anonymizing_gnode(Gee.List<int> hc_addr)
     {
         // 1·2·3·* in anon-range
         // Used to set a route to a destination.
-        assert(n_addr.size == levels);
+        assert(hc_addr.size <= levels);
+        Gee.List<int> n_addr = new ArrayList<int>();
+        int n_level = levels - hc_addr.size;
+        for (int i = 0; i < n_level; i++) n_addr.add(0);
+        n_addr.add_all(hc_addr);
         for (int l = n_level; l < levels; l++)
         {
             assert(n_addr[l] < gsizes[l]);
@@ -159,11 +167,15 @@ namespace Netsukuku
         return ret;
     }
 
-    string ip_internal_gnode(Gee.List<int> n_addr, int n_level, int inside_level)
+    string ip_internal_gnode(Gee.List<int> hc_addr, int inside_level)
     {
         // *·3·* in public-range
         // Used to set a route to a destination.
-        assert(n_addr.size == levels);
+        assert(hc_addr.size <= levels);
+        Gee.List<int> n_addr = new ArrayList<int>();
+        int n_level = levels - hc_addr.size;
+        for (int i = 0; i < n_level; i++) n_addr.add(0);
+        n_addr.add_all(hc_addr);
         for (int l = n_level; l < inside_level; l++)
         {
             assert(n_addr[l] < gsizes[l]);
@@ -196,63 +208,69 @@ namespace Netsukuku
 
     string ip_anonymizing_range()
     {
-        // Fake n_addr
-        Gee.List<int> n_addr = new ArrayList<int>();
-        for (int i = 0; i < levels; i++) n_addr.add(0);
+        // Fake hc_addr of 0 positions (that is level `levels`)
+        Gee.List<int> hc_addr = new ArrayList<int>();
         // Range of addresses anonymizing which comprises all the nodes of the whole network.
         //  It does not depend on n_addr.
-        return ip_anonymizing_gnode(n_addr, levels);
+        return ip_anonymizing_gnode(hc_addr);
     }
 
     string ip_netmap_range1()
     {
-        // Fake n_addr
-        Gee.List<int> n_addr = new ArrayList<int>();
-        for (int i = 0; i < levels; i++) n_addr.add(0);
+        // Fake hc_addr of levels-subnetlevel positions (that is level `subnetlevel`)
+        Gee.List<int> hc_addr = new ArrayList<int>();
+        for (int i = subnetlevel; i < levels; i++) hc_addr.add(0);
         // Range of addresses internal to a g-node of level "subnetlevel" which comprises all the nodes
         //  in our g-node of level "subnetlevel". It does not depend on n_addr.
-        return ip_internal_gnode(n_addr, subnetlevel, subnetlevel);
+        return ip_internal_gnode(hc_addr, subnetlevel);
     }
 
     string ip_netmap_range2(Gee.List<int> n_addr, int inside_level)
     {
+        // An hc_addr for our position at level `subnetlevel`
+        Gee.List<int> hc_addr = n_addr.slice(subnetlevel, n_addr.size);
         // Range of addresses internal to a g-node of level "inside_level+1" which comprises all the nodes
         //  in our g-node of level "subnetlevel". It does depend on n_addr positions at
         //  levels from "subnetlevel" to "inside_level".
-        return ip_internal_gnode(n_addr, subnetlevel, inside_level+1);
+        return ip_internal_gnode(hc_addr, inside_level+1);
     }
 
     string ip_netmap_range3(int inside_level)
     {
-        // Fake n_addr
-        Gee.List<int> n_addr = new ArrayList<int>();
+        // Fake hc_addr of levels-(inside_level+1) positions (that is level `inside_level+1`)
+        Gee.List<int> hc_addr = new ArrayList<int>();
+        for (int i = inside_level+1; i < levels; i++) hc_addr.add(0);
         // Range of addresses internal to a g-node of level "inside_level+1" which comprises all the nodes
         //  in our g-node of level "inside_level+1". It does not depend on n_addr.
-        return ip_internal_gnode(n_addr, inside_level+1, inside_level+1);
+        return ip_internal_gnode(hc_addr, inside_level+1);
     }
 
     string ip_netmap_range2_upper(Gee.List<int> n_addr)
     {
+        // An hc_addr for our position at level `subnetlevel`
+        Gee.List<int> hc_addr = n_addr.slice(subnetlevel, n_addr.size);
         // Range of addresses global which comprises all the nodes
         //  in our g-node of level "subnetlevel". It does depend on n_addr positions at
         //  levels from "subnetlevel" to "levels-1".
-        return ip_global_gnode(n_addr, subnetlevel);
+        return ip_global_gnode(hc_addr);
     }
 
     string ip_netmap_range3_upper()
     {
-        // Fake n_addr
-        Gee.List<int> n_addr = new ArrayList<int>();
+        // Fake hc_addr of 0 positions (that is level `levels`)
+        Gee.List<int> hc_addr = new ArrayList<int>();
         // Range of addresses global which comprises all the nodes of the whole network.
         //  It does not depend on n_addr.
-        return ip_global_gnode(n_addr, levels);
+        return ip_global_gnode(hc_addr);
     }
 
     string ip_netmap_range4(Gee.List<int> n_addr)
     {
+        // An hc_addr for our position at level `subnetlevel`
+        Gee.List<int> hc_addr = n_addr.slice(subnetlevel, n_addr.size);
         // Range of addresses anonymizing which comprises all the nodes
         //  in our g-node of level "subnetlevel". It does depend on n_addr positions at
         //  levels from "subnetlevel" to "levels-1".
-        return ip_anonymizing_gnode(n_addr, subnetlevel);
+        return ip_anonymizing_gnode(hc_addr);
     }
 }

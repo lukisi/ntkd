@@ -44,12 +44,23 @@ namespace Netsukuku
 
         private const string RT_TABLES = "/etc/iproute2/rt_tables";
         private static ArrayList<int> free_tid;
-        private static HashMap<string, int> mac_tid;
+        private static HashMap<string, ReservedTid> mac_tid;
         private static void init_table_names()
         {
             free_tid = new ArrayList<int>();
             for (int i = 250; i >= 200; i--) free_tid.add(i);
-            mac_tid = new HashMap<string, int>();
+            mac_tid = new HashMap<string, ReservedTid>();
+        }
+
+        private class ReservedTid : Object
+        {
+            public ReservedTid(int tid)
+            {
+                this.tid = tid;
+                refcount = 0;
+            }
+            public int tid;
+            public int refcount;
         }
 
         public void get_table(int? bid, string peer_mac, out int tid, out string tablename)
@@ -57,23 +68,37 @@ namespace Netsukuku
             tablename = @"ntk_from_$(peer_mac)";
             if (mac_tid.has_key(peer_mac))
             {
-                tid = mac_tid[peer_mac];
+                tid = mac_tid[peer_mac].tid;
                 return;
             }
             assert(! free_tid.is_empty);
             tid = free_tid.remove_at(0);
-            mac_tid[peer_mac] = tid;
+            mac_tid[peer_mac] = new ReservedTid(tid);
             ArrayList<string> cmd = new ArrayList<string>.wrap({
                 @"sed", @"-i", @"s/$(tid) reserved_ntk_from_$(tid)/$(tid) $(tablename)/", RT_TABLES});
             if (bid != null) my_cm.single_command_in_block(bid, cmd);
             else my_cm.single_command(cmd);
         }
 
+        public void incref_table(string peer_mac)
+        {
+            assert(mac_tid.has_key(peer_mac));
+            mac_tid[peer_mac].refcount = mac_tid[peer_mac].refcount + 1;
+        }
+
+        public int decref_table(string peer_mac)
+        {
+            assert(mac_tid.has_key(peer_mac));
+            mac_tid[peer_mac].refcount = mac_tid[peer_mac].refcount - 1;
+            return mac_tid[peer_mac].refcount;
+        }
+
         public void release_table(int? bid, string peer_mac)
         {
             string tablename = @"ntk_from_$(peer_mac)";
             assert(mac_tid.has_key(peer_mac));
-            int tid = mac_tid[peer_mac];
+            assert(mac_tid[peer_mac].refcount <= 0);
+            int tid = mac_tid[peer_mac].tid;
             assert(! (tid in free_tid));
             free_tid.insert(0, tid);
             mac_tid.unset(peer_mac);
@@ -87,7 +112,7 @@ namespace Netsukuku
         {
             foreach (string peer_mac in mac_tid.keys)
             {
-                int tid = mac_tid[peer_mac];
+                int tid = mac_tid[peer_mac].tid;
                 string tablename = @"ntk_from_$(peer_mac)";
                 ArrayList<string> cmd = new ArrayList<string>.wrap({
                     @"sed", @"-i", @"s/$(tid) $(tablename)/$(tid) reserved_ntk_from_$(tid)/", RT_TABLES});

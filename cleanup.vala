@@ -37,8 +37,10 @@ namespace Netsukuku
         {
             if (! identity_data.main_id)
             {
-                // TODO remove namespace
-                // TODO when needed, remove ntk_from_xxx from rt_tables
+                // remove namespace
+                // when needed, remove ntk_from_xxx from rt_tables
+                IpCommands.connectivity_stop(identity_data);
+
                 identity_mgr.remove_identity(identity_data.nodeid);
                 local_identities.remove(identity_data);
             }
@@ -75,34 +77,7 @@ namespace Netsukuku
         qspn_mgr = null;
 
         // iproute commands for cleanup main identity
-        // TODO foreach table ntk_from_xxx: remove rule, flush, remove from rt_tables
-        // remove rule ntk
-        cm.single_command(new ArrayList<string>.wrap({
-            @"ip", @"rule", @"del", @"table", @"ntk"}));
-        // flush table ntk
-        cm.single_command(new ArrayList<string>.wrap({
-            @"ip", @"route", @"flush", @"table", @"ntk"}));
-
-        // remove local addresses (global, anon, intern)
-        if (identity_data.local_ip_set.global != "")
-            foreach (HandledNic n in handlednic_list)
-            cm.single_command(new ArrayList<string>.wrap({
-                @"ip", @"address", @"del", @"$(identity_data.local_ip_set.global)/32", @"dev", @"$(n.dev)"}));
-        if (identity_data.local_ip_set.anonymous != "" && accept_anonymous_requests)
-            foreach (HandledNic n in handlednic_list)
-            cm.single_command(new ArrayList<string>.wrap({
-                @"ip", @"address", @"del", @"$(identity_data.local_ip_set.anonymous)/32", @"dev", @"$(n.dev)"}));
-        for (int i = levels-1; i >= 1; i--)
-        {
-            if (identity_data.local_ip_set.intern[i] != "")
-                foreach (HandledNic n in handlednic_list)
-                cm.single_command(new ArrayList<string>.wrap({
-                    @"ip", @"address", @"del", @"$(identity_data.local_ip_set.intern[i])/32", @"dev", @"$(n.dev)"}));
-        }
-
-        // remove local address of localhost
-        cm.single_command(new ArrayList<string>.wrap({
-            @"ip", @"address", @"del", @"$(ntklocalhost)/32", @"dev", @"lo"}));
+        IpCommands.main_stop(identity_data);
 
         // Then we destroy the object NeighborhoodManager.
         // Beware that node_skeleton.neighborhood_mgr is a weak reference.

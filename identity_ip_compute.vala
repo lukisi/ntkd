@@ -48,7 +48,7 @@ namespace Netsukuku.IpCompute
     {
         Gee.List<int> n_addr = id.my_naddr.pos;
         int up_to = -1;
-        if (!id.main) up_to = id.connectivity_from_level-1;
+        if (!id.main_id) up_to = id.connectivity_from_level-1;
         assert(is_real_from_to(n_addr, up_to+1, levels-1));
 
         for (int i = levels-1; i >= subnetlevel; i--)
@@ -58,7 +58,7 @@ namespace Netsukuku.IpCompute
         {
             HCoord hc = new HCoord(i, j);
             Gee.List<int> hc_addr = n_addr.slice(i+1, n_addr.size);
-            hc_addr.insert_at(0, j);
+            hc_addr.insert(0, j);
             id.dest_ip_set.gnode[hc].global = ip_global_gnode(hc_addr);
             id.dest_ip_set.gnode[hc].anonymizing = ip_anonymizing_gnode(hc_addr);
             for (int k = levels-1; k >= i+1; k--)
@@ -85,15 +85,15 @@ namespace Netsukuku.IpCompute
         {
             HCoord hc = new HCoord(i, j);
             Gee.List<int> hc_addr = n_addr.slice(i+1, n_addr.size);
-            hc_addr.insert_at(0, j);
+            hc_addr.insert(0, j);
             id.dest_ip_set.gnode[hc].global = ip_global_gnode(hc_addr);
             id.dest_ip_set.gnode[hc].anonymizing = ip_anonymizing_gnode(hc_addr);
             for (int k = levels-1; k >= i+1; k--)
                 id.dest_ip_set.gnode[hc].intern[k] = ip_internal_gnode(hc_addr, k);
-            ArrayList<HCoord> dest_keys = new ArrayList<HCoord>();
-            dest_keys.add_all(id.dest_ip_set.gnode.keys);
-            foreach (HCoord hc in dest_keys) if (hc.lvl < prev_lvl)
-                id.dest_ip_set.gnode.unset(hc);
         }
+        ArrayList<HCoord> dest_keys = new ArrayList<HCoord>();
+        dest_keys.add_all(id.dest_ip_set.gnode.keys);
+        foreach (HCoord hc in dest_keys) if (hc.lvl < prev_lvl)
+            id.dest_ip_set.gnode.unset(hc);
     }
 }
