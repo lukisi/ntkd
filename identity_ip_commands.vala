@@ -374,9 +374,95 @@ namespace Netsukuku.IpCommands
         }
     }
 
-    void connectivity_dup(IdentityData id)
+    void connectivity_dup(IdentityData id, int host_gnode_level, int guest_gnode_level,
+                  DestinationIPSet prev_dest_ip_set,
+                  Gee.List<string> prev_peermacs, Gee.List<string> new_peermacs, Gee.List<string> both_peermacs)
     {
-        warning("not implemented yet");
+        DestinationIPSet dest_ip_set = id.dest_ip_set;
+        assert(! id.main_id);
+        ArrayList<string> prefix_cmd = new ArrayList<string>.wrap({
+            @"ip", @"netns", @"exec", @"$(id.network_namespace)"});
+
+        foreach (string m in both_peermacs)
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            foreach (HCoord hc in prev_dest_ip_set.gnode.keys)
+            {
+                DestinationIPSetGnode prev_dest = prev_dest_ip_set.gnode[hc];
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"del", @"$(prev_dest.global)", @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"del", @"$(prev_dest.anonymizing)", @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"del", @"$(prev_dest.intern[k])", @"table", @"$(table)"});
+                }
+            }
+        }
+
+        foreach (string m in prev_peermacs)
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cat_cmd(prefix_cmd, {
+                @"ip", @"route", @"flush", @"table", @"$(table)"});
+            cat_cmd(prefix_cmd, {
+                @"ip", @"rule", @"del", @"fwmark", @"$(tid)", @"table", @"$(table)"});
+            cat_cmd(prefix_cmd, {
+                @"iptables", @"-t", @"mangle", @"-D", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"});
+            if (tn.decref_table(m) <= 0) tn.release_table(null, m);
+        }
+
+        foreach (string m in both_peermacs)
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            {
+                DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.global)", @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"add", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"});
+                }
+            }
+        }
+
+        foreach (string m in new_peermacs)
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cat_cmd(prefix_cmd, {
+                @"iptables", @"-t", @"mangle", @"-A", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"});
+            cat_cmd(prefix_cmd, {
+                @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
+            tn.incref_table(m);
+            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            {
+                DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.global)", @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"add", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"});
+                }
+            }
+        }
     }
 
     void new_arc(IdentityData id)
