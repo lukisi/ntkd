@@ -465,9 +465,39 @@ namespace Netsukuku.IpCommands
         }
     }
 
-    void new_arc(IdentityData id)
+    void new_arc(IdentityData id, string new_peermac)
     {
-        warning("not implemented yet");
+        DestinationIPSet dest_ip_set = id.dest_ip_set;
+        ArrayList<string> prefix_cmd = new ArrayList<string>();
+        if (! id.main_id)
+        prefix_cmd.add_all_array({
+            @"ip", @"netns", @"exec", @"$(id.network_namespace)"});
+
+        string m = new_peermac;
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cat_cmd(prefix_cmd, {
+                @"iptables", @"-t", @"mangle", @"-A", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"});
+            cat_cmd(prefix_cmd, {
+                @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
+            tn.incref_table(m);
+            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            {
+                DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.global)", @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"add", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"});
+                }
+            }
+        }
     }
 
     void map_update(IdentityData id)
