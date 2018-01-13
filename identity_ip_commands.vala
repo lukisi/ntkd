@@ -332,9 +332,46 @@ namespace Netsukuku.IpCommands
         }
     }
 
-    void gone_connectivity(IdentityData id)
+    void cat_cmd(Gee.List<string> prefix_cmd, string[] cmd_array)
     {
-        warning("not implemented yet");
+        ArrayList<string> cmd = new ArrayList<string>();
+        cmd.add_all(prefix_cmd);
+        cmd.add_all_array(cmd_array);
+        cm.single_command(cmd);
+    }
+
+    void gone_connectivity(IdentityData id, Gee.List<string> peermacs)
+    {
+        DestinationIPSet dest_ip_set = id.dest_ip_set;
+        assert(! id.main_id);
+        ArrayList<string> prefix_cmd = new ArrayList<string>.wrap({
+            @"ip", @"netns", @"exec", @"$(id.network_namespace)"});
+
+        foreach (string m in peermacs)
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cat_cmd(prefix_cmd, {
+                @"iptables", @"-t", @"mangle", @"-A", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"});
+            cat_cmd(prefix_cmd, {
+                @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
+            tn.incref_table(m);
+            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            {
+                DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.global)", @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"add", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"add", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"});
+                }
+            }
+        }
     }
 
     void connectivity_dup(IdentityData id)
