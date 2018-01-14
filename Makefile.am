@@ -46,7 +46,6 @@ ntkd_SOURCES =  \
 	identity_ip_compute.vala \
 	identity_ip_commands.vala \
 	naddr.vala \
-	routing_table.vala \
 	neighborhood_helpers.vala \
 	neighborhood_signals.vala \
 	identities_helpers.vala \
@@ -129,7 +128,6 @@ ntkd_tester_01_SOURCES =  \
 	tester_01/identity_ip_compute.vala \
 	tester_01/identity_ip_commands.vala \
 	tester_01/naddr.vala \
-	tester_01/routing_table.vala \
 	tester_01/neighborhood_helpers.vala \
 	tester_01/neighborhood_signals.vala \
 	tester_01/identities_helpers.vala \
@@ -212,7 +210,6 @@ ntkd_tester_02_SOURCES =  \
 	tester_02/identity_ip_compute.vala \
 	tester_02/identity_ip_commands.vala \
 	tester_02/naddr.vala \
-	tester_02/routing_table.vala \
 	tester_02/neighborhood_helpers.vala \
 	tester_02/neighborhood_signals.vala \
 	tester_02/identities_helpers.vala \

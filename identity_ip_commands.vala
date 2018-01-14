@@ -18,6 +18,7 @@
 
 using Gee;
 using Netsukuku;
+using Netsukuku.Qspn;
 
 namespace Netsukuku.IpCommands
 {
@@ -500,9 +501,117 @@ namespace Netsukuku.IpCommands
         }
     }
 
-    void map_update(IdentityData id)
+    void map_update(IdentityData id, HCoord hc, Gee.List<IQspnNodePath> paths,
+                    Gee.List<string> peer_mac_set, Gee.List<HCoord> peer_hc_set)
     {
-        warning("not implemented yet");
+        LocalIPSet local_ip_set = id.local_ip_set;
+        DestinationIPSet dest_ip_set = id.dest_ip_set;
+        ArrayList<string> prefix_cmd = new ArrayList<string>();
+        if (! id.main_id)
+        prefix_cmd.add_all_array({
+            @"ip", @"netns", @"exec", @"$(id.network_namespace)"});
+
+        assert(hc.lvl >= subnetlevel);
+        assert(peer_mac_set.size == peer_hc_set.size);
+        assert(hc in dest_ip_set.gnode.keys);
+        DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
+
+        if (id.main_id)
+        {
+            IQspnNodePath? path = best_path(paths);
+            if (path == null)
+            {
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"unreachable", @"$(dest.global)", @"table", @"ntk"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"unreachable", @"$(dest.anonymizing)", @"table", @"ntk"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"unreachable", @"$(dest.intern[k])", @"table", @"ntk"});
+                }
+            }
+            else
+            {
+                IQspnArc gw = path.i_qspn_get_arc();
+                string gw_ip = ((QspnArc)gw).ia.peer_linklocal;
+                string dev = ((QspnArc)gw).arc.get_dev();
+                string gw_dev = identity_mgr.get_pseudodev(((QspnArc)gw).sourceid, dev);
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"$(dest.global)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                    @"table", @"ntk", @"src", @"$(local_ip_set.global)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"$(dest.anonymizing)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                    @"table", @"ntk", @"src", @"$(local_ip_set.global)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.intern[k])", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"ntk", @"src", @"$(local_ip_set.intern[k])"});
+                }
+            }
+        }
+        for (int j = 0; j < peer_mac_set.size; j++)
+        {
+            HCoord peer_hc = peer_hc_set[j];
+            string peer_mac = peer_mac_set[j];
+            string table;
+            int tid;
+            tn.get_table(null, peer_mac, out tid, out table);
+            IQspnNodePath? path = best_path_forward(paths, peer_hc);
+            if (path == null)
+            {
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"unreachable", @"$(dest.global)", @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"});
+                }
+            }
+            else
+            {
+                IQspnArc gw = path.i_qspn_get_arc();
+                string gw_ip = ((QspnArc)gw).ia.peer_linklocal;
+                string dev = ((QspnArc)gw).arc.get_dev();
+                string gw_dev = identity_mgr.get_pseudodev(((QspnArc)gw).sourceid, dev);
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"$(dest.global)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                    @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"$(dest.anonymizing)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                    @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.intern[k])", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"$(table)"});
+                }
+            }
+        }
+    }
+
+    IQspnNodePath? best_path(Gee.List<IQspnNodePath> paths)
+    {
+        if (paths.is_empty) return null;
+        return paths[0];
+    }
+
+    IQspnNodePath? best_path_forward(Gee.List<IQspnNodePath> paths, HCoord prev_hc)
+    {
+        foreach (IQspnNodePath path in paths)
+        {
+            // path contains prev_hc?
+            bool found = false;
+            foreach (IQspnHop path_h in path.i_qspn_get_hops())
+                if (path_h.i_qspn_get_hcoord().equals(prev_hc))
+                found = true;
+            if (found) continue;
+            return path;
+        }
+        return null;
     }
 
     void changed_arc(IdentityData id)

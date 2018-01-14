@@ -12,7 +12,6 @@ ipv4_compute.c
 identity_ip_compute.c
 identity_ip_commands.c
 naddr.c
-routing_table.c
 neighborhood_helpers.c
 neighborhood_signals.c
 identities_helpers.c
