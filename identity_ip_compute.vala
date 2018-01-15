@@ -51,12 +51,14 @@ namespace Netsukuku.IpCompute
         if (!id.main_id) up_to = id.connectivity_from_level-1;
         assert(is_real_from_to(n_addr, up_to+1, levels-1));
 
+        id.dest_ip_set = new DestinationIPSet();
         for (int i = levels-1; i >= subnetlevel; i--)
             if (i >= up_to)
             for (int j = 0; j < gsizes[i]; j++)
             if (n_addr[i] != j)
         {
             HCoord hc = new HCoord(i, j);
+            id.dest_ip_set.gnode[hc] = new DestinationIPSetGnode();
             Gee.List<int> hc_addr = n_addr.slice(i+1, n_addr.size);
             hc_addr.insert(0, j);
             id.dest_ip_set.gnode[hc].global = ip_global_gnode(hc_addr);
