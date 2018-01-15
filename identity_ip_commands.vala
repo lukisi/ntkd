@@ -24,7 +24,6 @@ namespace Netsukuku.IpCommands
 {
     void main_start(IdentityData id)
     {
-        // foreach (HandledNic n in handlednic_list) n.dev n.mac n.linklocal
         ArrayList<string> devs = new ArrayList<string>();
         foreach (HandledNic n in handlednic_list) devs.add(n.dev);
         LocalIPSet local_ip_set = id.local_ip_set;
@@ -746,13 +745,93 @@ namespace Netsukuku.IpCommands
         warning("not implemented yet");
     }
 
-    void connectivity_stop(IdentityData id)
+    void connectivity_stop(IdentityData id, Gee.List<string> peermacs)
     {
-        warning("not implemented yet");
+        foreach (string m in peermacs)
+            if (tn.decref_table(m) <= 0) tn.release_table(null, m);
     }
 
-    void main_stop(IdentityData id)
+    void main_stop(IdentityData id, Gee.List<string> peermacs)
     {
-        warning("not implemented yet");
+        ArrayList<string> devs = new ArrayList<string>();
+        foreach (HandledNic n in handlednic_list) devs.add(n.dev);
+        LocalIPSet local_ip_set = id.local_ip_set;
+
+        cm.single_command(new ArrayList<string>.wrap({
+            @"ip", @"rule", @"del", @"table", @"ntk"}));
+        cm.single_command(new ArrayList<string>.wrap({
+            @"ip", @"route", @"flush", @"table", @"ntk"}));
+
+        foreach (string m in peermacs)
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"rule", @"del", @"table", @"$(table)"}));
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"route", @"flush", @"table", @"$(table)"}));
+            cm.single_command(new ArrayList<string>.wrap({
+                @"iptables", @"-t", @"mangle", @"-D", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"}));
+            assert(tn.decref_table(m) <= 0);
+            tn.release_table(null, m);
+        }
+
+        if (subnetlevel > 0)
+        {
+            for (int k = subnetlevel; k <= levels-2; k++)
+            {
+                cm.single_command(new ArrayList<string>.wrap({
+                    @"iptables", @"-t", @"nat", @"-D", @"PREROUTING", @"-d", @"$(local_ip_set.netmap_range2[k])",
+                    @"-j", @"NETMAP", @"--to", @"$(local_ip_set.netmap_range1)"}));
+                cm.single_command(new ArrayList<string>.wrap({
+                    @"iptables", @"-t", @"nat", @"-D", @"POSTROUTING", @"-d", @"$(local_ip_set.netmap_range3[k])",
+                    @"-s", @"$(local_ip_set.netmap_range1)",
+                    @"-j", @"NETMAP", @"--to", @"$(local_ip_set.netmap_range2[k])"}));
+            }
+            cm.single_command(new ArrayList<string>.wrap({
+                @"iptables", @"-t", @"nat", @"-D", @"PREROUTING", @"-d", @"$(local_ip_set.netmap_range2_upper)",
+                @"-j", @"NETMAP", @"--to", @"$(local_ip_set.netmap_range1)"}));
+            cm.single_command(new ArrayList<string>.wrap({
+                @"iptables", @"-t", @"nat", @"-D", @"POSTROUTING", @"-d", @"$(local_ip_set.netmap_range3_upper)",
+                @"-s", @"$(local_ip_set.netmap_range1)",
+                @"-j", @"NETMAP", @"--to", @"$(local_ip_set.netmap_range2_upper)"}));
+            if (accept_anonymous_requests)
+            {
+                cm.single_command(new ArrayList<string>.wrap({
+                    @"iptables", @"-t", @"nat", @"-D", @"PREROUTING", @"-d", @"$(local_ip_set.netmap_range4)",
+                    @"-j", @"NETMAP", @"--to", @"$(local_ip_set.netmap_range1)"}));
+            }
+            cm.single_command(new ArrayList<string>.wrap({
+                @"iptables", @"-t", @"nat", @"-D", @"POSTROUTING", @"-d", @"$(local_ip_set.anonymizing_range)",
+                @"-s", @"$(local_ip_set.netmap_range1)",
+                @"-j", @"NETMAP", @"--to", @"$(local_ip_set.netmap_range2_upper)"}));
+        }
+
+        if (! no_anonymize)
+        {
+            cm.single_command(new ArrayList<string>.wrap({
+                @"iptables", @"-t", @"nat", @"-D", @"POSTROUTING", @"-d", @"$(local_ip_set.anonymizing_range)",
+                @"-j", @"SNAT", @"--to", @"$(local_ip_set.global)"}));
+        }
+
+        foreach (string dev in devs)
+        {
+            for (int k = 1; k <= levels-1; k++)
+            {
+                cm.single_command(new ArrayList<string>.wrap({
+                    @"ip", @"address", @"del", @"$(local_ip_set.intern[k])/32", @"dev", @"$(dev)"}));
+            }
+            cm.single_command(new ArrayList<string>.wrap({
+                @"ip", @"address", @"del", @"$(local_ip_set.global)/32", @"dev", @"$(dev)"}));
+            if (accept_anonymous_requests)
+            {
+                cm.single_command(new ArrayList<string>.wrap({
+                    @"ip", @"address", @"del", @"$(local_ip_set.anonymizing)/32", @"dev", @"$(dev)"}));
+            }
+        }
+        cm.single_command(new ArrayList<string>.wrap({
+            @"ip", @"address", @"del", @"$(local_ip_set.intern[0])/32", @"dev", @"lo"}));
     }
 }

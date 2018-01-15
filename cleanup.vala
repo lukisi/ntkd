@@ -38,11 +38,14 @@ namespace Netsukuku
             if (! identity_data.main_id)
             {
                 // remove namespace
-                // when needed, remove ntk_from_xxx from rt_tables
-                IpCommands.connectivity_stop(identity_data);
-
                 identity_mgr.remove_identity(identity_data.nodeid);
                 local_identities.remove(identity_data);
+
+                // when needed, remove ntk_from_xxx from rt_tables
+                ArrayList<string> peermacs = new ArrayList<string>();
+                foreach (IdentityArc id_arc in identity_data.identity_arcs)
+                    peermacs.add(id_arc.peer_mac);
+                IpCommands.connectivity_stop(identity_data, peermacs);
             }
         }
 
@@ -77,7 +80,10 @@ namespace Netsukuku
         qspn_mgr = null;
 
         // iproute commands for cleanup main identity
-        IpCommands.main_stop(identity_data);
+        ArrayList<string> peermacs = new ArrayList<string>();
+        foreach (IdentityArc id_arc in identity_data.identity_arcs)
+            peermacs.add(id_arc.peer_mac);
+        IpCommands.main_stop(identity_data, peermacs);
 
         // Then we destroy the object NeighborhoodManager.
         // Beware that node_skeleton.neighborhood_mgr is a weak reference.
