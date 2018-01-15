@@ -123,15 +123,14 @@ namespace Netsukuku
         ArrayList<string> args = new ArrayList<string>.wrap(_args);
         ArrayList<int> naddr;
         ArrayList<string> devs;
-        string ntklocalhost;
 
         configuration(ref args, out naddr, out devs);
 
-        startup(ref naddr, ref devs, out ntklocalhost);
+        startup(ref naddr, ref devs);
 
         mainloop();
 
-        cleanup(ref ntklocalhost);
+        cleanup();
 
         return 0;
     }

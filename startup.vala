@@ -28,7 +28,7 @@ using TaskletSystem;
 
 namespace Netsukuku
 {
-    void startup(ref ArrayList<int> naddr, ref ArrayList<string> devs, out string ntklocalhost)
+    void startup(ref ArrayList<int> naddr, ref ArrayList<string> devs)
     {
         // Initialize tasklet system
         PthTaskletImplementer.init();
@@ -71,14 +71,11 @@ namespace Netsukuku
         // The UDP tasklets will be launched after the NeighborhoodManager is
         // created and ready to start_monitor.
 
-        ntklocalhost = ip_internal_node(naddr, 0);
         int bid = cm.begin_block();
         cm.single_command_in_block(bid, new ArrayList<string>.wrap({
             @"sysctl", @"net.ipv4.ip_forward=1"}));
         cm.single_command_in_block(bid, new ArrayList<string>.wrap({
             @"sysctl", @"net.ipv4.conf.all.rp_filter=0"}));
-        cm.single_command_in_block(bid, new ArrayList<string>.wrap({
-            @"ip", @"address", @"add", @"$(ntklocalhost)", @"dev", @"lo"}));
         cm.end_block(bid);
 
         handlednic_list = new ArrayList<HandledNic>();

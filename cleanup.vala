@@ -28,7 +28,7 @@ using TaskletSystem;
 
 namespace Netsukuku
 {
-    void cleanup(ref string ntklocalhost)
+    void cleanup()
     {
         // Remove connectivity identities and their network namespaces and linklocal addresses.
         ArrayList<IdentityData> local_identities_copy = new ArrayList<IdentityData>();
