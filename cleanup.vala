@@ -44,6 +44,7 @@ namespace Netsukuku
                 // when needed, remove ntk_from_xxx from rt_tables
                 ArrayList<string> peermacs = new ArrayList<string>();
                 foreach (IdentityArc id_arc in identity_data.identity_arcs)
+                    if (id_arc.qspn_arc != null)
                     peermacs.add(id_arc.peer_mac);
                 IpCommands.connectivity_stop(identity_data, peermacs);
             }
@@ -82,6 +83,7 @@ namespace Netsukuku
         // iproute commands for cleanup main identity
         ArrayList<string> peermacs = new ArrayList<string>();
         foreach (IdentityArc id_arc in identity_data.identity_arcs)
+            if (id_arc.qspn_arc != null)
             peermacs.add(id_arc.peer_mac);
         IpCommands.main_stop(identity_data, peermacs);
 
