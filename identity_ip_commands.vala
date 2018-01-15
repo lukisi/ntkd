@@ -614,9 +614,131 @@ namespace Netsukuku.IpCommands
         return null;
     }
 
-    void changed_arc(IdentityData id)
+    void changed_arc(IdentityData id, HashMap<HCoord, Gee.List<IQspnNodePath>> paths,
+                     Gee.List<string> peer_mac_set, Gee.List<HCoord> peer_hc_set, IQspnArc changed_arc_qspn,
+                     string changed_arc_prev_mac, string changed_arc_new_mac, HCoord changed_arc_peer_hc)
     {
-        warning("not implemented yet");
+        LocalIPSet local_ip_set = id.local_ip_set;
+        DestinationIPSet dest_ip_set = id.dest_ip_set;
+        ArrayList<string> prefix_cmd = new ArrayList<string>();
+        if (! id.main_id)
+        prefix_cmd.add_all_array({
+            @"ip", @"netns", @"exec", @"$(id.network_namespace)"});
+
+        foreach (HCoord hc in dest_ip_set.gnode.keys)
+        {
+            DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
+            if (id.main_id)
+            {
+                IQspnNodePath? path = best_path(paths[hc]);
+                if (path != null && path.i_qspn_get_arc() == changed_arc_qspn)
+                {
+                    string gw_ip = ((QspnArc)changed_arc_qspn).ia.peer_linklocal;
+                    string dev = ((QspnArc)changed_arc_qspn).arc.get_dev();
+                    string gw_dev = identity_mgr.get_pseudodev(((QspnArc)changed_arc_qspn).sourceid, dev);
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.global)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"ntk", @"src", @"$(local_ip_set.global)"});
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.anonymizing)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"ntk", @"src", @"$(local_ip_set.global)"});
+                    for (int k = levels-1; k >= hc.lvl+1; k--)
+                    {
+                        cat_cmd(prefix_cmd, {
+                            @"ip", @"route", @"change", @"$(dest.intern[k])", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                            @"table", @"ntk", @"src", @"$(local_ip_set.intern[k])"});
+                    }
+                }
+            }
+            for (int j = 0; j < peer_mac_set.size; j++)
+            {
+                HCoord peer_hc = peer_hc_set[j];
+                string peer_mac = peer_mac_set[j];
+                string table;
+                int tid;
+                tn.get_table(null, peer_mac, out tid, out table);
+                IQspnNodePath? path = best_path_forward(paths[hc], peer_hc);
+                if (path != null && path.i_qspn_get_arc() == changed_arc_qspn)
+                {
+                    string gw_ip = ((QspnArc)changed_arc_qspn).ia.peer_linklocal;
+                    string dev = ((QspnArc)changed_arc_qspn).arc.get_dev();
+                    string gw_dev = identity_mgr.get_pseudodev(((QspnArc)changed_arc_qspn).sourceid, dev);
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.global)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"$(table)"});
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.anonymizing)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"$(table)"});
+                    for (int k = levels-1; k >= hc.lvl+1; k--)
+                    {
+                        cat_cmd(prefix_cmd, {
+                            @"ip", @"route", @"change", @"$(dest.intern[k])", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                            @"table", @"$(table)"});
+                    }
+                }
+            }
+        }
+
+        string m = changed_arc_new_mac;
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cat_cmd(prefix_cmd, {
+                @"iptables", @"-t", @"mangle", @"-A", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"});
+            cat_cmd(prefix_cmd, {
+                @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
+            tn.incref_table(m);
+            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            {
+                DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"unreachable", @"$(dest.global)", @"table", @"$(table)"});
+                cat_cmd(prefix_cmd, {
+                    @"ip", @"route", @"change", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"});
+                for (int k = levels-1; k >= hc.lvl+1; k--)
+                {
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"});
+                }
+                IQspnNodePath? path = best_path_forward(paths[hc], changed_arc_peer_hc);
+                if (path != null)
+                {
+                    IQspnArc gw = path.i_qspn_get_arc();
+                    string gw_ip = ((QspnArc)gw).ia.peer_linklocal;
+                    string dev = ((QspnArc)gw).arc.get_dev();
+                    string gw_dev = identity_mgr.get_pseudodev(((QspnArc)gw).sourceid, dev);
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.global)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"$(table)"});
+                    cat_cmd(prefix_cmd, {
+                        @"ip", @"route", @"change", @"$(dest.anonymizing)", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                        @"table", @"$(table)"});
+                    for (int k = levels-1; k >= hc.lvl+1; k--)
+                    {
+                        cat_cmd(prefix_cmd, {
+                            @"ip", @"route", @"change", @"$(dest.intern[k])", @"via", @"$(gw_ip)", @"dev", @"$(gw_dev)",
+                            @"table", @"$(table)"});
+                    }
+                }
+            }
+        }
+
+        m = changed_arc_prev_mac;
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cat_cmd(prefix_cmd, {
+                @"ip", @"route", @"flush", @"table", @"$(table)"});
+            cat_cmd(prefix_cmd, {
+                @"ip", @"rule", @"del", @"fwmark", @"$(tid)", @"table", @"$(table)"});
+            cat_cmd(prefix_cmd, {
+                @"iptables", @"-t", @"mangle", @"-D", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"});
+            if (tn.decref_table(m) <= 0) tn.release_table(null, m);
+        }
     }
 
     void removed_arc(IdentityData id)
