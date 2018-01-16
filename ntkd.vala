@@ -373,6 +373,22 @@ namespace Netsukuku
             gnode = new HashMap<HCoord,DestinationIPSetGnode>(null, (a, b) => a.equals(b));
         }
 
+        private Gee.List<HCoord> _sorted_gnode_keys;
+        public Gee.List<HCoord> sorted_gnode_keys
+        {
+            get {
+                ArrayList<HCoord> ret = new ArrayList<HCoord>();
+                ret.add_all(gnode.keys);
+                ret.sort((a, b) => {
+                    if (a.lvl > b.lvl) return -1;
+                    if (a.lvl < b.lvl) return 1;
+                    return a.pos - b.pos;
+                });
+                _sorted_gnode_keys = ret;
+                return _sorted_gnode_keys;
+            }
+        }
+
         public DestinationIPSet copy()
         {
             DestinationIPSet ret = new DestinationIPSet();

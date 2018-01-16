@@ -89,7 +89,7 @@ namespace Netsukuku.IpCommands
         cm.single_command(new ArrayList<string>.wrap({
             @"ip", @"rule", @"add", @"table", @"ntk"}));
 
-        foreach (HCoord hc in dest_ip_set.gnode.keys)
+        foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
         {
             DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
             cm.single_command(new ArrayList<string>.wrap({
@@ -113,7 +113,7 @@ namespace Netsukuku.IpCommands
         LocalIPSet local_ip_set = id.local_ip_set;
         DestinationIPSet dest_ip_set = id.dest_ip_set;
 
-        foreach (HCoord hc in prev_dest_ip_set.gnode.keys)
+        foreach (HCoord hc in prev_dest_ip_set.sorted_gnode_keys)
         {
             DestinationIPSetGnode prev_dest = prev_dest_ip_set.gnode[hc];
             cm.single_command(new ArrayList<string>.wrap({
@@ -132,7 +132,7 @@ namespace Netsukuku.IpCommands
             string table;
             int tid;
             tn.get_table(null, m, out tid, out table);
-            foreach (HCoord hc in prev_dest_ip_set.gnode.keys)
+            foreach (HCoord hc in prev_dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode prev_dest = prev_dest_ip_set.gnode[hc];
                 cm.single_command(new ArrayList<string>.wrap({
@@ -271,7 +271,7 @@ namespace Netsukuku.IpCommands
                 @"-j", @"NETMAP", @"--to", @"$(local_ip_set.netmap_range2_upper)"}));
         }
 
-        foreach (HCoord hc in dest_ip_set.gnode.keys)
+        foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
         {
             DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
             cm.single_command(new ArrayList<string>.wrap({
@@ -290,7 +290,7 @@ namespace Netsukuku.IpCommands
             string table;
             int tid;
             tn.get_table(null, m, out tid, out table);
-            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
                 cm.single_command(new ArrayList<string>.wrap({
@@ -316,7 +316,7 @@ namespace Netsukuku.IpCommands
             cm.single_command(new ArrayList<string>.wrap({
                 @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"}));
             tn.incref_table(m);
-            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
                 cm.single_command(new ArrayList<string>.wrap({
@@ -358,7 +358,7 @@ namespace Netsukuku.IpCommands
             cat_cmd(prefix_cmd, {
                 @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
             tn.incref_table(m);
-            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
                 cat_cmd(prefix_cmd, {
@@ -388,7 +388,7 @@ namespace Netsukuku.IpCommands
             string table;
             int tid;
             tn.get_table(null, m, out tid, out table);
-            foreach (HCoord hc in prev_dest_ip_set.gnode.keys)
+            foreach (HCoord hc in prev_dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode prev_dest = prev_dest_ip_set.gnode[hc];
                 cat_cmd(prefix_cmd, {
@@ -423,7 +423,7 @@ namespace Netsukuku.IpCommands
             string table;
             int tid;
             tn.get_table(null, m, out tid, out table);
-            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
                 cat_cmd(prefix_cmd, {
@@ -449,7 +449,7 @@ namespace Netsukuku.IpCommands
             cat_cmd(prefix_cmd, {
                 @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
             tn.incref_table(m);
-            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
                 cat_cmd(prefix_cmd, {
@@ -484,7 +484,7 @@ namespace Netsukuku.IpCommands
             cat_cmd(prefix_cmd, {
                 @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
             tn.incref_table(m);
-            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
                 cat_cmd(prefix_cmd, {
@@ -512,7 +512,7 @@ namespace Netsukuku.IpCommands
 
         assert(hc.lvl >= subnetlevel);
         assert(peer_mac_set.size == peer_hc_set.size);
-        assert(hc in dest_ip_set.gnode.keys);
+        assert(hc in dest_ip_set.sorted_gnode_keys);
         DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
 
         if (id.main_id)
@@ -624,7 +624,7 @@ namespace Netsukuku.IpCommands
         prefix_cmd.add_all_array({
             @"ip", @"netns", @"exec", @"$(id.network_namespace)"});
 
-        foreach (HCoord hc in dest_ip_set.gnode.keys)
+        foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
         {
             DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
             if (id.main_id)
@@ -689,7 +689,7 @@ namespace Netsukuku.IpCommands
             cat_cmd(prefix_cmd, {
                 @"ip", @"rule", @"add", @"fwmark", @"$(tid)", @"table", @"$(table)"});
             tn.incref_table(m);
-            foreach (HCoord hc in dest_ip_set.gnode.keys)
+            foreach (HCoord hc in dest_ip_set.sorted_gnode_keys)
             {
                 DestinationIPSetGnode dest = dest_ip_set.gnode[hc];
                 cat_cmd(prefix_cmd, {
