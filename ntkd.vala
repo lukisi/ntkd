@@ -276,6 +276,7 @@ namespace Netsukuku
         public string peer_linklocal;
 
         public QspnArc? qspn_arc;
+        public int64? network_id;
         public string? tablename;
         public int? tid;
         public bool? rule_added;
@@ -295,6 +296,7 @@ namespace Netsukuku
             peer_linklocal = id_arc.get_peer_linklocal();
 
             qspn_arc = null;
+            network_id = null;
             tablename = null;
             tid = null;
             rule_added = null;
@@ -304,6 +306,17 @@ namespace Netsukuku
             prev_tid = null;
             prev_rule_added = null;
         }
+    }
+
+    class IdentityArcPair : Object
+    {
+        public IdentityArcPair(IdentityArc old_id_arc, IdentityArc new_id_arc)
+        {
+            this.old_id_arc = old_id_arc;
+            this.new_id_arc = new_id_arc;
+        }
+        public IdentityArc old_id_arc {get; private set;}
+        public IdentityArc new_id_arc {get; private set;}
     }
 
     class LocalIPSet : Object

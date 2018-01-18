@@ -54,132 +54,289 @@ namespace Netsukuku
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
 
+            // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
+            foreach (IdentityArc w0 in first_identity_data.identity_arcs)
+                if (w0.id_arc.get_peer_nodeid().id == 992832884)
+                w0.network_id = 12345;
+
             tasklet.ms_wait(1000);
+
+            // Simulation: Hooking says we must enter in network_id = 12345
+            int64 enter_into_network_id = 12345;
+            int guest_gnode_level = 0;
+            int go_connectivity_position = 2;
+            int go_connectivity_eldership = 1;
+            int[] host_gnode_positions = new int[] {0, 0, 0};
+            int[] host_gnode_elderships = new int[] {0, 0, 0};
+            int new_position_in_host_gnode = 1;
+            int new_eldership_in_host_gnode = 1;
+
+            // Duplicate.
             identity_mgr.prepare_add_identity(1, first_identity_data.nodeid);
             tasklet.ms_wait(0);
             NodeID second_nodeid = identity_mgr.add_identity(1, first_identity_data.nodeid);
             IdentityData second_identity_data = find_or_create_local_identity(second_nodeid);
+            second_identity_data.copy_of_identity = first_identity_data;
+            second_identity_data.connectivity_from_level = first_identity_data.connectivity_from_level;
+            second_identity_data.connectivity_to_level = first_identity_data.connectivity_to_level;
+            first_identity_data.connectivity_from_level = guest_gnode_level + 1;
+            first_identity_data.connectivity_to_level = levels; // after enter, the old id will be dismissed soon anyway.
 
-            second_identity_data.addr_man = new AddressManagerForIdentity();
-            ArrayList<int> naddr = new ArrayList<int>.wrap({0,0,0,0});
-            Naddr my_naddr = new Naddr(naddr.to_array(), gsizes.to_array());
-            ArrayList<int> elderships = new ArrayList<int>.wrap({0,0,0,0});
-            Fingerprint my_fp = new Fingerprint(elderships.to_array());
-            second_identity_data.my_naddr = my_naddr;
-            second_identity_data.my_fp = my_fp;
-
-            // TODO iproute commands for startup second identity
-
-            QspnManager qspn_mgr = new QspnManager.create_net(
-                my_naddr,
-                my_fp,
-                new QspnStubFactory(second_identity_data));
-            // soon after creation, connect to signals.
-            qspn_mgr.arc_removed.connect(second_identity_data.arc_removed);
-            qspn_mgr.changed_fp.connect(second_identity_data.changed_fp);
-            qspn_mgr.changed_nodes_inside.connect(second_identity_data.changed_nodes_inside);
-            qspn_mgr.destination_added.connect(second_identity_data.destination_added);
-            qspn_mgr.destination_removed.connect(second_identity_data.destination_removed);
-            qspn_mgr.gnode_splitted.connect(second_identity_data.gnode_splitted);
-            qspn_mgr.path_added.connect(second_identity_data.path_added);
-            qspn_mgr.path_changed.connect(second_identity_data.path_changed);
-            qspn_mgr.path_removed.connect(second_identity_data.path_removed);
-            qspn_mgr.presence_notified.connect(second_identity_data.presence_notified);
-            qspn_mgr.qspn_bootstrap_complete.connect(second_identity_data.qspn_bootstrap_complete);
-            qspn_mgr.remove_identity.connect(second_identity_data.remove_identity);
-
-            identity_mgr.set_identity_module(second_nodeid, "qspn", qspn_mgr);
-            second_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
-            qspn_mgr = null;
-
-            tasklet.ms_wait(5000);
-            // an id-arc has been added to second_id with peer_id 992832884 and it needs an qspn_arc.
-            assert(second_identity_data.identity_arcs.size == 2);
-            bool found = false;
-            IdentityArc? id_arc = null;
-            foreach (IdentityArc w0 in second_identity_data.identity_arcs)
+            // Associate id-arcs of old and new identity.
+            Gee.List<IdentityArcPair> arcpairs = new ArrayList<IdentityArcPair>();
+            foreach (IdentityArc w0 in first_identity_data.identity_arcs)
             {
-                if (w0.id_arc.get_peer_nodeid().id == 992832884)
+                bool old_identity_arc_changed_peer_mac = (w0.prev_peer_mac != null);
+                // find appropriate w1
+                foreach (IdentityArc w1 in second_identity_data.identity_arcs)
                 {
-                    assert(!found);
-                    found = true;
-                    id_arc = w0;
+                    if (w1.arc != w0.arc) continue;
+                    if (old_identity_arc_changed_peer_mac)
+                    {
+                        if (w1.peer_mac != w0.prev_peer_mac) continue;
+                    }
+                    else
+                    {
+                        if (w1.peer_mac != w0.peer_mac) continue;
+                    }
+                    arcpairs.add(new IdentityArcPair(w0, w1));
+                    break;
                 }
             }
-            assert(found);
+
+            // discriminate id-arcs
+            Gee.List<IdentityArcPair> prev_arcpairs = new ArrayList<IdentityArcPair>();
+            Gee.List<IdentityArcPair> new_arcpairs = new ArrayList<IdentityArcPair>();
+            Gee.List<IdentityArcPair> both_arcpairs = new ArrayList<IdentityArcPair>();
+            foreach (IdentityArcPair arcpair in arcpairs)
             {
-                qspn_mgr = (QspnManager)identity_mgr.get_identity_module(second_identity_data.nodeid, "qspn");
-
-                NodeID destid = id_arc.id_arc.get_peer_nodeid();
-                NodeID sourceid = id_arc.id; // == new_id
-                id_arc.qspn_arc = new QspnArc(sourceid, destid, id_arc, id_arc.peer_mac);
-                // tn.get_table(null, id_arc.peer_mac, out id_arc.tid, out id_arc.tablename);
-                // id_arc.rule_added = false;
-                qspn_mgr.arc_add(id_arc.qspn_arc);
-
-                qspn_mgr = null;
+                if (arcpair.old_id_arc.qspn_arc != null)
+                {
+                    // the old peer was in same network as old_id
+                    // we still have to check if it was participating to the entering
+                    if (arcpair.old_id_arc.prev_peer_mac != null)
+                    {
+                        // the peer participates to the entering: the new peer will be in same network as new_id
+                        both_arcpairs.add(arcpair);
+                    }
+                    else
+                    {
+                        // the peer won't be in same network as new_id
+                        prev_arcpairs.add(arcpair);
+                    }
+                }
+                else
+                {
+                    // the peer wasn't in same network as old_id
+                    if (arcpair.old_id_arc.network_id == enter_into_network_id)
+                    {
+                        // the peer will be in same network as new_id
+                        both_arcpairs.add(arcpair);
+                    }
+                }
             }
-
-            tasklet.ms_wait(3000);
-            identity_mgr.remove_identity(first_identity_data.nodeid);
-            local_identities.remove(first_identity_data);
-
 /*
-            tasklet.ms_wait(5000);
-            identity_mgr.prepare_add_identity(3, second_identity_data.nodeid);
-            tasklet.ms_wait(1000);
-            NodeID third_nodeid = identity_mgr.add_identity(3, second_identity_data.nodeid);
-            IdentityData third_identity_data = find_or_create_local_identity(third_nodeid);
 
-            third_identity_data.addr_man = new AddressManagerForIdentity();
-            naddr = new ArrayList<int>.wrap({0,1,0,0});
-            my_naddr = new Naddr(naddr.to_array(), gsizes.to_array());
-            ArrayList<int> elderships = new ArrayList<int>.wrap({0,1,0,0});
-            my_fp = new Fingerprint(elderships.to_array());
-            third_identity_data.my_naddr = my_naddr;
-            third_identity_data.my_fp = my_fp;
+            // Simulation: Hooking says we must enter in network_id = 12345
+            int64 enter_into_network_id = 12345;
+            int guest_gnode_level = 0;
+            int go_connectivity_position = 2;
+            int go_connectivity_eldership = 1;
+            int[] host_gnode_positions = new int[] {0, 0, 0};
+            int[] host_gnode_elderships = new int[] {0, 0, 0};
+            int new_position_in_host_gnode = 1;
+            int new_eldership_in_host_gnode = 1;
+*/
 
-            // TODO iproute commands for startup third identity
+            enter_another_network_commands(first_identity_data, second_identity_data,
+                guest_gnode_level, go_connectivity_position, go_connectivity_eldership,
+                host_gnode_positions, new_position_in_host_gnode,
+                host_gnode_elderships, new_eldership_in_host_gnode,
+                prev_arcpairs, new_arcpairs, both_arcpairs);
 
-            qspn_mgr = new QspnManager.enter_net(
-                my_naddr,
-                my_fp,
-                new QspnStubFactory(third_identity_data));
+            second_identity_data.addr_man = new AddressManagerForIdentity();
 
-            public QspnManager.enter_net(
-                           Gee.List<IQspnArc> internal_arc_set,
-                           Gee.List<IQspnArc> internal_arc_prev_arc_set,
-                           Gee.List<IQspnNaddr> internal_arc_peer_naddr_set,
-                           Gee.List<IQspnArc> external_arc_set,
-                           IQspnMyNaddr my_naddr,
-                           IQspnFingerprint my_fingerprint,
-                           ChangeFingerprintDelegate update_internal_fingerprints,
-                           IQspnStubFactory stub_factory,
-                           int hooking_gnode_level,
-                           int into_gnode_level,
-                           QspnManager previous_identity
-                           )
+            QspnManager first_qspn = (QspnManager)identity_mgr.get_identity_module(first_identity_data.nodeid, "qspn");
+            QspnManager second_qspn =
+                enter_another_network_qspn(first_identity_data, second_identity_data,
+                first_qspn,
+                guest_gnode_level, go_connectivity_position, go_connectivity_eldership,
+                host_gnode_positions, new_position_in_host_gnode,
+                host_gnode_elderships, new_eldership_in_host_gnode,
+                prev_arcpairs, new_arcpairs, both_arcpairs);
 
             // soon after creation, connect to signals.
-            qspn_mgr.arc_removed.connect(third_identity_data.arc_removed);
-            qspn_mgr.changed_fp.connect(third_identity_data.changed_fp);
-            qspn_mgr.changed_nodes_inside.connect(third_identity_data.changed_nodes_inside);
-            qspn_mgr.destination_added.connect(third_identity_data.destination_added);
-            qspn_mgr.destination_removed.connect(third_identity_data.destination_removed);
-            qspn_mgr.gnode_splitted.connect(third_identity_data.gnode_splitted);
-            qspn_mgr.path_added.connect(third_identity_data.path_added);
-            qspn_mgr.path_changed.connect(third_identity_data.path_changed);
-            qspn_mgr.path_removed.connect(third_identity_data.path_removed);
-            qspn_mgr.presence_notified.connect(third_identity_data.presence_notified);
-            qspn_mgr.qspn_bootstrap_complete.connect(third_identity_data.qspn_bootstrap_complete);
-            qspn_mgr.remove_identity.connect(third_identity_data.remove_identity);
+            second_qspn.arc_removed.connect(second_identity_data.arc_removed);
+            second_qspn.changed_fp.connect(second_identity_data.changed_fp);
+            second_qspn.changed_nodes_inside.connect(second_identity_data.changed_nodes_inside);
+            second_qspn.destination_added.connect(second_identity_data.destination_added);
+            second_qspn.destination_removed.connect(second_identity_data.destination_removed);
+            second_qspn.gnode_splitted.connect(second_identity_data.gnode_splitted);
+            second_qspn.path_added.connect(second_identity_data.path_added);
+            second_qspn.path_changed.connect(second_identity_data.path_changed);
+            second_qspn.path_removed.connect(second_identity_data.path_removed);
+            second_qspn.presence_notified.connect(second_identity_data.presence_notified);
+            second_qspn.qspn_bootstrap_complete.connect(second_identity_data.qspn_bootstrap_complete);
+            second_qspn.remove_identity.connect(second_identity_data.remove_identity);
 
-            identity_mgr.set_identity_module(third_nodeid, "qspn", qspn_mgr);
-            third_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
-            qspn_mgr = null;
-*/
+            identity_mgr.set_identity_module(second_nodeid, "qspn", second_qspn);
+            second_identity_data.addr_man.qspn_mgr = second_qspn;  // weak ref
+
+            // TODO continue
 
             return null;
         }
+    }
+
+    void enter_another_network_commands(IdentityData old_id, IdentityData new_id,
+        int guest_gnode_level, int connectivity_virtual_pos, int connectivity_eldership,
+        int[] host_gnode_positions, int new_position_in_host_gnode,
+        int[] host_gnode_elderships, int new_eldership_in_host_gnode,
+        Gee.List<IdentityArcPair> prev_arcpairs, Gee.List<IdentityArcPair> new_arcpairs, Gee.List<IdentityArcPair> both_arcpairs)
+    {
+        assert(host_gnode_positions.length == host_gnode_elderships.length);
+        int host_gnode_level = levels - host_gnode_positions.length;
+        assert(guest_gnode_level >= 0);
+        assert(guest_gnode_level < host_gnode_level);
+        Naddr old_naddr = old_id.my_naddr;
+        Fingerprint old_fp = old_id.my_fp;
+
+        int old_id_prev_lvl = guest_gnode_level;
+        int old_id_prev_pos = old_naddr.pos[old_id_prev_lvl];
+
+        LocalIPSet? prev_local_ip_set = null;
+        if (new_id.main_id) prev_local_ip_set = old_id.local_ip_set.copy();
+        DestinationIPSet prev_dest_ip_set = old_id.dest_ip_set.copy();
+
+        new_id.addr_man = new AddressManagerForIdentity();
+        ArrayList<int> pos = new ArrayList<int>.wrap(host_gnode_positions);
+        pos.insert(0, new_position_in_host_gnode);
+        for (int i = host_gnode_level-2; i >= 0; i--)
+            pos.insert(0, old_naddr.pos[i]);
+        Naddr new_naddr = new Naddr(pos.to_array(), gsizes.to_array());
+        ArrayList<int> elderships = new ArrayList<int>.wrap(host_gnode_elderships);
+        elderships.insert(0, new_eldership_in_host_gnode);
+        for (int i = host_gnode_level-2; i >= 0; i--)
+            elderships.insert(0, old_fp.elderships[i]);
+        Fingerprint new_fp = new Fingerprint(elderships.to_array(), old_fp.id);
+        new_id.my_naddr = new_naddr;
+        new_id.my_fp = new_fp;
+
+        if (new_id.main_id) IpCompute.new_main_id(new_id);
+        IpCompute.new_id(new_id);
+        IpCompute.gone_connectivity_id(old_id, old_id_prev_lvl, old_id_prev_pos);
+
+        Gee.List<string> old_id_peermacs = new ArrayList<string>();
+        foreach (IdentityArcPair prev_arcpair in prev_arcpairs)
+            old_id_peermacs.add(prev_arcpair.old_id_arc.peer_mac);
+        foreach (IdentityArcPair both_arcpair in both_arcpairs)
+            old_id_peermacs.add(both_arcpair.old_id_arc.peer_mac);
+        IpCommands.gone_connectivity(old_id, old_id_peermacs);
+
+        Gee.List<string> prev_peermacs = new ArrayList<string>();
+        foreach (IdentityArcPair prev_arcpair in prev_arcpairs)
+            prev_peermacs.add(prev_arcpair.new_id_arc.peer_mac);
+        Gee.List<string> new_peermacs = new ArrayList<string>();
+        foreach (IdentityArcPair new_arcpair in new_arcpairs)
+            new_peermacs.add(new_arcpair.new_id_arc.peer_mac);
+        Gee.List<string> both_peermacs = new ArrayList<string>();
+        foreach (IdentityArcPair both_arcpair in both_arcpairs)
+            both_peermacs.add(both_arcpair.new_id_arc.peer_mac);
+        if (new_id.main_id)
+        {
+            IpCommands.main_dup(new_id, host_gnode_level, guest_gnode_level,
+                prev_local_ip_set, prev_dest_ip_set,
+                prev_peermacs, new_peermacs, both_peermacs);
+        }
+        else
+        {
+            IpCommands.connectivity_dup(new_id, host_gnode_level, guest_gnode_level,
+                prev_dest_ip_set,
+                prev_peermacs, new_peermacs, both_peermacs);
+        }
+
+        IpCommands.connectivity_stop(old_id, old_id_peermacs);
+    }
+
+    QspnManager enter_another_network_qspn(IdentityData old_id, IdentityData new_id,
+        QspnManager old_id_qspn_mgr,
+        int guest_gnode_level, int connectivity_virtual_pos, int connectivity_eldership,
+        int[] host_gnode_positions, int new_position_in_host_gnode,
+        int[] host_gnode_elderships, int new_eldership_in_host_gnode,
+        Gee.List<IdentityArcPair> prev_arcpairs, Gee.List<IdentityArcPair> new_arcpairs, Gee.List<IdentityArcPair> both_arcpairs)
+    {
+        assert(host_gnode_positions.length == host_gnode_elderships.length);
+        int host_gnode_level = levels - host_gnode_positions.length;
+        assert(guest_gnode_level >= 0);
+        assert(guest_gnode_level < host_gnode_level);
+
+        // Prepare update_copied_internal_fingerprints
+        ChangeFingerprintDelegate update_copied_internal_fingerprints = (_f) => {
+            Fingerprint f = (Fingerprint)_f;
+            for (int l = guest_gnode_level; l < levels; l++)
+                f.elderships[l] = new_id.my_fp.elderships[l];
+            return f;
+            // Returning the same instance is ok, because the delegate is alway
+            // called like "x = update_internal_fingerprints(x)"
+        };
+
+        // Prepare internal arcs
+        ArrayList<IQspnArc> internal_arc_set = new ArrayList<IQspnArc>();
+        ArrayList<IQspnNaddr> internal_arc_peer_naddr_set = new ArrayList<IQspnNaddr>();
+        ArrayList<IQspnArc> internal_arc_prev_arc_set = new ArrayList<IQspnArc>();
+
+        foreach (IdentityArcPair arcpair in both_arcpairs)
+        {
+            IdentityArc w0 = arcpair.old_id_arc;
+            IdentityArc w1 = arcpair.new_id_arc;
+
+            NodeID destid = w1.id_arc.get_peer_nodeid();
+            NodeID sourceid = w1.id; // == new_id
+            w1.qspn_arc = new QspnArc(sourceid, destid, w1, w1.peer_mac);
+
+            assert(w0.qspn_arc != null);
+            IQspnNaddr? _w0_peer_naddr = old_id_qspn_mgr.get_naddr_for_arc(w0.qspn_arc);
+            assert(_w0_peer_naddr != null);
+            Naddr w0_peer_naddr = (Naddr)_w0_peer_naddr;
+            ArrayList<int> _w1_peer_naddr = new ArrayList<int>();
+            _w1_peer_naddr.add_all(w0_peer_naddr.pos.slice(0, host_gnode_level-1));
+            _w1_peer_naddr.add_all(new_id.my_naddr.pos.slice(host_gnode_level-1, levels));
+            Naddr w1_peer_naddr = new Naddr(_w1_peer_naddr.to_array(), gsizes.to_array());
+
+            // Now add: the 3 ArrayList should have same size at the end.
+            internal_arc_set.add(w1.qspn_arc);
+            internal_arc_peer_naddr_set.add(w1_peer_naddr);
+            internal_arc_prev_arc_set.add(w0.qspn_arc);
+        }
+
+        // Prepare external arcs
+        ArrayList<IQspnArc> external_arc_set = new ArrayList<IQspnArc>();
+
+        foreach (IdentityArcPair arcpair in new_arcpairs)
+        {
+            IdentityArc w0 = arcpair.old_id_arc;
+            IdentityArc w1 = arcpair.new_id_arc;
+
+            NodeID destid = w1.id_arc.get_peer_nodeid();
+            NodeID sourceid = w1.id; // == new_id
+            w1.qspn_arc = new QspnArc(sourceid, destid, w1, w1.peer_mac);
+
+            external_arc_set.add(w1.qspn_arc);
+        }
+
+        QspnManager qspn_mgr = new QspnManager.enter_net(
+            internal_arc_set,
+            internal_arc_prev_arc_set,
+            internal_arc_peer_naddr_set,
+            external_arc_set,
+            new_id.my_naddr,
+            new_id.my_fp,
+            update_copied_internal_fingerprints,
+            new QspnStubFactory(new_id),
+            /*hooking_gnode_level*/ 0,
+            /*into_gnode_level*/ 1,
+            /*previous_identity*/ old_id_qspn_mgr);
+
+        return qspn_mgr;
     }
 }
