@@ -1,6 +1,6 @@
 /*
  *  This file is part of Netsukuku.
- *  Copyright (C) 2017 Luca Dionisi aka lukisi <luca.dionisi@gmail.com>
+ *  Copyright (C) 2017-2018 Luca Dionisi aka lukisi <luca.dionisi@gmail.com>
  *
  *  Netsukuku is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,9 +50,34 @@ namespace Netsukuku
         public void * func()
         {
             tasklet.ms_wait(1000);
+            // first_identity_data nodeid 948911663 is in network_id 348371222.
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
+
+            // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
+            foreach (IdentityArc w0 in first_identity_data.identity_arcs)
+                if (w0.id_arc.get_peer_nodeid().id == 1239482480)
+                w0.network_id = 380228860;
+
+            // Simulation: Hooking does not tell us to enter
+
+            tasklet.ms_wait(5000);
+
+            // Simulation: Hooking informs us that this id_arc's peer is of our same network.
+            foreach (IdentityArc w0 in first_identity_data.identity_arcs)
+                if (w0.id_arc.get_peer_nodeid().id == 948911663)
+            {
+                w0.network_id = 348371222;
+                NodeID destid = w0.id_arc.get_peer_nodeid();
+                NodeID sourceid = w0.id; // == first_identity_data.nodeid
+                w0.qspn_arc = new QspnArc(sourceid, destid, w0, w0.peer_mac);
+
+                QspnManager my_qspn = (QspnManager)identity_mgr.get_identity_module(first_identity_data.nodeid, "qspn");
+                my_qspn.arc_add(w0.qspn_arc);
+            }
+
+            if (true) return null;
 
             tasklet.ms_wait(5000);
             identity_mgr.prepare_add_identity(2, first_identity_data.nodeid);

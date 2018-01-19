@@ -77,7 +77,14 @@ namespace Netsukuku
 
     void per_identity_qspn_qspn_bootstrap_complete(IdentityData id)
     {
-        warning("per_identity_qspn_qspn_bootstrap_complete: not implemented yet");
+        QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
+        Fingerprint fp_levels;
+        try {
+            fp_levels = (Fingerprint)qspn_mgr.get_fingerprint(levels);
+        } catch (QspnBootstrapInProgressError e) {
+            assert_not_reached();
+        }
+        print(@"per_identity_qspn_qspn_bootstrap_complete: my id $(id.nodeid.id) is in network_id $(fp_levels.id).\n");
     }
 
     void per_identity_qspn_remove_identity(IdentityData id)

@@ -86,6 +86,7 @@ namespace Netsukuku.IpCompute
         int i = prev_lvl; int j = prev_pos;
         {
             HCoord hc = new HCoord(i, j);
+            id.dest_ip_set.gnode[hc] = new DestinationIPSetGnode();
             Gee.List<int> hc_addr = n_addr.slice(i+1, n_addr.size);
             hc_addr.insert(0, j);
             id.dest_ip_set.gnode[hc].global = ip_global_gnode(hc_addr);

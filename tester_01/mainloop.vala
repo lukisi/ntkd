@@ -1,6 +1,6 @@
 /*
  *  This file is part of Netsukuku.
- *  Copyright (C) 2017 Luca Dionisi aka lukisi <luca.dionisi@gmail.com>
+ *  Copyright (C) 2017-2018 Luca Dionisi aka lukisi <luca.dionisi@gmail.com>
  *
  *  Netsukuku is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,19 +50,20 @@ namespace Netsukuku
         public void * func()
         {
             tasklet.ms_wait(1000);
+            // first_identity_data nodeid 1239482480 is in network_id 380228860.
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
             foreach (IdentityArc w0 in first_identity_data.identity_arcs)
-                if (w0.id_arc.get_peer_nodeid().id == 992832884)
-                w0.network_id = 12345;
+                if (w0.id_arc.get_peer_nodeid().id == 948911663)
+                w0.network_id = 348371222;
 
             tasklet.ms_wait(1000);
 
-            // Simulation: Hooking says we must enter in network_id = 12345
-            int64 enter_into_network_id = 12345;
+            // Simulation: Hooking says we must enter in network_id = 348371222
+            int64 enter_into_network_id = 348371222;
             int guest_gnode_level = 0;
             int go_connectivity_position = 2;
             int go_connectivity_eldership = 1;
@@ -80,7 +81,24 @@ namespace Netsukuku
                 host_gnode_positions, new_position_in_host_gnode,
                 host_gnode_elderships, new_eldership_in_host_gnode);
 
+            // second_identity_data nodeid 1595149094 should be in about (2?) seconds in network_id 348371222.
+
             // TODO continue
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             return null;
         }

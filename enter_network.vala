@@ -97,13 +97,30 @@ namespace Netsukuku
                 if (arcpair.old_id_arc.network_id == enter_into_network_id)
                 {
                     // the peer will be in same network as new_id
-                    both_arcpairs.add(arcpair);
+                    new_arcpairs.add(arcpair);
                 }
             }
         }
 
+        // Old identity will become of connectivity and so will change its
+        //  address and elderships. The call to `make_connectivity` must be done after the
+        //  creation of new identity with `enter_net`. But the data
+        //  structure IdentityData will be changed now in order to use
+        //  in 'enter_another_network_commands' function.
+        Naddr old_naddr = old_identity_data.my_naddr;
+        Fingerprint old_fp = old_identity_data.my_fp;
+
+        ArrayList<int> _naddr_temp = new ArrayList<int>();
+        _naddr_temp.add_all(old_identity_data.my_naddr.pos);
+        _naddr_temp[guest_gnode_level] = go_connectivity_position;
+        old_identity_data.my_naddr = new Naddr(_naddr_temp.to_array(), gsizes.to_array());
+        ArrayList<int> _elderships_temp = new ArrayList<int>();
+        _elderships_temp.add_all(old_identity_data.my_fp.elderships);
+        _elderships_temp[guest_gnode_level] = go_connectivity_eldership;
+        old_identity_data.my_fp = new Fingerprint(_elderships_temp.to_array(), old_identity_data.my_fp.id);
+
         enter_another_network_commands(old_identity_data, new_identity_data,
-            guest_gnode_level, go_connectivity_position, go_connectivity_eldership,
+            guest_gnode_level, old_naddr, old_fp,
             host_gnode_positions, new_position_in_host_gnode,
             host_gnode_elderships, new_eldership_in_host_gnode,
             prev_arcpairs, new_arcpairs, both_arcpairs);
@@ -140,7 +157,7 @@ namespace Netsukuku
     }
 
     void enter_another_network_commands(IdentityData old_id, IdentityData new_id,
-        int guest_gnode_level, int connectivity_virtual_pos, int connectivity_eldership,
+        int guest_gnode_level, Naddr old_naddr, Fingerprint old_fp,
         int[] host_gnode_positions, int new_position_in_host_gnode,
         int[] host_gnode_elderships, int new_eldership_in_host_gnode,
         Gee.List<IdentityArcPair> prev_arcpairs, Gee.List<IdentityArcPair> new_arcpairs, Gee.List<IdentityArcPair> both_arcpairs)
@@ -149,8 +166,6 @@ namespace Netsukuku
         int host_gnode_level = levels - host_gnode_positions.length;
         assert(guest_gnode_level >= 0);
         assert(guest_gnode_level < host_gnode_level);
-        Naddr old_naddr = old_id.my_naddr;
-        Fingerprint old_fp = old_id.my_fp;
 
         int old_id_prev_lvl = guest_gnode_level;
         int old_id_prev_pos = old_naddr.pos[old_id_prev_lvl];
@@ -211,7 +226,7 @@ namespace Netsukuku
 
     QspnManager enter_another_network_qspn(IdentityData old_id, IdentityData new_id,
         QspnManager old_id_qspn_mgr,
-        int guest_gnode_level, int connectivity_virtual_pos, int connectivity_eldership,
+        int guest_gnode_level, int go_connectivity_position, int go_connectivity_eldership,
         int[] host_gnode_positions, int new_position_in_host_gnode,
         int[] host_gnode_elderships, int new_eldership_in_host_gnode,
         Gee.List<IdentityArcPair> prev_arcpairs, Gee.List<IdentityArcPair> new_arcpairs, Gee.List<IdentityArcPair> both_arcpairs)
@@ -287,6 +302,33 @@ namespace Netsukuku
             guest_gnode_level,
             host_gnode_level,
             old_id_qspn_mgr);
+
+        // Prepare old_identity_update_naddr
+        ChangeNaddrDelegate old_identity_update_naddr = (_a) => {
+            Naddr a = (Naddr)_a;
+            ArrayList<int> _naddr_temp = new ArrayList<int>();
+            _naddr_temp.add_all(a.pos);
+            _naddr_temp[guest_gnode_level] = go_connectivity_position;
+            return new Naddr(_naddr_temp.to_array(), gsizes.to_array());
+        };
+
+        // Prepare old_identity_update_internal_fingerprints
+        ChangeFingerprintDelegate old_identity_update_internal_fingerprints = (_f) => {
+            Fingerprint f = (Fingerprint)_f;
+            for (int l = guest_gnode_level; l < levels; l++)
+                f.elderships[l] = old_id.my_fp.elderships[l];
+            return f;
+            // Returning the same instance is ok, because the delegate is alway
+            // called like "x = update_internal_fingerprints(x)"
+        };
+
+        // call to make_connectivity
+        old_id_qspn_mgr.make_connectivity(
+            old_id.connectivity_from_level,
+            old_id.connectivity_to_level,
+            old_identity_update_naddr,
+            old_identity_update_internal_fingerprints,
+            old_id.my_fp);
 
         return qspn_mgr;
     }
