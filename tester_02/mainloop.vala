@@ -49,32 +49,34 @@ namespace Netsukuku
     {
         public void * func()
         {
-            tasklet.ms_wait(1000);
+            tasklet.ms_wait(2000);
+            print("tester02: test begins\n");
             // first_identity_data nodeid 948911663 is in network_id 348371222.
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
+            print("Simulation: Peer 1239482480 is on 380228860.\n");
             foreach (IdentityArc w0 in first_identity_data.identity_arcs)
                 if (w0.id_arc.get_peer_nodeid().id == 1239482480)
+            {
+                print("Peer 1239482480 found.\n");
                 w0.network_id = 380228860;
+            }
 
             // Simulation: Hooking does not tell us to enter
 
-            tasklet.ms_wait(5000);
+            tasklet.ms_wait(3000);
 
             // Simulation: Hooking informs us that this id_arc's peer is of our same network.
+            print("Simulation: Peer 1595149094 is on 348371222.\n");
             foreach (IdentityArc w0 in first_identity_data.identity_arcs)
-                if (w0.id_arc.get_peer_nodeid().id == 948911663)
+                if (w0.id_arc.get_peer_nodeid().id == 1595149094)
             {
+                print("Peer 1595149094 found.\n");
                 w0.network_id = 348371222;
-                NodeID destid = w0.id_arc.get_peer_nodeid();
-                NodeID sourceid = w0.id; // == first_identity_data.nodeid
-                w0.qspn_arc = new QspnArc(sourceid, destid, w0, w0.peer_mac);
-
-                QspnManager my_qspn = (QspnManager)identity_mgr.get_identity_module(first_identity_data.nodeid, "qspn");
-                my_qspn.arc_add(w0.qspn_arc);
+                UpdateGraph.add_arc(w0); // this will set w0.qspn_arc
             }
 
             if (true) return null;

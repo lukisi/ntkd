@@ -26,6 +26,18 @@ using Netsukuku.Hooking;
 using Netsukuku.Andna;
 using TaskletSystem;
 
-namespace Netsukuku
+namespace Netsukuku.UpdateGraph
 {
+    void add_arc(IdentityArc identity_arc)
+    {
+        IdentityData identity_data = identity_arc.identity_data;
+
+        NodeID destid = identity_arc.id_arc.get_peer_nodeid();
+        NodeID sourceid = identity_arc.id; // == identity_data.nodeid
+        identity_arc.qspn_arc = new QspnArc(sourceid, destid, identity_arc, identity_arc.peer_mac);
+
+        QspnManager my_qspn = (QspnManager)identity_mgr.get_identity_module(identity_data.nodeid, "qspn");
+        my_qspn.arc_add(identity_arc.qspn_arc);
+        IpCommands.new_arc(identity_data, identity_arc.peer_mac);
+    }
 }

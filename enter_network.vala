@@ -26,15 +26,15 @@ using Netsukuku.Hooking;
 using Netsukuku.Andna;
 using TaskletSystem;
 
-namespace Netsukuku
+namespace Netsukuku.EnterNetwork
 {
-    void prepare_enter_another_network(int migration_id, IdentityData old_identity_data)
+    void prepare_enter(int migration_id, IdentityData old_identity_data)
     {
         // Prepare duplication.
         identity_mgr.prepare_add_identity(migration_id, old_identity_data.nodeid);
     }
 
-    IdentityData enter_another_network(int migration_id, IdentityData old_identity_data, int64 enter_into_network_id,
+    IdentityData enter(int migration_id, IdentityData old_identity_data, int64 enter_into_network_id,
         int guest_gnode_level, int go_connectivity_position, int go_connectivity_eldership,
         int[] host_gnode_positions, int new_position_in_host_gnode,
         int[] host_gnode_elderships, int new_eldership_in_host_gnode)
@@ -152,6 +152,15 @@ namespace Netsukuku
 
         identity_mgr.set_identity_module(new_nodeid, "qspn", new_qspn);
         new_identity_data.addr_man.qspn_mgr = new_qspn;  // weak ref
+
+        foreach (IdentityArc ia in old_identity_data.identity_arcs)
+        {
+            ia.prev_peer_mac = null;
+            ia.prev_peer_linklocal = null;
+            ia.prev_tablename = null;
+            ia.prev_tid = null;
+            ia.prev_rule_added = null;
+        }
 
         return new_identity_data;
     }

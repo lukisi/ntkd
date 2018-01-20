@@ -49,16 +49,21 @@ namespace Netsukuku
     {
         public void * func()
         {
-            tasklet.ms_wait(1000);
+            tasklet.ms_wait(2000);
+            print("tester01: test begins\n");
             // first_identity_data nodeid 1239482480 is in network_id 380228860.
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
+            print("Simulation: Peer 948911663 is on 348371222.\n");
             foreach (IdentityArc w0 in first_identity_data.identity_arcs)
                 if (w0.id_arc.get_peer_nodeid().id == 948911663)
+            {
+                print("Peer 948911663 found.\n");
                 w0.network_id = 348371222;
+            }
 
             tasklet.ms_wait(1000);
 
@@ -73,15 +78,15 @@ namespace Netsukuku
             int new_eldership_in_host_gnode = 1;
             int migration_id = 1;
 
-            prepare_enter_another_network(migration_id, first_identity_data);
+            EnterNetwork.prepare_enter(migration_id, first_identity_data);
             tasklet.ms_wait(0);
             IdentityData second_identity_data =
-                enter_another_network(migration_id, first_identity_data, enter_into_network_id,
+                EnterNetwork.enter(migration_id, first_identity_data, enter_into_network_id,
                 guest_gnode_level, go_connectivity_position, go_connectivity_eldership,
                 host_gnode_positions, new_position_in_host_gnode,
                 host_gnode_elderships, new_eldership_in_host_gnode);
 
-            // second_identity_data nodeid 1595149094 should be in about (2?) seconds in network_id 348371222.
+            // second_identity_data nodeid 1595149094 should be in about 3 seconds bootstrapped in network_id 348371222.
 
             // TODO continue
 
