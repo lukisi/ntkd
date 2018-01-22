@@ -740,9 +740,27 @@ namespace Netsukuku.IpCommands
         }
     }
 
-    void removed_arc(IdentityData id)
+    void removed_arc(IdentityData id, string peermac)
     {
-        warning("not implemented yet");
+        ArrayList<string> prefix_cmd = new ArrayList<string>();
+        if (! id.main_id)
+        prefix_cmd.add_all_array({
+            @"ip", @"netns", @"exec", @"$(id.network_namespace)"});
+
+        string m = peermac;
+        {
+            string table;
+            int tid;
+            tn.get_table(null, m, out tid, out table);
+            cat_cmd(prefix_cmd, {
+                @"ip", @"route", @"flush", @"table", @"$(table)"});
+            cat_cmd(prefix_cmd, {
+                @"ip", @"rule", @"del", @"fwmark", @"$(tid)", @"table", @"$(table)"});
+            cat_cmd(prefix_cmd, {
+                @"iptables", @"-t", @"mangle", @"-D", @"PREROUTING", @"-m", @"mac",
+                @"--mac-source", @"$(m)", @"-j", @"MARK", @"--set-mark", @"$(tid)"});
+            if (tn.decref_table(m) <= 0) tn.release_table(null, m);
+        }
     }
 
     void connectivity_stop(IdentityData id, Gee.List<string> peermacs)

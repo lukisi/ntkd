@@ -82,9 +82,16 @@ namespace Netsukuku
 
         // iproute commands for cleanup main identity
         ArrayList<string> peermacs = new ArrayList<string>();
+        print("removing main_id\n");
         foreach (IdentityArc id_arc in identity_data.identity_arcs)
+        {
+            print(@"id_arc to $(id_arc.peer_mac)\n");
             if (id_arc.qspn_arc != null)
+            {
+                print("    has qspn\n");
             peermacs.add(id_arc.peer_mac);
+            }
+        }
         IpCommands.main_stop(identity_data, peermacs);
 
         // Then we destroy the object NeighborhoodManager.

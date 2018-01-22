@@ -157,9 +157,6 @@ namespace Netsukuku.EnterNetwork
         {
             ia.prev_peer_mac = null;
             ia.prev_peer_linklocal = null;
-            ia.prev_tablename = null;
-            ia.prev_tid = null;
-            ia.prev_rule_added = null;
         }
 
         // remove old identity.

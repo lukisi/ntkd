@@ -73,9 +73,6 @@ namespace Netsukuku
             // After that, we need no more to keep old values.
             ia.prev_peer_mac = null;
             ia.prev_peer_linklocal = null;
-            ia.prev_tablename = null;
-            ia.prev_tid = null;
-            ia.prev_rule_added = null;
         }
     }
 
@@ -86,12 +83,18 @@ namespace Netsukuku
         // Retrieve IdentityArc.
         IdentityArc ia = find_identity_arc_by_peer_nodeid(identity_data, arc, peer_nodeid);
 
-        // TODO If a Qspn arc exists for it, change routes in kernel tables.
-        //      Then remove Qspn arc.
-
         print(@"identities_identity_arc_removing: my id $(identity_data.nodeid.id) connected to");
         print(@" id $(ia.id_arc.get_peer_nodeid().id) on arc $(((IdmgmtArc)arc).id).\n");
         print(@" peer_linklocal = $(ia.peer_linklocal).\n");
+
+        if (ia.qspn_arc != null)
+        {
+            // Remove Qspn arc.
+            QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id, "qspn");
+            qspn_mgr.arc_remove(ia.qspn_arc);
+            // Wait for signals from qspn_mgr.
+            tasklet.ms_wait(3000);
+        }
     }
 
     void identities_identity_arc_removed(IIdmgmtArc arc, NodeID id, NodeID peer_nodeid)
@@ -101,12 +104,18 @@ namespace Netsukuku
         // Retrieve IdentityArc.
         IdentityArc ia = find_identity_arc_by_peer_nodeid(identity_data, arc, peer_nodeid);
 
-        // Remove from the list.
-        identity_data.identity_arcs.remove(ia);
-
         print(@"identities_identity_arc_removed: my id $(identity_data.nodeid.id) connected to");
         print(@" id $(ia.id_arc.get_peer_nodeid().id) on arc $(((IdmgmtArc)arc).id).\n");
         print(@" peer_linklocal = $(ia.peer_linklocal).\n");
+
+        if (ia.qspn_arc != null)
+        {
+            ia.qspn_arc = null;
+            // Remove from the list.
+            identity_data.identity_arcs.remove(ia);
+            // Then remove kernel tables.
+            IpCommands.removed_arc(identity_data, ia.peer_mac);
+        }
     }
 
     void identities_arc_removed(IIdmgmtArc arc)

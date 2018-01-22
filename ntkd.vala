@@ -277,14 +277,8 @@ namespace Netsukuku
 
         public QspnArc? qspn_arc;
         public int64? network_id;
-        public string? tablename;
-        public int? tid;
-        public bool? rule_added;
         public string? prev_peer_mac;
         public string? prev_peer_linklocal;
-        public string? prev_tablename;
-        public int? prev_tid;
-        public bool? prev_rule_added;
 
         public IdentityArc(IdentityData identity_data, IIdmgmtArc arc, IIdmgmtIdentityArc id_arc)
         {
@@ -297,14 +291,8 @@ namespace Netsukuku
 
             qspn_arc = null;
             network_id = null;
-            tablename = null;
-            tid = null;
-            rule_added = null;
             prev_peer_mac = null;
             prev_peer_linklocal = null;
-            prev_tablename = null;
-            prev_tid = null;
-            prev_rule_added = null;
         }
     }
 
