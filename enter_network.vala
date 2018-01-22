@@ -162,6 +162,13 @@ namespace Netsukuku.EnterNetwork
             ia.prev_rule_added = null;
         }
 
+        // remove old identity.
+        old_qspn.destroy();
+        identity_mgr.remove_identity(old_identity_data.nodeid);
+        old_identity_data.qspn_handlers_disabled = true;
+        old_qspn.stop_operations();
+        remove_local_identity(old_identity_data.nodeid);
+
         return new_identity_data;
     }
 
