@@ -765,12 +765,14 @@ namespace Netsukuku.IpCommands
 
     void connectivity_stop(IdentityData id, Gee.List<string> peermacs)
     {
+        print(@"IpCommands.connectivity_stop: peermacs has $(peermacs.size) items.\n");
         foreach (string m in peermacs)
             if (tn.decref_table(m) <= 0) tn.release_table(null, m);
     }
 
     void main_stop(IdentityData id, Gee.List<string> peermacs)
     {
+        print(@"IpCommands.main_stop: peermacs has $(peermacs.size) items.\n");
         ArrayList<string> devs = new ArrayList<string>();
         foreach (HandledNic n in handlednic_list) devs.add(n.dev);
         LocalIPSet local_ip_set = id.local_ip_set;

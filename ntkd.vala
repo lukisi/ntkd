@@ -160,6 +160,7 @@ namespace Netsukuku
             copy_of_identity = null;
             local_ip_set = null;
             dest_ip_set = null;
+            bootstrap_phase_pending_updates = new ArrayList<HCoord>();
         }
 
         public NodeID nodeid;
@@ -264,6 +265,8 @@ namespace Netsukuku
             if (qspn_handlers_disabled) return;
             per_identity_qspn_remove_identity(this);
         }
+
+        public Gee.List<HCoord> bootstrap_phase_pending_updates;
     }
 
     class IdentityArc : Object
@@ -371,14 +374,14 @@ namespace Netsukuku
 
         public DestinationIPSet()
         {
-            gnode = new HashMap<HCoord,DestinationIPSetGnode>(null, (a, b) => a.equals(b));
+            gnode = new HashMap<HCoord,DestinationIPSetGnode>((x) => 0, (a, b) => a.equals(b));
         }
 
         private Gee.List<HCoord> _sorted_gnode_keys;
         public Gee.List<HCoord> sorted_gnode_keys
         {
             get {
-                ArrayList<HCoord> ret = new ArrayList<HCoord>();
+                ArrayList<HCoord> ret = new ArrayList<HCoord>((a, b) => a.equals(b));
                 ret.add_all(gnode.keys);
                 ret.sort((a, b) => {
                     if (a.lvl > b.lvl) return -1;

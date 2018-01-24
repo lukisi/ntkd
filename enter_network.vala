@@ -161,6 +161,18 @@ namespace Netsukuku.EnterNetwork
 
         // remove old identity.
         old_qspn.destroy();
+        old_qspn.arc_removed.disconnect(old_identity_data.arc_removed);
+        old_qspn.changed_fp.disconnect(old_identity_data.changed_fp);
+        old_qspn.changed_nodes_inside.disconnect(old_identity_data.changed_nodes_inside);
+        old_qspn.destination_added.disconnect(old_identity_data.destination_added);
+        old_qspn.destination_removed.disconnect(old_identity_data.destination_removed);
+        old_qspn.gnode_splitted.disconnect(old_identity_data.gnode_splitted);
+        old_qspn.path_added.disconnect(old_identity_data.path_added);
+        old_qspn.path_changed.disconnect(old_identity_data.path_changed);
+        old_qspn.path_removed.disconnect(old_identity_data.path_removed);
+        old_qspn.presence_notified.disconnect(old_identity_data.presence_notified);
+        old_qspn.qspn_bootstrap_complete.disconnect(old_identity_data.qspn_bootstrap_complete);
+        old_qspn.remove_identity.disconnect(old_identity_data.remove_identity);
         identity_mgr.remove_identity(old_identity_data.nodeid);
         old_identity_data.qspn_handlers_disabled = true;
         old_qspn.stop_operations();

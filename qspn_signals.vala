@@ -57,17 +57,59 @@ namespace Netsukuku
 
     void per_identity_qspn_path_added(IdentityData id, IQspnNodePath p)
     {
-        warning("per_identity_qspn_path_added: not implemented yet");
+        per_identity_qspn_map_update(id, p);
     }
 
     void per_identity_qspn_path_changed(IdentityData id, IQspnNodePath p)
     {
-        warning("per_identity_qspn_path_changed: not implemented yet");
+        per_identity_qspn_map_update(id, p);
     }
 
     void per_identity_qspn_path_removed(IdentityData id, IQspnNodePath p)
     {
-        warning("per_identity_qspn_path_removed: not implemented yet");
+        per_identity_qspn_map_update(id, p);
+    }
+
+    void per_identity_qspn_map_update(IdentityData id, IQspnNodePath p)
+    {
+        HCoord hc = p.i_qspn_get_hops().last().i_qspn_get_hcoord();
+        if (hc in id.dest_ip_set.gnode.keys)
+        {
+            QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
+            try {
+                qspn_mgr.get_paths_to(hc);
+            } catch (QspnBootstrapInProgressError e) {
+                id.bootstrap_phase_pending_updates.add(hc);
+                return;
+            }
+            do_map_update(id, hc);
+        }
+    }
+
+    void do_map_update(IdentityData id, HCoord hc)
+    {
+        QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
+        Gee.List<IQspnNodePath> paths;
+        try {
+            paths = qspn_mgr.get_paths_to(hc);
+        } catch (QspnBootstrapInProgressError e) {
+            assert_not_reached();
+        }
+        ArrayList<string> peer_mac_set = new ArrayList<string>();
+        ArrayList<HCoord> peer_hc_set = new ArrayList<HCoord>();
+        foreach (IdentityArc ia in id.identity_arcs) if (ia.qspn_arc != null)
+        {
+            QspnArc qspn_arc = (QspnArc)ia.qspn_arc;
+            string peer_mac = qspn_arc.peer_mac;
+            IQspnNaddr? peer_naddr = qspn_mgr.get_naddr_for_arc(qspn_arc);
+            if (peer_naddr != null)
+            {
+                HCoord peer_hc = id.my_naddr.i_qspn_get_coord_by_address(peer_naddr);
+                peer_mac_set.add(peer_mac);
+                peer_hc_set.add(peer_hc);
+            }
+        }
+        IpCommands.map_update(id, hc, paths, peer_mac_set, peer_hc_set);
     }
 
     void per_identity_qspn_presence_notified(IdentityData id)
@@ -85,6 +127,7 @@ namespace Netsukuku
             assert_not_reached();
         }
         print(@"per_identity_qspn_qspn_bootstrap_complete: my id $(id.nodeid.id) is in network_id $(fp_levels.id).\n");
+        foreach (HCoord hc in id.bootstrap_phase_pending_updates) do_map_update(id, hc);
     }
 
     void per_identity_qspn_remove_identity(IdentityData id)
