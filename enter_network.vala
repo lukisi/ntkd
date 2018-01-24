@@ -199,7 +199,6 @@ namespace Netsukuku.EnterNetwork
         if (new_id.main_id) prev_local_ip_set = old_id.local_ip_set.copy();
         DestinationIPSet prev_dest_ip_set = old_id.dest_ip_set.copy();
 
-        new_id.addr_man = new AddressManagerForIdentity();
         ArrayList<int> pos = new ArrayList<int>.wrap(host_gnode_positions);
         pos.insert(0, new_position_in_host_gnode);
         for (int i = host_gnode_level-2; i >= 0; i--)

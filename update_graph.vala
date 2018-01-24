@@ -40,4 +40,30 @@ namespace Netsukuku.UpdateGraph
         my_qspn.arc_add(identity_arc.qspn_arc);
         IpCommands.new_arc(identity_data, identity_arc.peer_mac);
     }
+
+    void do_map_update(IdentityData id, HCoord hc)
+    {
+        QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
+        Gee.List<IQspnNodePath> paths;
+        try {
+            paths = qspn_mgr.get_paths_to(hc);
+        } catch (QspnBootstrapInProgressError e) {
+            assert_not_reached();
+        }
+        ArrayList<string> peer_mac_set = new ArrayList<string>();
+        ArrayList<HCoord> peer_hc_set = new ArrayList<HCoord>();
+        foreach (IdentityArc ia in id.identity_arcs) if (ia.qspn_arc != null)
+        {
+            QspnArc qspn_arc = (QspnArc)ia.qspn_arc;
+            string peer_mac = qspn_arc.peer_mac;
+            IQspnNaddr? peer_naddr = qspn_mgr.get_naddr_for_arc(qspn_arc);
+            if (peer_naddr != null)
+            {
+                HCoord peer_hc = id.my_naddr.i_qspn_get_coord_by_address(peer_naddr);
+                peer_mac_set.add(peer_mac);
+                peer_hc_set.add(peer_hc);
+            }
+        }
+        IpCommands.map_update(id, hc, paths, peer_mac_set, peer_hc_set);
+    }
 }
