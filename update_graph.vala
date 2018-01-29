@@ -41,7 +41,7 @@ namespace Netsukuku.UpdateGraph
         IpCommands.new_arc(identity_data, identity_arc.peer_mac);
     }
 
-    void do_map_update(IdentityData id, HCoord hc)
+    void update_destination(IdentityData id, HCoord hc)
     {
         QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
         Gee.List<IQspnNodePath> paths;

@@ -304,7 +304,6 @@ namespace Netsukuku.EnterNetwork
 
         foreach (IdentityArcPair arcpair in new_arcpairs)
         {
-            IdentityArc w0 = arcpair.old_id_arc;
             IdentityArc w1 = arcpair.new_id_arc;
 
             NodeID destid = w1.id_arc.get_peer_nodeid();

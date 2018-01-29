@@ -82,7 +82,7 @@ namespace Netsukuku
                 id.bootstrap_phase_pending_updates.add(hc);
                 return;
             }
-            UpdateGraph.do_map_update(id, hc);
+            UpdateGraph.update_destination(id, hc);
         }
     }
 
@@ -101,7 +101,7 @@ namespace Netsukuku
             assert_not_reached();
         }
         print(@"per_identity_qspn_qspn_bootstrap_complete: my id $(id.nodeid.id) is in network_id $(fp_levels.id).\n");
-        foreach (HCoord hc in id.bootstrap_phase_pending_updates) UpdateGraph.do_map_update(id, hc);
+        foreach (HCoord hc in id.bootstrap_phase_pending_updates) UpdateGraph.update_destination(id, hc);
     }
 
     void per_identity_qspn_remove_identity(IdentityData id)
