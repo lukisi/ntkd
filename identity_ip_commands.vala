@@ -788,7 +788,7 @@ namespace Netsukuku.IpCommands
             int tid;
             tn.get_table(null, m, out tid, out table);
             cm.single_command(new ArrayList<string>.wrap({
-                @"ip", @"rule", @"del", @"table", @"$(table)"}));
+                @"ip", @"rule", @"del", @"fwmark", @"$(tid)", @"table", @"$(table)"}));
             cm.single_command(new ArrayList<string>.wrap({
                 @"ip", @"route", @"flush", @"table", @"$(table)"}));
             cm.single_command(new ArrayList<string>.wrap({
