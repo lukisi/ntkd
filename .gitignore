@@ -1,4 +1,5 @@
 ntkd.c
+cleaning.c
 rngen.c
 configuration.c
 startup.c

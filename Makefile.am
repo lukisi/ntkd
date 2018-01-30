@@ -16,6 +16,7 @@ noinst_LTLIBRARIES = \
 
 bin_PROGRAMS =  \
 	ntkd \
+	ntkd_cleaning \
 	ntkd_tester_01 \
 	ntkd_tester_02 \
 	$(NULL)
@@ -113,6 +114,40 @@ ntkd_LDADD = \
 	$(builddir)/coordinator/libcoord.la \
 	$(builddir)/hooking/libhooking.la \
 	$(builddir)/andna/libandna.la \
+	$(NULL)
+
+
+ntkd_cleaning_SOURCES =  \
+	cleaning/cleaning.vala \
+	cleaning/commander.vala \
+	mac-getter/hw.vapi \
+	$(NULL)
+
+ntkd_cleaning_VALAFLAGS = \
+	--vapidir $(GEE_PREFIX)/share/vala/vapi \
+	--vapidir $(TASKLETSYSTEM_VAPIDIR) \
+	--vapidir $(PTHTASKLET_VAPIDIR) \
+	--pkg gee-0.8 \
+	--pkg tasklet-system \
+	--pkg pth-tasklet \
+	--pkg posix \
+	$(NULL)
+
+ntkd_cleaning_CPPFLAGS = \
+	-w \
+	$(GOBJECT_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(TASKLETSYSTEM_CFLAGS) \
+	$(PTHTASKLET_CFLAGS) \
+	$(NULL)
+
+ntkd_cleaning_LDADD = \
+	-lm \
+	$(GOBJECT_LIBS) \
+	$(GEE_LIBS) \
+	$(TASKLETSYSTEM_LIBS) \
+	$(PTHTASKLET_LIBS) \
+	$(builddir)/libmacgetter.la \
 	$(NULL)
 
 
