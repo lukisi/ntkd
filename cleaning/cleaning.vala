@@ -102,6 +102,94 @@ namespace Netsukuku
         table_names_fix();
         table_names_verify();
 
+        for (int i = 251; i >= 200; i--)
+        {
+            cm.command(new ArrayList<string>.wrap({
+                @"ip", @"route", @"flush", @"table", @"$(i)"}));
+        }
+
+        for (int i = 251; i >= 200; i--)
+        {
+            cm.mayfail_command(new ArrayList<string>.wrap({
+                @"ip", @"rule", @"del", @"table", @"$(i)"}));
+        }
+
+        foreach (string dev in devs)
+        {
+            com_ret = cm.command(new ArrayList<string>.wrap({
+                @"ip", @"route", @"list"}));
+            lines = get_lines(com_ret.stdout);
+            foreach (string line in lines)
+            {
+                MatchInfo match_info;
+                Regex r;
+                try {
+                    r = new Regex(@"^169\\.254\\.\\d+\\.\\d+\\b.* dev $(dev) .* src 169\\.254\\.\\d+\\.\\d+\\b");
+                } catch (RegexError e) {
+                    error(@"searching linklocal for $(dev): $(e.message)");
+                }
+                if (r.match(line, 0, out match_info))
+                {
+                    int i = line.index_of(" ");
+                    string dst = line.substring(0, i);
+                    MatchInfo match_info2;
+                    Regex r2 = / src 169\.254\.\d+\.\d+\b/;
+                    r2.match(line, 0, out match_info2);
+                    string src = match_info2.fetch(0).substring(5);
+                    cm.start_console_log();
+                    cm.command(new ArrayList<string>.wrap({
+                        @"ip", @"route", @"del", @"$(dst)", @"dev", @"$(dev)", @"src", @"$(src)"}));
+                    cm.stop_console_log();
+                }
+            }
+            com_ret = cm.command(new ArrayList<string>.wrap({
+                @"ip", @"address", @"show", @"$(dev)"}));
+            lines = get_lines(com_ret.stdout);
+            foreach (string line in lines)
+            {
+                MatchInfo match_info;
+                Regex r = / inet 169\.254\.\d+\.\d+\/32/;
+                if (r.match(line, 0, out match_info))
+                {
+                    string local = match_info.fetch(0).substring(6);
+                    cm.start_console_log();
+                    cm.command(new ArrayList<string>.wrap({
+                        @"ip", @"address", @"del", @"$(local)", @"dev", @"$(dev)"}));
+                    cm.stop_console_log();
+                }
+            }
+            foreach (string line in lines)
+            {
+                MatchInfo match_info;
+                Regex r = / inet 10\.\d+\.\d+\.\d+\/32/;
+                if (r.match(line, 0, out match_info))
+                {
+                    string local = match_info.fetch(0).substring(6);
+                    cm.start_console_log();
+                    cm.command(new ArrayList<string>.wrap({
+                        @"ip", @"address", @"del", @"$(local)", @"dev", @"$(dev)"}));
+                    cm.stop_console_log();
+                }
+            }
+        }
+
+        com_ret = cm.command(new ArrayList<string>.wrap({
+            @"ip", @"address", @"show", @"lo"}));
+        lines = get_lines(com_ret.stdout);
+        foreach (string line in lines)
+        {
+            MatchInfo match_info;
+            Regex r = / inet 10\.\d+\.\d+\.\d+\/32/;
+            if (r.match(line, 0, out match_info))
+            {
+                string local = match_info.fetch(0).substring(6);
+                cm.start_console_log();
+                cm.command(new ArrayList<string>.wrap({
+                    @"ip", @"address", @"del", @"$(local)", @"dev", @"lo"}));
+                cm.stop_console_log();
+            }
+        }
+
         return 0;
     }
 
