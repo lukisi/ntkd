@@ -56,11 +56,6 @@ namespace Netsukuku
         cm = Commander.get_singleton();
 
         TaskletCommandResult com_ret;
-        /*
-        public int exit_status;
-        public string stderr;
-        public string stdout;
-        */
         Gee.List<string> lines;
 
         com_ret = cm.command(new ArrayList<string>.wrap({
@@ -190,17 +185,159 @@ namespace Netsukuku
             }
         }
 
+/*
+root@ntk-core-01:~# iptables -L PREROUTING --table mangle -n
+Chain PREROUTING (policy ACCEPT)
+target     prot opt source               destination         
+MARK       all  --  0.0.0.0/0            0.0.0.0/0            MAC 52:54:00:23:84:27 MARK set 0xfa
+*/
+
+        com_ret = cm.command(new ArrayList<string>.wrap({
+            @"iptables", @"-L", @"PREROUTING", @"--table", @"mangle", @"-n"}));
+        lines = get_lines(com_ret.stdout);
+        foreach (string line in lines)
+        {
+            MatchInfo match_info;
+            Regex r = /^MARK .* MAC [0-9A-Fa-f:]+ MARK set/;
+            if (r.match(line, 0, out match_info))
+            {
+                int i = line.index_of(" MAC ");
+                string mac = line.substring(i+5, 17);
+                i = line.index_of(" set ");
+                string tid = line.substring(i+5);
+                cm.start_console_log();
+                cm.command(new ArrayList<string>.wrap({
+                    @"iptables", @"-t", @"mangle", @"-D", @"PREROUTING", @"-m", @"mac",
+                    @"--mac-source", @"$(mac)", @"-j", @"MARK", @"--set-mark", @"$(tid)"}));
+                cm.stop_console_log();
+            }
+        }
+
+/*
+root@ntk-core-01:~# iptables -L PREROUTING --table nat -n
+Chain PREROUTING (policy ACCEPT)
+target     prot opt source               destination         
+NETMAP     all  --  0.0.0.0/0            10.0.0.56/30        10.0.0.48/30
+NETMAP     all  --  0.0.0.0/0            10.0.0.0/30         10.0.0.48/30
+NETMAP     all  --  0.0.0.0/0            10.0.0.64/30        10.0.0.48/30
+*/
+
+        com_ret = cm.command(new ArrayList<string>.wrap({
+            @"iptables", @"-L", @"PREROUTING", @"--table", @"nat", @"-n"}));
+        lines = get_lines(com_ret.stdout);
+        foreach (string line in lines)
+        {
+            MatchInfo match_info;
+            Regex r = /^NETMAP .* \b0\.0\.0\.0\/0\b .* \b10\.[0-9\.\/]+\b .* \b10\.[0-9\.\/]+\b/;
+            if (r.match(line, 0, out match_info))
+            {
+                MatchInfo match_info2;
+                Regex r2 = /\b10\.[0-9\.\/]+\b/;
+                assert(r2.match(line, 0, out match_info2));
+                string dst;
+                string premap;
+                try {
+                    dst = match_info2.fetch(0);
+                    assert(match_info2.next());
+                    premap = match_info2.fetch(0);
+                } catch (RegexError e) {
+                    error(@"pre netmap: $(line): $(e.message)");
+                }
+                cm.start_console_log();
+                cm.command(new ArrayList<string>.wrap({
+                    @"iptables", @"-t", @"nat", @"-D", @"PREROUTING",
+                    @"-d", @"$(dst)",
+                    @"-j", @"NETMAP", @"--to", @"$(premap)"}));
+                cm.stop_console_log();
+            }
+        }
+
+/*
+root@ntk-core-01:~# iptables -L POSTROUTING --table nat -n
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination         
+NETMAP     all  --  10.0.0.48/30         10.0.0.56/29        10.0.0.56/30
+NETMAP     all  --  10.0.0.48/30         10.0.0.0/27         10.0.0.0/30
+NETMAP     all  --  10.0.0.48/30         10.0.0.64/27        10.0.0.0/30
+*/
+
+        com_ret = cm.command(new ArrayList<string>.wrap({
+            @"iptables", @"-L", @"POSTROUTING", @"--table", @"nat", @"-n"}));
+        lines = get_lines(com_ret.stdout);
+        foreach (string line in lines)
+        {
+            MatchInfo match_info;
+            Regex r = /^NETMAP .* \b10\.[0-9\.\/]+\b .* \b10\.[0-9\.\/]+\b .* \b10\.[0-9\.\/]+\b/;
+            if (r.match(line, 0, out match_info))
+            {
+                MatchInfo match_info2;
+                Regex r2 = /\b10\.[0-9\.\/]+\b/;
+                assert(r2.match(line, 0, out match_info2));
+                string src;
+                string dst;
+                string postmap;
+                try {
+                    src = match_info2.fetch(0);
+                    assert(match_info2.next());
+                    dst = match_info2.fetch(0);
+                    assert(match_info2.next());
+                    postmap = match_info2.fetch(0);
+                } catch (RegexError e) {
+                    error(@"post netmap: $(line): $(e.message)");
+                }
+                cm.start_console_log();
+                cm.command(new ArrayList<string>.wrap({
+                    @"iptables", @"-t", @"nat", @"-D", @"POSTROUTING",
+                    @"-d", @"$(dst)",
+                    @"-s", @"$(src)",
+                    @"-j", @"NETMAP", @"--to", @"$(postmap)"}));
+                cm.stop_console_log();
+            }
+        }
+
+/*
+root@ntk-core-01:~# iptables -L POSTROUTING --table nat -n
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination         
+SNAT       all  --  0.0.0.0/0            10.0.0.64/27         to:10.0.0.0
+*/
+
+        com_ret = cm.command(new ArrayList<string>.wrap({
+            @"iptables", @"-L", @"POSTROUTING", @"--table", @"nat", @"-n"}));
+        lines = get_lines(com_ret.stdout);
+        foreach (string line in lines)
+        {
+            MatchInfo match_info;
+            Regex r = /^SNAT .* \b0\.0\.0\.0\/0\b .* \b10\.[0-9\.\/]+\b .* \bto:10\.[0-9\.\/]+\b/;
+            if (r.match(line, 0, out match_info))
+            {
+                MatchInfo match_info2;
+                Regex r2 = /\b10\.[0-9\.\/]+\b/;
+                assert(r2.match(line, 0, out match_info2));
+                string dst;
+                string local;
+                try {
+                    dst = match_info2.fetch(0);
+                    assert(match_info2.next());
+                    local = match_info2.fetch(0);
+                } catch (RegexError e) {
+                    error(@"snat: $(line): $(e.message)");
+                }
+                cm.start_console_log();
+                cm.command(new ArrayList<string>.wrap({
+                    @"iptables", @"-t", @"nat", @"-D", @"POSTROUTING",
+                    @"-d", @"$(dst)",
+                    @"-j", @"SNAT", @"--to", @"$(local)"}));
+                cm.stop_console_log();
+            }
+        }
+
         return 0;
     }
 
     void table_names_fix()
     {
         TaskletCommandResult com_ret;
-        /*
-        public int exit_status;
-        public string stderr;
-        public string stdout;
-        */
         Gee.List<string> lines;
 
         com_ret = cm.mayfail_command(new ArrayList<string>.wrap({
@@ -248,11 +385,6 @@ namespace Netsukuku
     void table_names_verify()
     {
         TaskletCommandResult com_ret;
-        /*
-        public int exit_status;
-        public string stderr;
-        public string stdout;
-        */
         Gee.List<string> lines;
 
         com_ret = cm.mayfail_command(new ArrayList<string>.wrap({
