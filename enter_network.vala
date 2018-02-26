@@ -335,23 +335,11 @@ namespace Netsukuku.EnterNetwork
             return new Naddr(_naddr_temp.to_array(), gsizes.to_array());
         };
 
-        // Prepare old_identity_update_internal_fingerprints
-        ChangeFingerprintDelegate old_identity_update_internal_fingerprints = (_f) => {
-            Fingerprint f = (Fingerprint)_f;
-            for (int l = guest_gnode_level; l < levels; l++)
-                f.elderships[l] = old_id.my_fp.elderships[l];
-            return f;
-            // Returning the same instance is ok, because the delegate is alway
-            // called like "x = update_internal_fingerprints(x)"
-        };
-
         // call to make_connectivity
         old_id_qspn_mgr.make_connectivity(
             old_id.connectivity_from_level,
             old_id.connectivity_to_level,
-            old_identity_update_naddr,
-            old_identity_update_internal_fingerprints,
-            old_id.my_fp);
+            old_identity_update_naddr);
 
         return qspn_mgr;
     }

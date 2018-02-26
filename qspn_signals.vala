@@ -25,7 +25,7 @@ using TaskletSystem;
 
 namespace Netsukuku
 {
-    void per_identity_qspn_arc_removed(IdentityData id, IQspnArc arc, string message, bool bad_link)
+    void per_identity_qspn_arc_removed(IdentityData id, IQspnArc arc, bool bad_link)
     {
         warning("per_identity_qspn_arc_removed: not implemented yet");
     }

@@ -21,6 +21,7 @@ using Netsukuku;
 using Netsukuku.Neighborhood;
 using Netsukuku.Identities;
 using Netsukuku.Qspn;
+using Netsukuku.PeerServices;
 using Netsukuku.Coordinator;
 using Netsukuku.Hooking;
 using Netsukuku.Andna;
@@ -37,7 +38,9 @@ namespace Netsukuku
         // Initialize modules that have remotable methods (serializable classes need to be registered).
         NeighborhoodManager.init(tasklet);
         IdentityManager.init(tasklet);
-        // ...
+        QspnManager.init(tasklet, max_paths, max_common_hops_ratio, arc_timeout, new ThresholdCalculator());
+        PeersManager.init(tasklet);
+        CoordinatorManager.init(tasklet);
         HookingManager.init(tasklet);
         AndnaManager.init(tasklet);
 
@@ -51,6 +54,8 @@ namespace Netsukuku
         PRNGen.init_rngen(null, seed_prn);
         NeighborhoodManager.init_rngen(null, seed_prn);
         IdentityManager.init_rngen(null, seed_prn);
+        QspnManager.init_rngen(null, seed_prn);
+        CoordinatorManager.init_rngen(null, seed_prn);
 
         // Pass tasklet system to the RPC library (ntkdrpc)
         init_tasklet_system(tasklet);
@@ -162,7 +167,6 @@ namespace Netsukuku
         IpCommands.main_start(first_identity_data);
 
         // First qspn manager
-        QspnManager.init(tasklet, max_paths, max_common_hops_ratio, arc_timeout, new ThresholdCalculator());
         QspnManager qspn_mgr = new QspnManager.create_net(
             my_naddr,
             my_fp,
@@ -183,7 +187,16 @@ namespace Netsukuku
 
         identity_mgr.set_identity_module(nodeid, "qspn", qspn_mgr);
         first_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
-        qspn_mgr = null;
+
+        // First identity is immediately bootstrapped.
+        while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(1);
+        // Then we can instantiate p2p services
+        PeersManager peers_mgr = new PeersManager(null, 0, 0,
+            new PeersMapPaths(first_identity_data),
+            new PeersBackStubFactory(first_identity_data),
+            new PeersNeighborsFactory(first_identity_data));
+        identity_mgr.set_identity_module(nodeid, "peers", peers_mgr);
+        first_identity_data.addr_man.peers_mgr = peers_mgr;  // weak ref
 
         // TODO continue
     }

@@ -194,10 +194,10 @@ namespace Netsukuku
 
         public bool qspn_handlers_disabled = false;
 
-        public void arc_removed(IQspnArc arc, string message, bool bad_link)
+        public void arc_removed(IQspnArc arc, bool bad_link)
         {
             if (qspn_handlers_disabled) return;
-            per_identity_qspn_arc_removed(this, arc, message, bad_link);
+            per_identity_qspn_arc_removed(this, arc, bad_link);
         }
 
         public void changed_fp(int l)

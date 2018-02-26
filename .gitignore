@@ -22,6 +22,7 @@ identities_helpers.c
 identities_signals.c
 qspn_helpers.c
 qspn_signals.c
+peers_helpers.c
 *.stamp
 *.stamp-t
 Makefile.in

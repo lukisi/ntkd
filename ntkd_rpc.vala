@@ -84,9 +84,11 @@ namespace Netsukuku
         public AddressManagerForIdentity()
         {
             qspn_mgr = null;
+            peers_mgr = null;
         }
 
         public weak IQspnManagerSkeleton? qspn_mgr;
+        public weak IPeersManagerSkeleton? peers_mgr;
 
         public unowned INeighborhoodManagerSkeleton
         neighborhood_manager_getter()
@@ -111,7 +113,7 @@ namespace Netsukuku
         public unowned IPeersManagerSkeleton
         peers_manager_getter()
         {
-            error("not implemented yet");
+            return peers_mgr;
         }
 
         public unowned ICoordinatorManagerSkeleton
