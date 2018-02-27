@@ -89,7 +89,7 @@ namespace Netsukuku
 
         // Init module Neighborhood
         identity_mgr = null;
-        node_skeleton = new AddressManagerForNode();
+        node_skeleton = new NodeSkeleton();
         neighborhood_mgr = new NeighborhoodManager(
             get_identity_skeleton,
             get_identity_skeleton_set,
@@ -98,7 +98,6 @@ namespace Netsukuku
             new NeighborhoodStubFactory(),
             new NeighborhoodIPRouteManager(),
             () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
-        node_skeleton.neighborhood_mgr = neighborhood_mgr;
         // connect signals
         neighborhood_mgr.nic_address_set.connect(neighborhood_nic_address_set);
         neighborhood_mgr.arc_added.connect(neighborhood_arc_added);
@@ -143,7 +142,6 @@ namespace Netsukuku
             new IdmgmtNetnsManager(),
             new IdmgmtStubFactory(),
             () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
-        node_skeleton.identity_mgr = identity_mgr;
         identity_mgr.identity_arc_added.connect(identities_identity_arc_added);
         identity_mgr.identity_arc_changed.connect(identities_identity_arc_changed);
         identity_mgr.identity_arc_removing.connect(identities_identity_arc_removing);
@@ -153,7 +151,7 @@ namespace Netsukuku
         // First identity
         NodeID nodeid = identity_mgr.get_main_id();
         IdentityData first_identity_data = find_or_create_local_identity(nodeid);
-        first_identity_data.addr_man = new AddressManagerForIdentity();
+        first_identity_data.identity_skeleton = new IdentitySkeleton(first_identity_data);
         Naddr my_naddr = new Naddr(naddr.to_array(), gsizes.to_array());
         ArrayList<int> elderships = new ArrayList<int>();
         for (int i = 0; i < levels; i++) elderships.add(0);
@@ -171,7 +169,10 @@ namespace Netsukuku
             my_naddr,
             my_fp,
             new QspnStubFactory(first_identity_data));
-        // soon after creation, connect to signals.
+        identity_mgr.set_identity_module(nodeid, "qspn", qspn_mgr);
+        first_identity_data.qspn_mgr = qspn_mgr;  // weak ref
+
+        // immediately after creation, connect to signals.
         qspn_mgr.arc_removed.connect(first_identity_data.arc_removed);
         qspn_mgr.changed_fp.connect(first_identity_data.changed_fp);
         qspn_mgr.changed_nodes_inside.connect(first_identity_data.changed_nodes_inside);
@@ -185,9 +186,6 @@ namespace Netsukuku
         qspn_mgr.qspn_bootstrap_complete.connect(first_identity_data.qspn_bootstrap_complete);
         qspn_mgr.remove_identity.connect(first_identity_data.remove_identity);
 
-        identity_mgr.set_identity_module(nodeid, "qspn", qspn_mgr);
-        first_identity_data.addr_man.qspn_mgr = qspn_mgr;  // weak ref
-
         // First identity is immediately bootstrapped.
         while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(1);
         // Then we can instantiate p2p services
@@ -196,7 +194,7 @@ namespace Netsukuku
             new PeersBackStubFactory(first_identity_data),
             new PeersNeighborsFactory(first_identity_data));
         identity_mgr.set_identity_module(nodeid, "peers", peers_mgr);
-        first_identity_data.addr_man.peers_mgr = peers_mgr;  // weak ref
+        first_identity_data.peers_mgr = peers_mgr;  // weak ref
 
         // TODO continue
     }

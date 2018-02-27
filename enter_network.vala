@@ -125,8 +125,6 @@ namespace Netsukuku.EnterNetwork
             host_gnode_elderships, new_eldership_in_host_gnode,
             prev_arcpairs, new_arcpairs, both_arcpairs);
 
-        new_identity_data.addr_man = new AddressManagerForIdentity();
-
         QspnManager old_qspn = (QspnManager)identity_mgr.get_identity_module(old_identity_data.nodeid, "qspn");
         QspnManager new_qspn =
             enter_another_network_qspn(old_identity_data, new_identity_data,
@@ -151,7 +149,6 @@ namespace Netsukuku.EnterNetwork
         new_qspn.remove_identity.connect(new_identity_data.remove_identity);
 
         identity_mgr.set_identity_module(new_nodeid, "qspn", new_qspn);
-        new_identity_data.addr_man.qspn_mgr = new_qspn;  // weak ref
 
         foreach (IdentityArc ia in old_identity_data.identity_arcs)
         {

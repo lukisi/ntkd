@@ -21,6 +21,7 @@ using Netsukuku;
 using Netsukuku.Neighborhood;
 using Netsukuku.Identities;
 using Netsukuku.Qspn;
+using Netsukuku.PeerServices;
 using Netsukuku.Coordinator;
 using Netsukuku.Hooking;
 using Netsukuku.Andna;
@@ -161,6 +162,9 @@ namespace Netsukuku
             local_ip_set = null;
             dest_ip_set = null;
             bootstrap_phase_pending_updates = new ArrayList<HCoord>();
+            identity_skeleton = new IdentitySkeleton(this);
+            qspn_mgr = null;
+            peers_mgr = null;
         }
 
         public NodeID nodeid;
@@ -169,7 +173,10 @@ namespace Netsukuku
         public int connectivity_from_level;
         public int connectivity_to_level;
         public IdentityData? copy_of_identity;
-        public AddressManagerForIdentity addr_man;
+
+        public IdentitySkeleton identity_skeleton;
+        public weak QspnManager qspn_mgr;
+        public weak PeersManager peers_mgr;
 
         public ArrayList<IdentityArc> identity_arcs;
 

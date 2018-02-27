@@ -148,7 +148,7 @@ namespace Netsukuku
         }
     }
 
-    AddressManagerForNode node_skeleton;
+    NodeSkeleton node_skeleton;
 
     IAddressManagerSkeleton?
     get_identity_skeleton(
@@ -168,7 +168,7 @@ namespace Netsukuku
                     {
                         if (ia.id_arc.get_peer_nodeid().equals(source_id))
                         {
-                            return local_identity_data.addr_man;
+                            return local_identity_data.identity_skeleton;
                         }
                     }
                 }
@@ -198,7 +198,7 @@ namespace Netsukuku
                     {
                         if (ia.id_arc.get_peer_nodeid().equals(source_id))
                         {
-                            ret.add(local_identity_data.addr_man);
+                            ret.add(local_identity_data.identity_skeleton);
                         }
                     }
                 }

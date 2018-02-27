@@ -79,41 +79,43 @@ namespace Netsukuku
         }
     }
 
-    class AddressManagerForIdentity : Object, IAddressManagerSkeleton
+    /* A skeleton for the identity remotable methods
+     */
+    class IdentitySkeleton : Object, IAddressManagerSkeleton
     {
-        public AddressManagerForIdentity()
+        public IdentitySkeleton(IdentityData identity_data)
         {
-            qspn_mgr = null;
-            peers_mgr = null;
+            this.identity_data = identity_data;
         }
 
-        public weak IQspnManagerSkeleton? qspn_mgr;
-        public weak IPeersManagerSkeleton? peers_mgr;
+        private weak IdentityData identity_data;
 
         public unowned INeighborhoodManagerSkeleton
         neighborhood_manager_getter()
         {
-            warning("AddressManagerForIdentity.neighborhood_manager_getter: not for identity");
+            warning("IdentitySkeleton.neighborhood_manager_getter: not for identity");
             tasklet.exit_tasklet(null);
         }
 
         protected unowned IIdentityManagerSkeleton
         identity_manager_getter()
         {
-            warning("AddressManagerForIdentity.identity_manager_getter: not for identity");
+            warning("IdentitySkeleton.identity_manager_getter: not for identity");
             tasklet.exit_tasklet(null);
         }
 
         public unowned IQspnManagerSkeleton
         qspn_manager_getter()
         {
-            return qspn_mgr;
+            // member qspn_mgr of identity_data is a IQspnManagerSkeleton
+            return identity_data.qspn_mgr;
         }
 
         public unowned IPeersManagerSkeleton
         peers_manager_getter()
         {
-            return peers_mgr;
+            // member peers_mgr of identity_data is a IPeersManagerSkeleton
+            return identity_data.peers_mgr;
         }
 
         public unowned ICoordinatorManagerSkeleton
@@ -123,41 +125,42 @@ namespace Netsukuku
         }
     }
 
-    class AddressManagerForNode : Object, IAddressManagerSkeleton
+    /* A skeleton for the whole-node remotable methods
+     */
+    class NodeSkeleton : Object, IAddressManagerSkeleton
     {
-        public weak INeighborhoodManagerSkeleton neighborhood_mgr;
-        public weak IIdentityManagerSkeleton identity_mgr;
-
         public unowned INeighborhoodManagerSkeleton
         neighborhood_manager_getter()
         {
+            // global var neighborhood_mgr is a INeighborhoodManagerSkeleton
             return neighborhood_mgr;
         }
 
         protected unowned IIdentityManagerSkeleton
         identity_manager_getter()
         {
+            // global var identity_mgr is a IIdentityManagerSkeleton
             return identity_mgr;
         }
 
         public unowned IQspnManagerSkeleton
         qspn_manager_getter()
         {
-            warning("AddressManagerForNode.qspn_manager_getter: not for node");
+            warning("NodeSkeleton.qspn_manager_getter: not for node");
             tasklet.exit_tasklet(null);
         }
 
         public unowned IPeersManagerSkeleton
         peers_manager_getter()
         {
-            warning("AddressManagerForNode.peers_manager_getter: not for node");
+            warning("NodeSkeleton.peers_manager_getter: not for node");
             tasklet.exit_tasklet(null);
         }
 
         public unowned ICoordinatorManagerSkeleton
         coordinator_manager_getter()
         {
-            warning("AddressManagerForNode.coordinator_manager_getter: not for node");
+            warning("NodeSkeleton.coordinator_manager_getter: not for node");
             tasklet.exit_tasklet(null);
         }
     }
