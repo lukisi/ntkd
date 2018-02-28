@@ -306,6 +306,7 @@ namespace Netsukuku
         }
     }
 
+    // TODO move to file enter_network.vala ?
     class IdentityArcPair : Object
     {
         public IdentityArcPair(IdentityArc old_id_arc, IdentityArc new_id_arc)

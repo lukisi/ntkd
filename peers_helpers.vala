@@ -95,12 +95,82 @@ namespace Netsukuku
 
         public IPeersManagerStub i_peers_get_broadcast(IPeersMissingArcHandler missing_handler)
         {
-            error("not implemented yet");
+            ArrayList<NodeID> broadcast_node_id_set = new ArrayList<NodeID>();
+            foreach (IdentityArc ia in identity_data.identity_arcs)
+            {
+                if (ia.qspn_arc != null)
+                    broadcast_node_id_set.add(ia.id_arc.get_peer_nodeid());
+            }
+            if(broadcast_node_id_set.is_empty) return new PeersManagerStubVoid();
+            NodeID source_node_id = identity_data.nodeid;
+            INeighborhoodMissingArcHandler n_missing_handler =
+                new NeighborhoodMissingArcHandlerForPeers(missing_handler, identity_data);
+            IAddressManagerStub addrstub =
+                neighborhood_mgr.get_stub_identity_aware_broadcast(
+                source_node_id,
+                broadcast_node_id_set,
+                n_missing_handler);
+            PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
+            return ret;
         }
 
         public IPeersManagerStub i_peers_get_tcp(IPeersArc arc)
         {
-            error("not implemented yet");
+            PeersArc _arc = (PeersArc)arc;
+            IAddressManagerStub addrstub =
+                neighborhood_mgr.get_stub_identity_aware_unicast(
+                _arc.arc.neighborhood_arc,
+                _arc.sourceid,
+                _arc.destid,
+                true);  // wait_reply
+            PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
+            return ret;
         }
+    }
+
+    class NeighborhoodMissingArcHandlerForPeers : Object, INeighborhoodMissingArcHandler
+    {
+        public NeighborhoodMissingArcHandlerForPeers(IPeersMissingArcHandler peers_missing, IdentityData identity_data)
+        {
+            this.peers_missing = peers_missing;
+            this.identity_data = identity_data;
+        }
+        private IPeersMissingArcHandler peers_missing;
+        private weak IdentityData identity_data;
+
+        public void missing(INeighborhoodArc arc)
+        {
+            foreach (IdentityArc ia in identity_data.identity_arcs)
+            {
+                // ia is an identity-arc of my node
+                IdmgmtArc _arc = (IdmgmtArc)ia.arc;
+                INeighborhoodArc n_arc = _arc.neighborhood_arc;
+                if (n_arc == arc)
+                {
+                    // ia is over this physical arc
+                    if (ia.qspn_arc != null)
+                    {
+                        // ia is on this network
+                        PeersArc peers_arc = new PeersArc(ia);
+                        peers_missing.i_peers_missing(peers_arc);
+                    }
+                }
+            }
+        }
+    }
+
+    class PeersArc : Object, IPeersArc
+    {
+        public PeersArc(IdentityArc ia)
+        {
+            this.sourceid = ia.id;
+            this.destid = ia.id_arc.get_peer_nodeid();
+            this.ia = ia;
+            arc = (IdmgmtArc)ia.arc;
+        }
+        public weak IdmgmtArc arc;
+        public NodeID sourceid;
+        public NodeID destid;
+        public weak IdentityArc ia;
     }
 }

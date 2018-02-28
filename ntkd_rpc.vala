@@ -252,4 +252,128 @@ namespace Netsukuku
         {
         }
     }
+
+    class PeersManagerStubHolder : Object, IPeersManagerStub
+    {
+        public PeersManagerStubHolder(IAddressManagerStub addr)
+        {
+            this.addr = addr;
+        }
+        private IAddressManagerStub addr;
+
+        public IPeerParticipantSet ask_participant_maps() throws StubError, DeserializeError
+        {
+            return addr.peers_manager.ask_participant_maps();
+        }
+
+        public void forward_peer_message(IPeerMessage peer_message) throws StubError, DeserializeError
+        {
+            addr.peers_manager.forward_peer_message(peer_message);
+        }
+
+        public IPeersRequest get_request(int msg_id, IPeerTupleNode respondant)
+        throws PeersUnknownMessageError, PeersInvalidRequest, StubError, DeserializeError
+        {
+            return addr.peers_manager.get_request(msg_id, respondant);
+        }
+
+        public void give_participant_maps(IPeerParticipantSet maps) throws StubError, DeserializeError
+        {
+            addr.peers_manager.give_participant_maps(maps);
+        }
+
+        public void set_failure(int msg_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_failure(msg_id, tuple);
+        }
+
+        public void set_missing_optional_maps(int msg_id) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_missing_optional_maps(msg_id);
+        }
+
+        public void set_next_destination(int msg_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_next_destination(msg_id, tuple);
+        }
+
+        public void set_non_participant(int msg_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_non_participant(msg_id, tuple);
+        }
+
+        public void set_participant(int p_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_participant(p_id, tuple);
+        }
+
+        public void set_redo_from_start(int msg_id, IPeerTupleNode respondant) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_redo_from_start(msg_id, respondant);
+        }
+
+        public void set_refuse_message(int msg_id, string refuse_message, int e_lvl, IPeerTupleNode respondant) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_refuse_message(msg_id, refuse_message, e_lvl, respondant);
+        }
+
+        public void set_response(int msg_id, IPeersResponse response, IPeerTupleNode respondant) throws StubError, DeserializeError
+        {
+            addr.peers_manager.set_response(msg_id, response, respondant);
+        }
+    }
+
+    class PeersManagerStubVoid : Object, IPeersManagerStub
+    {
+        public IPeerParticipantSet ask_participant_maps() throws StubError, DeserializeError
+        {
+            assert_not_reached();
+        }
+
+        public void forward_peer_message(IPeerMessage peer_message) throws StubError, DeserializeError
+        {
+        }
+
+        public IPeersRequest get_request(int msg_id, IPeerTupleNode respondant)
+        throws PeersUnknownMessageError, PeersInvalidRequest, StubError, DeserializeError
+        {
+            assert_not_reached();
+        }
+
+        public void give_participant_maps(IPeerParticipantSet maps) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_failure(int msg_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_missing_optional_maps(int msg_id) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_next_destination(int msg_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_non_participant(int msg_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_participant(int p_id, IPeerTupleGNode tuple) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_redo_from_start(int msg_id, IPeerTupleNode respondant) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_refuse_message(int msg_id, string refuse_message, int e_lvl, IPeerTupleNode respondant) throws StubError, DeserializeError
+        {
+        }
+
+        public void set_response(int msg_id, IPeersResponse response, IPeerTupleNode respondant) throws StubError, DeserializeError
+        {
+        }
+    }
 }
