@@ -81,8 +81,27 @@ namespace Netsukuku
 
         public IPeersManagerStub i_peers_get_tcp_inside(Gee.List<int> positions)
         {
-            error("not implemented yet");
+            ArrayList<int> n_addr = new ArrayList<int>();
+            n_addr.add_all(positions);
+            int inside_level = n_addr.size;
+            for (int i = inside_level; i < levels; i++) n_addr.add(0);
+            string dest = ip_internal_node(n_addr, inside_level);
+            ISourceID source_id = new PeersSourceID();
+            IUnicastID unicast_id = new PeersUnicastID();
+            IAddressManagerStub addrstub = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
+            assert(addrstub is ITcpClientRootStub);
+            ((ITcpClientRootStub)addrstub).wait_reply = true;
+            PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
+            return ret;
         }
+    }
+
+    class PeersSourceID : Object, ISourceID
+    {
+    }
+
+    class PeersUnicastID : Object, IUnicastID
+    {
     }
 
     class PeersNeighborsFactory : Object, IPeersNeighborsFactory

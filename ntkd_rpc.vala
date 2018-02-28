@@ -39,6 +39,21 @@ namespace Netsukuku
                 ISourceID sourceid = c.sourceid;
                 IUnicastID unicastid = c.unicastid;
                 var ret = new ArrayList<IAddressManagerSkeleton>();
+                if (unicastid is PeersUnicastID)
+                {
+                    IdentityData main_id = null;
+                    foreach (IdentityData identity_data in local_identities)
+                    {
+                        if (identity_data.main_id)
+                        {
+                            main_id = identity_data;
+                            break;
+                        }
+                    }
+                    assert(main_id != null);
+                    ret.add(main_id.identity_skeleton);
+                    return ret;
+                }
                 IAddressManagerSkeleton? d = neighborhood_mgr.get_dispatcher(sourceid, unicastid, peer_address, null);
                 if (d != null) ret.add(d);
                 return ret;
