@@ -275,6 +275,7 @@ namespace Netsukuku
             this.addr = addr;
         }
         private IAddressManagerStub addr;
+        public weak INeighborhoodArc neighborhood_arc;
 
         public IPeerParticipantSet ask_participant_maps() throws StubError, DeserializeError
         {

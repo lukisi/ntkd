@@ -92,8 +92,7 @@ namespace Netsukuku
             // Remove Qspn arc.
             QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id, "qspn");
             qspn_mgr.arc_remove(ia.qspn_arc);
-            // Wait for signals from qspn_mgr.
-            tasklet.ms_wait(3000);
+            // TODO Do we need to wait for map update? how much?
         }
     }
 

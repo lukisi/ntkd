@@ -25,19 +25,17 @@ using TaskletSystem;
 
 namespace Netsukuku
 {
-    void per_identity_qspn_arc_removed(IdentityData id, IQspnArc arc, bool bad_link)
+    void per_identity_qspn_qspn_bootstrap_complete(IdentityData id)
     {
-        warning("per_identity_qspn_arc_removed: not implemented yet");
-    }
-
-    void per_identity_qspn_changed_fp(IdentityData id, int l)
-    {
-        warning("per_identity_qspn_changed_fp: not implemented yet");
-    }
-
-    void per_identity_qspn_changed_nodes_inside(IdentityData id, int l)
-    {
-        warning("per_identity_qspn_changed_nodes_inside: not implemented yet");
+        QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
+        Fingerprint fp_levels;
+        try {
+            fp_levels = (Fingerprint)qspn_mgr.get_fingerprint(levels);
+        } catch (QspnBootstrapInProgressError e) {
+            assert_not_reached();
+        }
+        print(@"per_identity_qspn_qspn_bootstrap_complete: my id $(id.nodeid.id) is in network_id $(fp_levels.id).\n");
+        foreach (HCoord hc in id.bootstrap_phase_pending_updates) UpdateGraph.update_destination(id, hc);
     }
 
     void per_identity_qspn_destination_added(IdentityData id, HCoord h)
@@ -48,11 +46,6 @@ namespace Netsukuku
     void per_identity_qspn_destination_removed(IdentityData id, HCoord h)
     {
         warning("per_identity_qspn_destination_removed: not implemented yet");
-    }
-
-    void per_identity_qspn_gnode_splitted(IdentityData id, IQspnArc a, HCoord d, IQspnFingerprint fp)
-    {
-        error("per_identity_qspn_gnode_splitted: not implemented yet");
     }
 
     void per_identity_qspn_path_added(IdentityData id, IQspnNodePath p)
@@ -86,27 +79,35 @@ namespace Netsukuku
         }
     }
 
+    void per_identity_qspn_changed_fp(IdentityData id, int l)
+    {
+        warning("per_identity_qspn_changed_fp: not implemented yet");
+    }
+
+    void per_identity_qspn_changed_nodes_inside(IdentityData id, int l)
+    {
+        warning("per_identity_qspn_changed_nodes_inside: not implemented yet");
+    }
+
     void per_identity_qspn_presence_notified(IdentityData id)
     {
         warning("per_identity_qspn_presence_notified: not implemented yet");
     }
 
-    void per_identity_qspn_qspn_bootstrap_complete(IdentityData id)
-    {
-        QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
-        Fingerprint fp_levels;
-        try {
-            fp_levels = (Fingerprint)qspn_mgr.get_fingerprint(levels);
-        } catch (QspnBootstrapInProgressError e) {
-            assert_not_reached();
-        }
-        print(@"per_identity_qspn_qspn_bootstrap_complete: my id $(id.nodeid.id) is in network_id $(fp_levels.id).\n");
-        foreach (HCoord hc in id.bootstrap_phase_pending_updates) UpdateGraph.update_destination(id, hc);
-    }
-
     void per_identity_qspn_remove_identity(IdentityData id)
     {
         error("per_identity_qspn_remove_identity: not implemented yet");
+    }
+
+    void per_identity_qspn_arc_removed(IdentityData id, IQspnArc arc, bool bad_link)
+    {
+        warning("per_identity_qspn_arc_removed: not implemented yet");
+        // TODO Do we need to wait for map update? how much?
+    }
+
+    void per_identity_qspn_gnode_splitted(IdentityData id, IQspnArc a, HCoord d, IQspnFingerprint fp)
+    {
+        error("per_identity_qspn_gnode_splitted: not implemented yet");
     }
 }
 
