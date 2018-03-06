@@ -102,7 +102,6 @@ namespace Netsukuku
     void per_identity_qspn_arc_removed(IdentityData id, IQspnArc arc, bool bad_link)
     {
         warning("per_identity_qspn_arc_removed: not implemented yet");
-        // TODO Do we need to wait for map update? how much?
     }
 
     void per_identity_qspn_gnode_splitted(IdentityData id, IQspnArc a, HCoord d, IQspnFingerprint fp)

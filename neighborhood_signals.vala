@@ -61,7 +61,6 @@ namespace Netsukuku
         foreach (IdmgmtArc arc in arc_list) if (arc.neighborhood_arc == neighborhood_arc) {to_del = arc; break;}
         if (to_del == null) return;
         identity_mgr.remove_arc(to_del);
-        // TODO Do we need to wait for map update? how much?
     }
 
     void neighborhood_arc_removed(INeighborhoodArc neighborhood_arc)

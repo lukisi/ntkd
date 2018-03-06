@@ -82,7 +82,9 @@ namespace Netsukuku
                     if (arc == neighborhood_arc)
                     {
                         neighborhood_mgr.remove_my_arc(arc, false);
-                        tasklet.ms_wait(10);  // give the program the time to update map.
+                        // After removing a arc, we can give the program a little while in order
+                        //  to retrieve ETPs from remaining links and update its map.
+                        tasklet.ms_wait(1000);
                         break;
                     }
                 }
@@ -150,7 +152,7 @@ namespace Netsukuku
                     if (arc == neighborhood_arc)
                     {
                         neighborhood_mgr.remove_my_arc(arc, false);
-                        // TODO Do we need to wait for map update? how much?
+                        // Here we don't need to wait for map update. We care just about neighbors.
                         break;
                     }
                 }
