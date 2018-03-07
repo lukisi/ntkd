@@ -39,6 +39,7 @@ namespace Netsukuku.EnterNetwork
         int[] host_gnode_positions, int new_position_in_host_gnode,
         int[] host_gnode_elderships, int new_eldership_in_host_gnode)
     {
+        int host_gnode_level = levels - host_gnode_positions.length;
         // Duplicate.
         NodeID new_nodeid = identity_mgr.add_identity(migration_id, old_identity_data.nodeid);
         IdentityData new_identity_data = find_or_create_local_identity(new_nodeid);
@@ -147,6 +148,11 @@ namespace Netsukuku.EnterNetwork
         new_qspn.presence_notified.connect(new_identity_data.presence_notified);
         new_qspn.qspn_bootstrap_complete.connect(new_identity_data.qspn_bootstrap_complete);
         new_qspn.remove_identity.connect(new_identity_data.remove_identity);
+        // prepare for operations on bootstrap_complete
+        new_identity_data.on_bootstrap_complete_do_create_peers_manager = true;
+        new_identity_data.on_bootstrap_complete_create_peers_manager_prev_peers_mgr = old_identity_data.peers_mgr;
+        new_identity_data.on_bootstrap_complete_create_peers_manager_guest_gnode_level = guest_gnode_level;
+        new_identity_data.on_bootstrap_complete_create_peers_manager_host_gnode_level = host_gnode_level;
 
         identity_mgr.set_identity_module(new_nodeid, "qspn", new_qspn);
 

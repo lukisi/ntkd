@@ -21,6 +21,7 @@ using Netsukuku;
 using Netsukuku.Neighborhood;
 using Netsukuku.Identities;
 using Netsukuku.Qspn;
+using Netsukuku.PeerServices;
 using TaskletSystem;
 
 namespace Netsukuku
@@ -36,6 +37,20 @@ namespace Netsukuku
         }
         print(@"per_identity_qspn_qspn_bootstrap_complete: my id $(id.nodeid.id) is in network_id $(fp_levels.id).\n");
         foreach (HCoord hc in id.bootstrap_phase_pending_updates) UpdateGraph.update_destination(id, hc);
+
+        if (id.on_bootstrap_complete_do_create_peers_manager)
+        {
+            // Then we can instantiate p2p services
+            PeersManager peers_mgr = new PeersManager(
+                id.on_bootstrap_complete_create_peers_manager_prev_peers_mgr,
+                id.on_bootstrap_complete_create_peers_manager_guest_gnode_level,
+                id.on_bootstrap_complete_create_peers_manager_host_gnode_level,
+                new PeersMapPaths(id),
+                new PeersBackStubFactory(id),
+                new PeersNeighborsFactory(id));
+            identity_mgr.set_identity_module(id.nodeid, "peers", peers_mgr);
+            id.peers_mgr = peers_mgr;  // weak ref
+        }
     }
 
     void per_identity_qspn_destination_added(IdentityData id, HCoord h)

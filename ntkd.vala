@@ -165,6 +165,7 @@ namespace Netsukuku
             identity_skeleton = new IdentitySkeleton(this);
             qspn_mgr = null;
             peers_mgr = null;
+            on_bootstrap_complete_do_create_peers_manager = false;
         }
 
         public NodeID nodeid;
@@ -177,6 +178,10 @@ namespace Netsukuku
         public IdentitySkeleton identity_skeleton;
         public weak QspnManager qspn_mgr;
         public weak PeersManager peers_mgr;
+        public bool on_bootstrap_complete_do_create_peers_manager;
+        public weak PeersManager? on_bootstrap_complete_create_peers_manager_prev_peers_mgr;
+        public int on_bootstrap_complete_create_peers_manager_guest_gnode_level;
+        public int on_bootstrap_complete_create_peers_manager_host_gnode_level;
 
         public ArrayList<IdentityArc> identity_arcs;
 
