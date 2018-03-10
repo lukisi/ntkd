@@ -108,6 +108,7 @@ namespace Netsukuku.EnterNetwork
         //  creation of new identity with `enter_net`. But the data
         //  structure IdentityData will be changed now in order to use
         //  in 'enter_another_network_commands' function.
+        bool prev_was_main = old_identity_data.main_id;
         Naddr old_naddr = old_identity_data.my_naddr;
         Fingerprint old_fp = old_identity_data.my_fp;
 
@@ -134,6 +135,7 @@ namespace Netsukuku.EnterNetwork
             host_gnode_positions, new_position_in_host_gnode,
             host_gnode_elderships, new_eldership_in_host_gnode,
             prev_arcpairs, new_arcpairs, both_arcpairs);
+        if (prev_was_main) old_identity_data.gone_connectivity();
 
         // soon after creation, connect to signals.
         new_qspn.arc_removed.connect(new_identity_data.arc_removed);

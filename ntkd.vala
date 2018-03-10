@@ -196,6 +196,9 @@ namespace Netsukuku
             }
         }
 
+        // Use this to signal when a identity (that was main) has become of connectivity.
+        public signal void gone_connectivity();
+
         public bool main_id {
             get {
                 return nodeid.equals(identity_mgr.get_main_id());
