@@ -50,6 +50,13 @@ namespace Netsukuku
                 new PeersNeighborsFactory(id));
             identity_mgr.set_identity_module(id.nodeid, "peers", peers_mgr);
             id.peers_mgr = peers_mgr;  // weak ref
+
+            id.coord_mgr.bootstrap_completed(
+                id.peers_mgr,
+                new CoordinatorMap(id),
+                id.main_id);
+            if (id.main_id)
+                id.gone_connectivity.connect(id.handle_gone_connectivity_for_coord);
         }
     }
 

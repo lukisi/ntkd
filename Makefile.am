@@ -57,6 +57,7 @@ ntkd_SOURCES =  \
 	qspn_helpers.vala \
 	qspn_signals.vala \
 	peers_helpers.vala \
+	coordinator_helpers.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -177,6 +178,7 @@ ntkd_tester_01_SOURCES =  \
 	tester_01/qspn_helpers.vala \
 	tester_01/qspn_signals.vala \
 	tester_01/peers_helpers.vala \
+	tester_01/coordinator_helpers.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -263,6 +265,7 @@ ntkd_tester_02_SOURCES =  \
 	tester_02/qspn_helpers.vala \
 	tester_02/qspn_signals.vala \
 	tester_02/peers_helpers.vala \
+	tester_02/coordinator_helpers.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \

@@ -196,6 +196,24 @@ namespace Netsukuku
         identity_mgr.set_identity_module(nodeid, "peers", peers_mgr);
         first_identity_data.peers_mgr = peers_mgr;  // weak ref
 
+        // CoordinatorManager
+        CoordinatorManager coord_mgr = new CoordinatorManager(gsizes,
+            new CoordinatorEvaluateEnterHandler(first_identity_data),
+            new CoordinatorBeginEnterHandler(first_identity_data),
+            new CoordinatorCompletedEnterHandler(first_identity_data),
+            new CoordinatorAbortEnterHandler(first_identity_data),
+            new CoordinatorPropagationHandler(first_identity_data),
+            new CoordinatorStubFactory(first_identity_data),
+            null, null, null);
+        identity_mgr.set_identity_module(nodeid, "coordinator", coord_mgr);
+        first_identity_data.coord_mgr = coord_mgr;  // weak ref
+        coord_mgr.bootstrap_completed(
+            first_identity_data.peers_mgr,
+            new CoordinatorMap(first_identity_data),
+            first_identity_data.main_id);
+        if (first_identity_data.main_id)
+            first_identity_data.gone_connectivity.connect(first_identity_data.handle_gone_connectivity_for_coord);
+
         // TODO continue
     }
 }

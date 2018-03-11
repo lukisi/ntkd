@@ -150,13 +150,26 @@ namespace Netsukuku.EnterNetwork
         new_qspn.presence_notified.connect(new_identity_data.presence_notified);
         new_qspn.qspn_bootstrap_complete.connect(new_identity_data.qspn_bootstrap_complete);
         new_qspn.remove_identity.connect(new_identity_data.remove_identity);
+        identity_mgr.set_identity_module(new_nodeid, "qspn", new_qspn);
+        new_identity_data.qspn_mgr = new_qspn;  // weak ref
+
         // prepare for operations on bootstrap_complete
         new_identity_data.on_bootstrap_complete_do_create_peers_manager = true;
         new_identity_data.on_bootstrap_complete_create_peers_manager_prev_peers_mgr = old_identity_data.peers_mgr;
         new_identity_data.on_bootstrap_complete_create_peers_manager_guest_gnode_level = guest_gnode_level;
         new_identity_data.on_bootstrap_complete_create_peers_manager_host_gnode_level = host_gnode_level;
 
-        identity_mgr.set_identity_module(new_nodeid, "qspn", new_qspn);
+        // CoordinatorManager
+        CoordinatorManager coord_mgr = new CoordinatorManager(gsizes,
+            new CoordinatorEvaluateEnterHandler(new_identity_data),
+            new CoordinatorBeginEnterHandler(new_identity_data),
+            new CoordinatorCompletedEnterHandler(new_identity_data),
+            new CoordinatorAbortEnterHandler(new_identity_data),
+            new CoordinatorPropagationHandler(new_identity_data),
+            new CoordinatorStubFactory(new_identity_data),
+            null, null, null);
+        identity_mgr.set_identity_module(new_nodeid, "coordinator", coord_mgr);
+        new_identity_data.coord_mgr = coord_mgr;  // weak ref
 
         foreach (IdentityArc ia in old_identity_data.identity_arcs)
         {

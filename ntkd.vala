@@ -182,6 +182,7 @@ namespace Netsukuku
         public weak PeersManager? on_bootstrap_complete_create_peers_manager_prev_peers_mgr;
         public int on_bootstrap_complete_create_peers_manager_guest_gnode_level;
         public int on_bootstrap_complete_create_peers_manager_host_gnode_level;
+        public weak CoordinatorManager coord_mgr;
 
         public ArrayList<IdentityArc> identity_arcs;
 
@@ -198,6 +199,12 @@ namespace Netsukuku
 
         // Use this to signal when a identity (that was main) has become of connectivity.
         public signal void gone_connectivity();
+
+        public void handle_gone_connectivity_for_coord()
+        {
+            coord_mgr.gone_connectivity();
+            gone_connectivity.disconnect(handle_gone_connectivity_for_coord);
+        }
 
         public bool main_id {
             get {
