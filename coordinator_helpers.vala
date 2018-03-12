@@ -114,24 +114,41 @@ namespace Netsukuku
         }
         private weak IdentityData identity_data;
 
-        public int get_fp_id(int lvl)
+        public int get_my_pos(int lvl)
         {
-            error("not implemented yet");
+            return identity_data.my_naddr.pos[lvl];
         }
 
         public Gee.List<int> get_free_pos(int lvl)
         {
-            error("not implemented yet");
-        }
-
-        public int get_my_pos(int lvl)
-        {
-            error("not implemented yet");
+            try {
+                Gee.List<HCoord> busy = identity_data.qspn_mgr.get_known_destinations(lvl);
+                Gee.List<int> ret = new ArrayList<int>();
+                for (int i = 0; i < gsizes[lvl]; i++) ret.add(i);
+                foreach (HCoord hc in busy) ret.remove(hc.pos);
+                return ret;
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
         }
 
         public int get_n_nodes()
         {
-            error("not implemented yet");
+            try {
+                return identity_data.qspn_mgr.get_nodes_inside(levels);
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
+        }
+
+        public int64 get_fp_id(int lvl)
+        {
+            try {
+                Fingerprint fp = (Fingerprint)identity_data.qspn_mgr.get_fingerprint(lvl);
+                return fp.id;
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
         }
     }
 
