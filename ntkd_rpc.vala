@@ -392,4 +392,49 @@ namespace Netsukuku
         {
         }
     }
+
+    class CoordinatorManagerStubHolder : Object, ICoordinatorManagerStub
+    {
+        public CoordinatorManagerStubHolder(IAddressManagerStub addr)
+        {
+            this.addr = addr;
+        }
+        private IAddressManagerStub addr;
+
+        public void execute_finish_migration(ICoordTupleGNode tuple, int64 fp_id, int propagation_id, int lvl, ICoordObject finish_migration_data)
+        throws StubError, DeserializeError
+        {
+            addr.coordinator_manager.execute_finish_migration(tuple, fp_id, propagation_id, lvl, finish_migration_data);
+        }
+
+        public void execute_prepare_migration(ICoordTupleGNode tuple, int64 fp_id, int propagation_id, int lvl, ICoordObject prepare_migration_data)
+        throws StubError, DeserializeError
+        {
+            addr.coordinator_manager.execute_prepare_migration(tuple, fp_id, propagation_id, lvl, prepare_migration_data);
+        }
+
+        public void execute_we_have_splitted(ICoordTupleGNode tuple, int64 fp_id, int propagation_id, int lvl, ICoordObject we_have_splitted_data)
+        throws StubError, DeserializeError
+        {
+            addr.coordinator_manager.execute_we_have_splitted(tuple, fp_id, propagation_id, lvl, we_have_splitted_data);
+        }
+    }
+
+    class CoordinatorManagerStubVoid : Object, ICoordinatorManagerStub
+    {
+        public void execute_finish_migration(ICoordTupleGNode tuple, int64 fp_id, int propagation_id, int lvl, ICoordObject finish_migration_data)
+        throws StubError, DeserializeError
+        {
+        }
+
+        public void execute_prepare_migration(ICoordTupleGNode tuple, int64 fp_id, int propagation_id, int lvl, ICoordObject prepare_migration_data)
+        throws StubError, DeserializeError
+        {
+        }
+
+        public void execute_we_have_splitted(ICoordTupleGNode tuple, int64 fp_id, int propagation_id, int lvl, ICoordObject we_have_splitted_data)
+        throws StubError, DeserializeError
+        {
+        }
+    }
 }

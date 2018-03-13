@@ -162,12 +162,50 @@ namespace Netsukuku
 
         public ICoordinatorManagerStub get_stub_for_all_neighbors()
         {
-            error("not implemented yet");
+            IAddressManagerStub? addrstub = Coordinator.root_stub_broadcast(identity_data);
+            if(addrstub == null) return new CoordinatorManagerStubVoid();
+            return new CoordinatorManagerStubHolder(addrstub);
         }
 
         public Gee.List<ICoordinatorManagerStub> get_stub_for_each_neighbor()
         {
-            error("not implemented yet");
+            ArrayList<ICoordinatorManagerStub> ret = new ArrayList<ICoordinatorManagerStub>();
+            foreach (IdentityArc ia in identity_data.identity_arcs)
+            {
+                if (ia.qspn_arc != null)
+                {
+                    ret.add(new CoordinatorManagerStubHolder(Coordinator.root_stub_unicast_from_ia(ia, false)));
+                }
+            }
+            return ret;
+        }
+    }
+
+    namespace Coordinator
+    {
+        IAddressManagerStub root_stub_unicast_from_ia(IdentityArc ia, bool wait_reply)
+        {
+            return neighborhood_mgr.get_stub_identity_aware_unicast(
+                ((IdmgmtArc)ia.arc).neighborhood_arc,
+                ia.id,  // sourceid
+                ia.id_arc.get_peer_nodeid(),  // destid
+                wait_reply);
+        }
+
+        IAddressManagerStub? root_stub_broadcast(IdentityData identity_data)
+        {
+            ArrayList<NodeID> broadcast_node_id_set = new ArrayList<NodeID>();
+            foreach (IdentityArc ia in identity_data.identity_arcs)
+            {
+                if (ia.qspn_arc != null)
+                    broadcast_node_id_set.add(ia.id_arc.get_peer_nodeid());
+            }
+            if(broadcast_node_id_set.is_empty) return null;
+            NodeID source_node_id = identity_data.nodeid;
+            return neighborhood_mgr.get_stub_identity_aware_broadcast(
+                source_node_id,
+                broadcast_node_id_set,
+                null);
         }
     }
 }
