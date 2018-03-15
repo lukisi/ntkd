@@ -71,7 +71,6 @@ namespace Netsukuku
             int64 enter_into_network_id = 348371222;
             int guest_gnode_level = 0;
             int go_connectivity_position = 2;
-            int go_connectivity_eldership = 1;
             int[] host_gnode_positions = new int[] {0, 0, 0};
             int[] host_gnode_elderships = new int[] {0, 0, 0};
             int new_position_in_host_gnode = 1;
@@ -82,7 +81,7 @@ namespace Netsukuku
             tasklet.ms_wait(0);
             IdentityData second_identity_data =
                 EnterNetwork.enter(migration_id, first_identity_data, enter_into_network_id,
-                guest_gnode_level, go_connectivity_position, go_connectivity_eldership,
+                guest_gnode_level, go_connectivity_position,
                 host_gnode_positions, new_position_in_host_gnode,
                 host_gnode_elderships, new_eldership_in_host_gnode);
 

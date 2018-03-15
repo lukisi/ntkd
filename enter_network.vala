@@ -35,7 +35,7 @@ namespace Netsukuku.EnterNetwork
     }
 
     IdentityData enter(int migration_id, IdentityData old_identity_data, int64 enter_into_network_id,
-        int guest_gnode_level, int go_connectivity_position, int go_connectivity_eldership,
+        int guest_gnode_level, int go_connectivity_position,
         int[] host_gnode_positions, int new_position_in_host_gnode,
         int[] host_gnode_elderships, int new_eldership_in_host_gnode)
     {
@@ -116,10 +116,6 @@ namespace Netsukuku.EnterNetwork
         _naddr_temp.add_all(old_identity_data.my_naddr.pos);
         _naddr_temp[guest_gnode_level] = go_connectivity_position;
         old_identity_data.my_naddr = new Naddr(_naddr_temp.to_array(), gsizes.to_array());
-        ArrayList<int> _elderships_temp = new ArrayList<int>();
-        _elderships_temp.add_all(old_identity_data.my_fp.elderships);
-        _elderships_temp[guest_gnode_level] = go_connectivity_eldership;
-        old_identity_data.my_fp = new Fingerprint(_elderships_temp.to_array(), old_identity_data.my_fp.id);
 
         enter_another_network_commands(old_identity_data, new_identity_data,
             guest_gnode_level, old_naddr, old_fp,
@@ -131,7 +127,7 @@ namespace Netsukuku.EnterNetwork
         QspnManager new_qspn =
             enter_another_network_qspn(old_identity_data, new_identity_data,
             old_qspn,
-            guest_gnode_level, go_connectivity_position, go_connectivity_eldership,
+            guest_gnode_level, go_connectivity_position,
             host_gnode_positions, new_position_in_host_gnode,
             host_gnode_elderships, new_eldership_in_host_gnode,
             prev_arcpairs, new_arcpairs, both_arcpairs);
@@ -268,7 +264,7 @@ namespace Netsukuku.EnterNetwork
 
     QspnManager enter_another_network_qspn(IdentityData old_id, IdentityData new_id,
         QspnManager old_id_qspn_mgr,
-        int guest_gnode_level, int go_connectivity_position, int go_connectivity_eldership,
+        int guest_gnode_level, int go_connectivity_position,
         int[] host_gnode_positions, int new_position_in_host_gnode,
         int[] host_gnode_elderships, int new_eldership_in_host_gnode,
         Gee.List<IdentityArcPair> prev_arcpairs, Gee.List<IdentityArcPair> new_arcpairs, Gee.List<IdentityArcPair> both_arcpairs)
