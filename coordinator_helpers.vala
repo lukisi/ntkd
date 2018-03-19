@@ -90,12 +90,22 @@ namespace Netsukuku
         }
         private weak IdentityData identity_data;
 
+        public void prepare_migration(int lvl, Object prepare_migration_data)
+        {
+            error("not implemented yet");
+        }
+
         public void finish_migration(int lvl, Object finish_migration_data)
         {
             error("not implemented yet");
         }
 
-        public void prepare_migration(int lvl, Object prepare_migration_data)
+        public void prepare_enter(int lvl, Object prepare_enter_data)
+        {
+            error("not implemented yet");
+        }
+
+        public void finish_enter(int lvl, Object finish_enter_data)
         {
             error("not implemented yet");
         }

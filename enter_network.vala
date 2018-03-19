@@ -28,20 +28,20 @@ using TaskletSystem;
 
 namespace Netsukuku.EnterNetwork
 {
-    void prepare_enter(int migration_id, IdentityData old_identity_data)
+    void prepare_enter(int enter_id, IdentityData old_identity_data)
     {
         // Prepare duplication.
-        identity_mgr.prepare_add_identity(migration_id, old_identity_data.nodeid);
+        identity_mgr.prepare_add_identity(enter_id, old_identity_data.nodeid);
     }
 
-    IdentityData enter(int migration_id, IdentityData old_identity_data, int64 enter_into_network_id,
+    IdentityData enter(int enter_id, IdentityData old_identity_data, int64 enter_into_network_id,
         int guest_gnode_level, int go_connectivity_position,
         int[] host_gnode_positions, int new_position_in_host_gnode,
         int[] host_gnode_elderships, int new_eldership_in_host_gnode)
     {
         int host_gnode_level = levels - host_gnode_positions.length;
         // Duplicate.
-        NodeID new_nodeid = identity_mgr.add_identity(migration_id, old_identity_data.nodeid);
+        NodeID new_nodeid = identity_mgr.add_identity(enter_id, old_identity_data.nodeid);
         IdentityData new_identity_data = find_or_create_local_identity(new_nodeid);
         new_identity_data.copy_of_identity = old_identity_data;
         new_identity_data.connectivity_from_level = old_identity_data.connectivity_from_level;

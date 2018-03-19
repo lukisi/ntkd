@@ -70,17 +70,17 @@ namespace Netsukuku
             // Simulation: Hooking says we must enter in network_id = 348371222
             int64 enter_into_network_id = 348371222;
             int guest_gnode_level = 0;
-            int go_connectivity_position = 2;
+            int go_connectivity_position = PRNGen.int_range(gsizes[guest_gnode_level], int32.MAX); // not important on entering another network.
             int[] host_gnode_positions = new int[] {0, 0, 0};
             int[] host_gnode_elderships = new int[] {0, 0, 0};
             int new_position_in_host_gnode = 1;
             int new_eldership_in_host_gnode = 1;
-            int migration_id = 1;
+            int enter_id = 1;
 
-            EnterNetwork.prepare_enter(migration_id, first_identity_data);
+            EnterNetwork.prepare_enter(enter_id, first_identity_data);
             tasklet.ms_wait(0);
             IdentityData second_identity_data =
-                EnterNetwork.enter(migration_id, first_identity_data, enter_into_network_id,
+                EnterNetwork.enter(enter_id, first_identity_data, enter_into_network_id,
                 guest_gnode_level, go_connectivity_position,
                 host_gnode_positions, new_position_in_host_gnode,
                 host_gnode_elderships, new_eldership_in_host_gnode);
