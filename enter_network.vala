@@ -167,6 +167,24 @@ namespace Netsukuku.EnterNetwork
         identity_mgr.set_identity_module(new_nodeid, "coordinator", coord_mgr);
         new_identity_data.coord_mgr = coord_mgr;  // weak ref
 
+        // HookingManager
+        HookingManager hook_mgr = new HookingManager();
+        identity_mgr.set_identity_module(new_nodeid, "hooking", hook_mgr);
+        new_identity_data.hook_mgr = hook_mgr;  // weak ref
+        // immediately after creation, connect to signals.
+        hook_mgr.same_network.connect((_ia) =>
+            per_identity_hooking_same_network(new_identity_data, _ia));
+        hook_mgr.another_network.connect((_ia, network_id) =>
+            per_identity_hooking_another_network(new_identity_data, _ia, network_id));
+        hook_mgr.do_prepare_migration.connect(() =>
+            per_identity_hooking_do_prepare_migration(new_identity_data));
+        hook_mgr.do_finish_migration.connect(() =>
+            per_identity_hooking_do_finish_migration(new_identity_data));
+        hook_mgr.do_prepare_enter.connect((enter_id) =>
+            per_identity_hooking_do_prepare_enter(new_identity_data, enter_id));
+        hook_mgr.do_finish_enter.connect((enter_id, guest_gnode_level, entry_data, go_connectivity_position) =>
+            per_identity_hooking_do_finish_enter(new_identity_data, enter_id, guest_gnode_level, entry_data, go_connectivity_position));
+
         foreach (IdentityArc ia in old_identity_data.identity_arcs)
         {
             ia.prev_peer_mac = null;

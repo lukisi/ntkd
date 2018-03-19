@@ -214,6 +214,24 @@ namespace Netsukuku
         if (first_identity_data.main_id)
             first_identity_data.gone_connectivity.connect(first_identity_data.handle_gone_connectivity_for_coord);
 
+        // HookingManager
+        HookingManager hook_mgr = new HookingManager();
+        identity_mgr.set_identity_module(nodeid, "hooking", hook_mgr);
+        first_identity_data.hook_mgr = hook_mgr;  // weak ref
+        // immediately after creation, connect to signals.
+        hook_mgr.same_network.connect((_ia) =>
+            per_identity_hooking_same_network(first_identity_data, _ia));
+        hook_mgr.another_network.connect((_ia, network_id) =>
+            per_identity_hooking_another_network(first_identity_data, _ia, network_id));
+        hook_mgr.do_prepare_migration.connect(() =>
+            per_identity_hooking_do_prepare_migration(first_identity_data));
+        hook_mgr.do_finish_migration.connect(() =>
+            per_identity_hooking_do_finish_migration(first_identity_data));
+        hook_mgr.do_prepare_enter.connect((enter_id) =>
+            per_identity_hooking_do_prepare_enter(first_identity_data, enter_id));
+        hook_mgr.do_finish_enter.connect((enter_id, guest_gnode_level, entry_data, go_connectivity_position) =>
+            per_identity_hooking_do_finish_enter(first_identity_data, enter_id, guest_gnode_level, entry_data, go_connectivity_position));
+
         // TODO continue
     }
 }

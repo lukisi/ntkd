@@ -24,6 +24,8 @@ qspn_helpers.c
 qspn_signals.c
 peers_helpers.c
 coordinator_helpers.c
+hooking_helpers.c
+hooking_signals.c
 *.stamp
 *.stamp-t
 Makefile.in
