@@ -31,7 +31,9 @@ namespace Netsukuku
     void per_identity_hooking_another_network(IdentityData id, IIdentityArc _ia, int64 network_id)
     {
         IdentityArc ia = ((HookingIdentityArc)_ia).ia;
-        warning("Not implemented yet: another_network");
+        ia.network_id = network_id;
+        print(@"Signal Hooking.another_network: saving network_id $(network_id) for id-arc " +
+            @"$(id.nodeid.id)-$(ia.id_arc.get_peer_nodeid().id) on arc $(((IdmgmtArc)ia.arc).id).\n");
     }
 
     void per_identity_hooking_do_prepare_migration(IdentityData id)
@@ -46,12 +48,19 @@ namespace Netsukuku
 
     void per_identity_hooking_do_prepare_enter(IdentityData id, int enter_id)
     {
-        warning("Not implemented yet: do_prepare_enter");
+        print(@"Signal Hooking.do_prepare_enter: For identity $(id.nodeid.id) with enter_id $(enter_id).\n");
+        EnterNetwork.prepare_enter(enter_id, id);
     }
 
     void per_identity_hooking_do_finish_enter(IdentityData id,
         int enter_id, int guest_gnode_level, EntryData entry_data, int go_connectivity_position)
     {
-        warning("Not implemented yet: do_finish_enter");
+        print(@"Signal Hooking.do_finish_enter: For identity $(id.nodeid.id) with enter_id $(enter_id).\n");
+        print(@"     With guest_gnode_level $(guest_gnode_level) on network_id $(entry_data.network_id).\n");
+        IdentityData new_id = EnterNetwork.enter(enter_id, id, entry_data.network_id,
+            guest_gnode_level, go_connectivity_position,
+            entry_data.pos,
+            entry_data.elderships);
+        print(@"Completed do_finish_enter: New identity is $(new_id.nodeid.id).\n");
     }
 }

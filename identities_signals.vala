@@ -25,7 +25,7 @@ using TaskletSystem;
 
 namespace Netsukuku
 {
-    void identities_identity_arc_added(IIdmgmtArc arc, NodeID id, IIdmgmtIdentityArc id_arc)
+    void identities_identity_arc_added(IIdmgmtArc arc, NodeID id, IIdmgmtIdentityArc id_arc, IIdmgmtIdentityArc? prev_id_arc)
     {
         // Retrieve my identity.
         IdentityData identity_data = find_or_create_local_identity(id);
@@ -34,7 +34,8 @@ namespace Netsukuku
         // Add to the list.
         identity_data.identity_arcs.add(ia);
 
-        // TODO Pass it to the Hooking module.
+        // If needed, pass it to the Hooking module.
+        if (prev_id_arc == null) identity_data.hook_mgr.add_arc(new HookingIdentityArc(ia));
 
         print(@"identities_identity_arc_added: my id $(identity_data.nodeid.id) connected to");
         print(@" id $(ia.id_arc.get_peer_nodeid().id) on arc $(((IdmgmtArc)arc).id).\n");

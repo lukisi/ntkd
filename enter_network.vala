@@ -36,10 +36,10 @@ namespace Netsukuku.EnterNetwork
 
     IdentityData enter(int enter_id, IdentityData old_identity_data, int64 enter_into_network_id,
         int guest_gnode_level, int go_connectivity_position,
-        int[] host_gnode_positions, int new_position_in_host_gnode,
-        int[] host_gnode_elderships, int new_eldership_in_host_gnode)
+        Gee.List<int> new_gnode_positions,
+        Gee.List<int> new_gnode_elderships)
     {
-        int host_gnode_level = levels - host_gnode_positions.length;
+        int host_gnode_level = levels - (new_gnode_positions.size - 1);
         // Duplicate.
         NodeID new_nodeid = identity_mgr.add_identity(enter_id, old_identity_data.nodeid);
         IdentityData new_identity_data = find_or_create_local_identity(new_nodeid);
@@ -119,8 +119,8 @@ namespace Netsukuku.EnterNetwork
 
         enter_another_network_commands(old_identity_data, new_identity_data,
             guest_gnode_level, old_naddr, old_fp,
-            host_gnode_positions, new_position_in_host_gnode,
-            host_gnode_elderships, new_eldership_in_host_gnode,
+            new_gnode_positions,
+            new_gnode_elderships,
             prev_arcpairs, new_arcpairs, both_arcpairs);
 
         QspnManager old_qspn = (QspnManager)identity_mgr.get_identity_module(old_identity_data.nodeid, "qspn");
@@ -128,8 +128,7 @@ namespace Netsukuku.EnterNetwork
             enter_another_network_qspn(old_identity_data, new_identity_data,
             old_qspn,
             guest_gnode_level, go_connectivity_position,
-            host_gnode_positions, new_position_in_host_gnode,
-            host_gnode_elderships, new_eldership_in_host_gnode,
+            host_gnode_level,
             prev_arcpairs, new_arcpairs, both_arcpairs);
         if (prev_was_main) old_identity_data.gone_connectivity();
 
@@ -215,12 +214,12 @@ namespace Netsukuku.EnterNetwork
 
     void enter_another_network_commands(IdentityData old_id, IdentityData new_id,
         int guest_gnode_level, Naddr old_naddr, Fingerprint old_fp,
-        int[] host_gnode_positions, int new_position_in_host_gnode,
-        int[] host_gnode_elderships, int new_eldership_in_host_gnode,
+        Gee.List<int> new_gnode_positions,
+        Gee.List<int> new_gnode_elderships,
         Gee.List<IdentityArcPair> prev_arcpairs, Gee.List<IdentityArcPair> new_arcpairs, Gee.List<IdentityArcPair> both_arcpairs)
     {
-        assert(host_gnode_positions.length == host_gnode_elderships.length);
-        int host_gnode_level = levels - host_gnode_positions.length;
+        assert(new_gnode_positions.size == new_gnode_elderships.size);
+        int host_gnode_level = levels - (new_gnode_positions.size - 1);
         assert(guest_gnode_level >= 0);
         assert(guest_gnode_level < host_gnode_level);
 
@@ -231,13 +230,13 @@ namespace Netsukuku.EnterNetwork
         if (new_id.main_id) prev_local_ip_set = old_id.local_ip_set.copy();
         DestinationIPSet prev_dest_ip_set = old_id.dest_ip_set.copy();
 
-        ArrayList<int> pos = new ArrayList<int>.wrap(host_gnode_positions);
-        pos.insert(0, new_position_in_host_gnode);
+        ArrayList<int> pos = new ArrayList<int>();
+        pos.add_all(new_gnode_positions);
         for (int i = host_gnode_level-2; i >= 0; i--)
             pos.insert(0, old_naddr.pos[i]);
         Naddr new_naddr = new Naddr(pos.to_array(), gsizes.to_array());
-        ArrayList<int> elderships = new ArrayList<int>.wrap(host_gnode_elderships);
-        elderships.insert(0, new_eldership_in_host_gnode);
+        ArrayList<int> elderships = new ArrayList<int>();
+        elderships.add_all(new_gnode_elderships);
         for (int i = host_gnode_level-2; i >= 0; i--)
             elderships.insert(0, old_fp.elderships[i]);
         Fingerprint new_fp = new Fingerprint(elderships.to_array(), old_fp.id);
@@ -283,12 +282,9 @@ namespace Netsukuku.EnterNetwork
     QspnManager enter_another_network_qspn(IdentityData old_id, IdentityData new_id,
         QspnManager old_id_qspn_mgr,
         int guest_gnode_level, int go_connectivity_position,
-        int[] host_gnode_positions, int new_position_in_host_gnode,
-        int[] host_gnode_elderships, int new_eldership_in_host_gnode,
+        int host_gnode_level,
         Gee.List<IdentityArcPair> prev_arcpairs, Gee.List<IdentityArcPair> new_arcpairs, Gee.List<IdentityArcPair> both_arcpairs)
     {
-        assert(host_gnode_positions.length == host_gnode_elderships.length);
-        int host_gnode_level = levels - host_gnode_positions.length;
         assert(guest_gnode_level >= 0);
         assert(guest_gnode_level < host_gnode_level);
 

@@ -71,10 +71,8 @@ namespace Netsukuku
             int64 enter_into_network_id = 348371222;
             int guest_gnode_level = 0;
             int go_connectivity_position = PRNGen.int_range(gsizes[guest_gnode_level], int32.MAX); // not important on entering another network.
-            int[] host_gnode_positions = new int[] {0, 0, 0};
-            int[] host_gnode_elderships = new int[] {0, 0, 0};
-            int new_position_in_host_gnode = 1;
-            int new_eldership_in_host_gnode = 1;
+            ArrayList<int> new_gnode_positions = new ArrayList<int>.wrap({1, 0, 0, 0});
+            ArrayList<int> new_gnode_elderships = new ArrayList<int>.wrap({1, 0, 0, 0});
             int enter_id = 1;
 
             EnterNetwork.prepare_enter(enter_id, first_identity_data);
@@ -82,8 +80,8 @@ namespace Netsukuku
             IdentityData second_identity_data =
                 EnterNetwork.enter(enter_id, first_identity_data, enter_into_network_id,
                 guest_gnode_level, go_connectivity_position,
-                host_gnode_positions, new_position_in_host_gnode,
-                host_gnode_elderships, new_eldership_in_host_gnode);
+                new_gnode_positions,
+                new_gnode_elderships);
 
             // second_identity_data nodeid 1595149094 should be in about 3 seconds bootstrapped in network_id 348371222.
 
