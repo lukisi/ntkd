@@ -34,12 +34,16 @@ namespace Netsukuku
         // Add to the list.
         identity_data.identity_arcs.add(ia);
 
-        // If needed, pass it to the Hooking module.
-        if (prev_id_arc == null) identity_data.hook_mgr.add_arc(new HookingIdentityArc(ia));
-
         print(@"identities_identity_arc_added: my id $(identity_data.nodeid.id) connected to");
         print(@" id $(ia.id_arc.get_peer_nodeid().id) on arc $(((IdmgmtArc)arc).id).\n");
         print(@" peer_linklocal = $(ia.peer_linklocal).\n");
+
+        // If needed, pass it to the Hooking module.
+        if (prev_id_arc == null)
+        {
+            print(@" Passing it to the module Hooking.\n");
+            identity_data.hook_mgr.add_arc(new HookingIdentityArc(ia));
+        }
     }
 
     void identities_identity_arc_changed(IIdmgmtArc arc, NodeID id, IIdmgmtIdentityArc id_arc, bool only_neighbour_migrated)

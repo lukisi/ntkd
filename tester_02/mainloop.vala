@@ -55,29 +55,22 @@ namespace Netsukuku
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
+            // there is one identity arc passed to the module Hooking
+            HookingIdentityArc first_arc = (HookingIdentityArc)first_identity_data.hook_mgr.arc_list[0];
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
             print("Simulation: Peer 1239482480 is on 380228860.\n");
-            foreach (IdentityArc w0 in first_identity_data.identity_arcs)
-                if (w0.id_arc.get_peer_nodeid().id == 1239482480)
-            {
-                print("Peer 1239482480 found.\n");
-                w0.network_id = 380228860;
-            }
+            first_identity_data.hook_mgr.another_network(first_arc, 380228860);
 
             // Simulation: Hooking does not tell us to enter
 
             tasklet.ms_wait(3000);
 
+            // there is another identity arc passed to the module Hooking
+            HookingIdentityArc second_arc = (HookingIdentityArc)first_identity_data.hook_mgr.arc_list[1];
             // Simulation: Hooking informs us that this id_arc's peer is of our same network.
             print("Simulation: Peer 1595149094 is on 348371222.\n");
-            foreach (IdentityArc w0 in first_identity_data.identity_arcs)
-                if (w0.id_arc.get_peer_nodeid().id == 1595149094)
-            {
-                print("Peer 1595149094 found.\n");
-                w0.network_id = 348371222;
-                UpdateGraph.add_arc(w0); // this will set w0.qspn_arc
-            }
+            first_identity_data.hook_mgr.same_network(second_arc);
 
             return null;
         }

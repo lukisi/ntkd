@@ -25,7 +25,10 @@ namespace Netsukuku
     void per_identity_hooking_same_network(IdentityData id, IIdentityArc _ia)
     {
         IdentityArc ia = ((HookingIdentityArc)_ia).ia;
-        warning("Not implemented yet: same_network");
+        ia.network_id = null;
+        print(@"Signal Hooking.same_network: adding qspn_arc for id-arc " +
+            @"$(id.nodeid.id)-$(ia.id_arc.get_peer_nodeid().id) on arc $(((IdmgmtArc)ia.arc).id).\n");
+        UpdateGraph.add_arc(ia); // this will set ia.qspn_arc
     }
 
     void per_identity_hooking_another_network(IdentityData id, IIdentityArc _ia, int64 network_id)

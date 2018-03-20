@@ -56,6 +56,7 @@ namespace Netsukuku
         IdentityManager.init_rngen(null, seed_prn);
         QspnManager.init_rngen(null, seed_prn);
         CoordinatorManager.init_rngen(null, seed_prn);
+        HookingManager.init_rngen(null, seed_prn);
 
         // Pass tasklet system to the RPC library (ntkdrpc)
         init_tasklet_system(tasklet);

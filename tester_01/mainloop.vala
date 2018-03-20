@@ -55,15 +55,12 @@ namespace Netsukuku
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
+            // there is one identity arc passed to the module Hooking
+            HookingIdentityArc the_arc = (HookingIdentityArc)first_identity_data.hook_mgr.arc_list[0];
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
             print("Simulation: Peer 948911663 is on 348371222.\n");
-            foreach (IdentityArc w0 in first_identity_data.identity_arcs)
-                if (w0.id_arc.get_peer_nodeid().id == 948911663)
-            {
-                print("Peer 948911663 found.\n");
-                w0.network_id = 348371222;
-            }
+            first_identity_data.hook_mgr.another_network(the_arc, 348371222);
 
             tasklet.ms_wait(1000);
 
@@ -75,32 +72,21 @@ namespace Netsukuku
             ArrayList<int> new_gnode_elderships = new ArrayList<int>.wrap({1, 0, 0, 0});
             int enter_id = 1;
 
-            EnterNetwork.prepare_enter(enter_id, first_identity_data);
+            first_identity_data.hook_mgr.do_prepare_enter(enter_id);
             tasklet.ms_wait(0);
-            IdentityData second_identity_data =
-                EnterNetwork.enter(enter_id, first_identity_data, enter_into_network_id,
-                guest_gnode_level, go_connectivity_position,
-                new_gnode_positions,
-                new_gnode_elderships);
+            EntryData entry_data = new EntryData();
+            entry_data.network_id = enter_into_network_id;
+            entry_data.pos = new_gnode_positions;
+            entry_data.elderships = new_gnode_elderships;
+            first_identity_data.hook_mgr.do_finish_enter(enter_id, guest_gnode_level, entry_data, go_connectivity_position);
 
-            // second_identity_data nodeid 1595149094 should be in about 3 seconds bootstrapped in network_id 348371222.
+            // first identity should already have been removed
+            assert(local_identities.size == 1);
+            IdentityData second_identity_data = local_identities[0];
+
+            // second_identity_data nodeid 1595149094 should be in about 3 seconds bootstrapped in network_id 348371222. See tester02/mainloop.vala
 
             // TODO continue
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             return null;
         }
