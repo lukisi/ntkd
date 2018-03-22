@@ -51,21 +51,30 @@ namespace Netsukuku
         {
             tasklet.ms_wait(2000);
             print("tester01: test begins\n");
-            // first_identity_data nodeid 1239482480 is in network_id 380228860.
+            // first_identity_data: my id 1239482480 is in network_id 380228860.
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
-            // there is one identity arc passed to the module Hooking
-            HookingIdentityArc the_arc = (HookingIdentityArc)first_identity_data.hook_mgr.arc_list[0];
+
+            // Some identity arcs have been passed to the module Hooking:
+            // * there is one with 948911663 on network 191787110.
+            HookingIdentityArc arc_01 = null;
+            foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
+            {
+                HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
+                IdentityArc ia = __idarc.ia;
+                if (ia.id_arc.get_peer_nodeid().id == 948911663) arc_01 = __idarc;
+            }
+            assert(arc_01 != null);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
-            print("Simulation: Peer 948911663 is on 348371222.\n");
-            first_identity_data.hook_mgr.another_network(the_arc, 348371222);
+            print("Simulation: Peer 948911663 on network 191787110.\n");
+            first_identity_data.hook_mgr.another_network(arc_01, 191787110);
 
             tasklet.ms_wait(1000);
 
-            // Simulation: Hooking says we must enter in network_id = 348371222
-            int64 enter_into_network_id = 348371222;
+            // Simulation: Hooking says we must enter in network_id = 191787110
+            int64 enter_into_network_id = 191787110;
             int guest_gnode_level = 0;
             int go_connectivity_position = PRNGen.int_range(gsizes[guest_gnode_level], int32.MAX); // not important on entering another network.
             ArrayList<int> new_gnode_positions = new ArrayList<int>.wrap({1, 0, 0, 0});
@@ -84,7 +93,7 @@ namespace Netsukuku
             assert(local_identities.size == 1);
             IdentityData second_identity_data = local_identities[0];
 
-            // second_identity_data nodeid 1595149094 should be in about 3 seconds bootstrapped in network_id 348371222. See tester02/mainloop.vala
+            // second_identity_data nodeid 1595149094 should be in about 3 seconds bootstrapped in network_id 191787110. See tester02/mainloop.vala
 
             // TODO continue
 

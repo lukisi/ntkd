@@ -19,6 +19,7 @@ bin_PROGRAMS =  \
 	ntkd_cleaning \
 	ntkd_tester_01 \
 	ntkd_tester_02 \
+	ntkd_tester_03 \
 	$(NULL)
 
 libmacgetter_la_SOURCES = \
@@ -315,6 +316,95 @@ ntkd_tester_02_CPPFLAGS = \
 	$(NULL)
 
 ntkd_tester_02_LDADD = \
+	-lm \
+	$(GOBJECT_LIBS) \
+	$(GEE_LIBS) \
+	$(NTKDCOMMON_LIBS) \
+	$(TASKLETSYSTEM_LIBS) \
+	$(PTHTASKLET_LIBS) \
+	$(NTKDRPC_LIBS) \
+	$(PEERS_LIBS) \
+	$(builddir)/libmacgetter.la \
+	$(builddir)/neighborhood/libneighborhood.la \
+	$(builddir)/identities/libidentities.la \
+	$(builddir)/qspn/libqspn.la \
+	$(builddir)/coordinator/libcoord.la \
+	$(builddir)/hooking/libhooking.la \
+	$(builddir)/andna/libandna.la \
+	$(NULL)
+
+
+ntkd_tester_03_SOURCES =  \
+	tester_03/ntkd.vala \
+	tester_03/rngen.vala \
+	tester_03/configuration.vala \
+	tester_03/startup.vala \
+	tester_03/mainloop.vala \
+	tester_03/cleanup.vala \
+	tester_03/ntkd_rpc.vala \
+	tester_03/serialize_helpers.vala \
+	tester_03/commander.vala \
+	tester_03/table_names.vala \
+	tester_03/ipv4_compute.vala \
+	tester_03/identity_ip_compute.vala \
+	tester_03/identity_ip_commands.vala \
+	tester_03/naddr.vala \
+	tester_03/enter_network.vala \
+	tester_03/migrate.vala \
+	tester_03/update_graph.vala \
+	tester_03/neighborhood_helpers.vala \
+	tester_03/neighborhood_signals.vala \
+	tester_03/identities_helpers.vala \
+	tester_03/identities_signals.vala \
+	tester_03/qspn_helpers.vala \
+	tester_03/qspn_signals.vala \
+	tester_03/peers_helpers.vala \
+	tester_03/coordinator_helpers.vala \
+	tester_03/hooking_helpers.vala \
+	tester_03/hooking_signals.vala \
+	mac-getter/hw.vapi \
+	identities/identities.vapi \
+	neighborhood/neighborhood.vapi \
+	qspn/qspn.vapi \
+	coordinator/coord.vapi \
+	hooking/hooking.vapi \
+	andna/andna.vapi \
+	$(NULL)
+
+ntkd_tester_03_VALAFLAGS = \
+	--vapidir $(GEE_PREFIX)/share/vala/vapi \
+	--vapidir $(TASKLETSYSTEM_VAPIDIR) \
+	--vapidir $(PTHTASKLET_VAPIDIR) \
+	--vapidir $(NTKDCOMMON_VAPIDIR) \
+	--vapidir $(NTKDRPC_VAPIDIR) \
+	--vapidir $(PEERS_VAPIDIR) \
+	--pkg gee-0.8 \
+	--pkg ntkd-common \
+	--pkg tasklet-system \
+	--pkg pth-tasklet \
+	--pkg ntkdrpc \
+	--pkg peers \
+	--pkg posix \
+	$(NULL)
+
+ntkd_tester_03_CPPFLAGS = \
+	-w \
+	$(GOBJECT_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(NTKDCOMMON_CFLAGS) \
+	$(TASKLETSYSTEM_CFLAGS) \
+	$(PTHTASKLET_CFLAGS) \
+	$(NTKDRPC_CFLAGS) \
+	$(PEERS_CFLAGS) \
+	-I$(srcdir)/identities \
+	-I$(srcdir)/neighborhood \
+	-I$(srcdir)/qspn \
+	-I$(srcdir)/coordinator \
+	-I$(srcdir)/hooking \
+	-I$(srcdir)/andna \
+	$(NULL)
+
+ntkd_tester_03_LDADD = \
 	-lm \
 	$(GOBJECT_LIBS) \
 	$(GEE_LIBS) \
