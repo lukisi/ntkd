@@ -44,6 +44,12 @@ namespace Netsukuku
             print(@" Passing it to the module Hooking.\n");
             identity_data.hook_mgr.add_arc(new HookingIdentityArc(ia));
         }
+        else
+        {
+            // Retrieve previous IdentityArc.
+            IdentityArc prev_ia = find_identity_arc(prev_id_arc);
+            ia.network_id = prev_ia.network_id;
+        }
     }
 
     void identities_identity_arc_changed(IIdmgmtArc arc, NodeID id, IIdmgmtIdentityArc id_arc, bool only_neighbour_migrated)

@@ -59,25 +59,25 @@ namespace Netsukuku
             // Some identity arcs have been passed to the module Hooking:
             // * there is one with 1239482480 on network 380228860.
             HookingIdentityArc arc_01 = null;
-            // * there is one with XXXXXXXX on network YYYYYYY.
+            // * there is one with 92336449 on network 1757335256.
             HookingIdentityArc arc_02 = null;
             foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
             {
                 HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
                 IdentityArc ia = __idarc.ia;
-                if (ia.id_arc.get_peer_nodeid().id == 948911663) arc_01 = __idarc;
-                // if (ia.id_arc.get_peer_nodeid().id == XXXXXXXX) arc_02 = __idarc;
+                if (ia.id_arc.get_peer_nodeid().id == 1239482480) arc_01 = __idarc;
+                if (ia.id_arc.get_peer_nodeid().id == 92336449) arc_02 = __idarc;
             }
             assert(arc_01 != null);
-            // assert(arc_02 != null);
+            assert(arc_02 != null);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
             print("Simulation: Peer 1239482480 on network 380228860.\n");
             first_identity_data.hook_mgr.another_network(arc_01, 380228860);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
-            // print("Simulation: Peer XXXXXXXX on network YYYYYYY.\n");
-            // first_identity_data.hook_mgr.another_network(arc_02, YYYYYYY);
+            print("Simulation: Peer 92336449 on network 1757335256.\n");
+            first_identity_data.hook_mgr.another_network(arc_02, 1757335256);
 
             // Simulation: Hooking does not tell us to enter
 

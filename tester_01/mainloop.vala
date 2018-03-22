@@ -93,7 +93,7 @@ namespace Netsukuku
             assert(local_identities.size == 1);
             IdentityData second_identity_data = local_identities[0];
 
-            // second_identity_data nodeid 1595149094 should be in about 3 seconds bootstrapped in network_id 191787110. See tester02/mainloop.vala
+            // second_identity_data nodeid 1595149094 should be in about 2 more seconds bootstrapped in network_id 191787110. See tester02/mainloop.vala
 
             // TODO continue
 

@@ -337,8 +337,24 @@ namespace Netsukuku.EnterNetwork
             NodeID destid = w1.id_arc.get_peer_nodeid();
             NodeID sourceid = w1.id; // == new_id
             w1.qspn_arc = new QspnArc(sourceid, destid, w1, w1.peer_mac);
+            // Adjust network_id in new arcs.
+            w1.network_id = null;
 
             external_arc_set.add(w1.qspn_arc);
+        }
+
+        // Adjust network_id in previous arcs.
+        foreach (IdentityArcPair arcpair in prev_arcpairs)
+        {
+            IdentityArc w1 = arcpair.new_id_arc;
+
+            Fingerprint old_id_fp_levels;
+            try {
+                old_id_fp_levels = (Fingerprint)old_id_qspn_mgr.get_fingerprint(levels);
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
+            w1.network_id = old_id_fp_levels.id;
         }
 
         QspnManager qspn_mgr = new QspnManager.enter_net(
