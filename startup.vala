@@ -125,7 +125,9 @@ namespace Netsukuku
             t_udp_list.add(udp_listen(dlg, err, ntkd_port, dev));
             // Run monitor. This will also set the IP link-local address and the list
             //  `handlednic_list` will be compiled.
-            neighborhood_mgr.start_monitor(new NeighborhoodNetworkInterface(dev));
+            var _nic = new NeighborhoodNetworkInterface(dev);
+            _nic.start_console_log();
+            neighborhood_mgr.start_monitor(_nic);
         }
 
         // Init module Identities

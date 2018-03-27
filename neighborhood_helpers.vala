@@ -100,9 +100,11 @@ namespace Netsukuku
         {
             _dev = dev;
             _mac = macgetter.get_mac(dev).up();
+            log_console = false;
         }
         private string _dev;
         private string _mac;
+        private bool log_console;
 
         public string dev {
             get {
@@ -116,17 +118,33 @@ namespace Netsukuku
             }
         }
 
+        public void start_console_log()
+        {
+            log_console = true;
+        }
+
+        public void stop_console_log()
+        {
+            log_console = false;
+        }
+
         public long measure_rtt(string peer_addr, string peer_mac, string my_dev, string my_addr) throws NeighborhoodGetRttError
         {
             TaskletCommandResult com_ret;
             try {
-                //print(@"ping -n -q -c 1 $(peer_addr)\n");
-                com_ret = tasklet.exec_command(@"ping -n -q -c 1 $(peer_addr)");
+                ArrayList<string> cmd_args = new ArrayList<string>.wrap({"ping", "-n", "-q", "-c", "1", @"$(peer_addr)"});
+                string cmd = cmd_repr(cmd_args);
+                if (log_console) print(@"$$ $(cmd)\n");
+                com_ret = tasklet.exec_command_argv(cmd_args);
             } catch (Error e) {
+                if (log_console) print(@" Unable to spawn a command: $(e.message)\n");
                 throw new NeighborhoodGetRttError.GENERIC(@"Unable to spawn a command: $(e.message)");
             }
             if (com_ret.exit_status != 0)
+            {
+                if (log_console) print(@" ping: error $(com_ret.stdout)\n");
                 throw new NeighborhoodGetRttError.GENERIC(@"ping: error $(com_ret.stdout)");
+            }
             foreach (string line in com_ret.stdout.split("\n"))
             {
                 /*  """rtt min/avg/max/mdev = 2.854/2.854/2.854/0.000 ms"""  */
@@ -139,12 +157,13 @@ namespace Netsukuku
                     if (res)
                     {
                         long ret = (long)(x * 1000);
-                        //print(@" returned $(ret) microseconds.\n");
+                        if (log_console) print(@" returned $(ret) microseconds.\n");
                         return ret;
                     }
                 }
             }
-            throw new NeighborhoodGetRttError.GENERIC(@"could not parse $(com_ret.stdout)");
+            if (log_console) print(@" ping: could not parse $(com_ret.stdout)\n");
+            throw new NeighborhoodGetRttError.GENERIC(@"ping: could not parse $(com_ret.stdout)");
         }
     }
 
