@@ -42,6 +42,7 @@ namespace Netsukuku
         if (prev_id_arc == null)
         {
             print(@" Passing it to the module Hooking.\n");
+            while (identity_data.hook_mgr == null) tasklet.ms_wait(10);
             identity_data.hook_mgr.add_arc(new HookingIdentityArc(ia));
         }
         else
