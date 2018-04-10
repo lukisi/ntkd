@@ -51,7 +51,7 @@ namespace Netsukuku
         {
             tasklet.ms_wait(2000);
             print("tester02: test begins\n");
-            // first_identity_data: my id 1596432545 is in network_id 1609842343.
+            // first_identity_data: my id 1596432545 is in network_id 1354430125.
             assert(local_identities.size == 1);
             IdentityData first_identity_data = local_identities[0];
             assert(first_identity_data.main_id);
@@ -66,25 +66,25 @@ namespace Netsukuku
                 HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
                 IdentityArc ia = __idarc.ia;
                 if (ia.id_arc.get_peer_nodeid().id == 87104682) arc_01 = __idarc;
-                // if (ia.id_arc.get_peer_nodeid().id == 846793969) arc_02 = __idarc;
+                if (ia.id_arc.get_peer_nodeid().id == 846793969) arc_02 = __idarc;
             }
             assert(arc_01 != null);
-            // assert(arc_02 != null);
+            assert(arc_02 != null);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
             print("Simulation: Peer 87104682 on network 792653743.\n");
             first_identity_data.hook_mgr.another_network(arc_01, 792653743);
 
             // Simulation: Hooking informs us that this id_arc's peer is of a certain network.
-            // print("Simulation: Peer 846793969 on network 423365822.\n");
-            // first_identity_data.hook_mgr.another_network(arc_02, 423365822);
+            print("Simulation: Peer 846793969 on network 423365822.\n");
+            first_identity_data.hook_mgr.another_network(arc_02, 423365822);
 
             // Simulation: Hooking does not tell us to enter
 
             tasklet.ms_wait(3000);
 
             // Some more identity arcs have been passed to the module Hooking:
-            // * there is one with 1267178494 on network 1609842343.
+            // * there is one with 1267178494 on network 1354430125.
             HookingIdentityArc arc_03 = null;
             foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
             {
@@ -95,8 +95,25 @@ namespace Netsukuku
             assert(arc_03 != null);
 
             // Simulation: Hooking informs us that this id_arc's peer is of our same network.
-            print("Simulation: Peer 1267178494 on network 1609842343.\n");
+            print("Simulation: Peer 1267178494 on network 1354430125.\n");
             first_identity_data.hook_mgr.same_network(arc_03);
+
+            tasklet.ms_wait(3000);
+
+            // Some more identity arcs have been passed to the module Hooking:
+            // * there is one with 399143400 on network 1354430125.
+            HookingIdentityArc arc_04 = null;
+            foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
+            {
+                HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
+                IdentityArc ia = __idarc.ia;
+                if (ia.id_arc.get_peer_nodeid().id == 399143400) arc_04 = __idarc;
+            }
+            assert(arc_04 != null);
+
+            // Simulation: Hooking informs us that this id_arc's peer is of our same network.
+            print("Simulation: Peer 399143400 on network 1354430125.\n");
+            first_identity_data.hook_mgr.same_network(arc_04);
 
             // TODO continue
 
