@@ -162,7 +162,9 @@ namespace Netsukuku.EnterNetwork
             new CoordinatorAbortEnterHandler(new_identity_data),
             new CoordinatorPropagationHandler(new_identity_data),
             new CoordinatorStubFactory(new_identity_data),
-            null, null, null);
+            guest_gnode_level,
+            host_gnode_level,
+            old_identity_data.coord_mgr);
         identity_mgr.set_identity_module(new_nodeid, "coordinator", coord_mgr);
         new_identity_data.coord_mgr = coord_mgr;  // weak ref
 
