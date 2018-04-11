@@ -165,7 +165,7 @@ namespace Netsukuku.IpCommands
 
         if (subnetlevel > 0)
         {
-            for (int k = host_gnode_level; k <= levels-2; k++)
+            for (int k = subnetlevel; k <= levels-2; k++)
             {
                 cm.single_command(new ArrayList<string>.wrap({
                     @"iptables", @"-t", @"nat", @"-D", @"PREROUTING", @"-d", @"$(prev_local_ip_set.netmap_range2[k])",
@@ -242,7 +242,7 @@ namespace Netsukuku.IpCommands
 
         if (subnetlevel > 0)
         {
-            for (int k = host_gnode_level; k <= levels-2; k++)
+            for (int k = subnetlevel; k <= levels-2; k++)
             {
                 cm.single_command(new ArrayList<string>.wrap({
                     @"iptables", @"-t", @"nat", @"-A", @"PREROUTING", @"-d", @"$(local_ip_set.netmap_range2[k])",
