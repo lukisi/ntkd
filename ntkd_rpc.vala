@@ -122,22 +122,41 @@ namespace Netsukuku
         public unowned IQspnManagerSkeleton
         qspn_manager_getter()
         {
-            // member qspn_mgr of identity_data is a IQspnManagerSkeleton
+            // member qspn_mgr of identity_data is QspnManager, which is a IQspnManagerSkeleton
             return identity_data.qspn_mgr;
         }
 
         public unowned IPeersManagerSkeleton
         peers_manager_getter()
         {
-            // member peers_mgr of identity_data is a IPeersManagerSkeleton
+            // member peers_mgr of identity_data is PeersManager, which is a IPeersManagerSkeleton
             return identity_data.peers_mgr;
         }
 
         public unowned ICoordinatorManagerSkeleton
         coordinator_manager_getter()
         {
-            error("not implemented yet");
+            // member coord_mgr of identity_data is CoordinatorManager, which is a ICoordinatorManagerSkeleton
+            return identity_data.coord_mgr;
         }
+
+        /* TODO in ntkdrpc
+        public unowned IHookingManagerSkeleton
+        hooking_manager_getter()
+        {
+            // member hook_mgr of identity_data is HookingManager, which is a IHookingManagerSkeleton
+            return identity_data.hook_mgr;
+        }
+        */
+
+        /* TODO in ntkdrpc
+        public unowned IAndnaManagerSkeleton
+        andna_manager_getter()
+        {
+            // member andna_mgr of identity_data is AndnaManager, which is a IAndnaManagerSkeleton
+            return identity_data.andna_mgr;
+        }
+        */
     }
 
     /* A skeleton for the whole-node remotable methods
@@ -147,14 +166,14 @@ namespace Netsukuku
         public unowned INeighborhoodManagerSkeleton
         neighborhood_manager_getter()
         {
-            // global var neighborhood_mgr is a INeighborhoodManagerSkeleton
+            // global var neighborhood_mgr is NeighborhoodManager, which is a INeighborhoodManagerSkeleton
             return neighborhood_mgr;
         }
 
         protected unowned IIdentityManagerSkeleton
         identity_manager_getter()
         {
-            // global var identity_mgr is a IIdentityManagerSkeleton
+            // global var identity_mgr is IdentityManager, which is a IIdentityManagerSkeleton
             return identity_mgr;
         }
 
@@ -178,6 +197,24 @@ namespace Netsukuku
             warning("NodeSkeleton.coordinator_manager_getter: not for node");
             tasklet.exit_tasklet(null);
         }
+
+        /* TODO in ntkdrpc
+        public unowned IHookingManagerSkeleton
+        hooking_manager_getter()
+        {
+            warning("NodeSkeleton.hooking_manager_getter: not for node");
+            tasklet.exit_tasklet(null);
+        }
+        */
+
+        /* TODO in ntkdrpc
+        public unowned IAndnaManagerSkeleton
+        andna_manager_getter()
+        {
+            warning("NodeSkeleton.andna_manager_getter: not for node");
+            tasklet.exit_tasklet(null);
+        }
+        */
     }
 
     class IdentityManagerStubHolder : Object, IIdentityManagerStub

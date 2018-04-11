@@ -76,7 +76,6 @@ namespace Netsukuku
         qspn_mgr.qspn_bootstrap_complete.disconnect(identity_data.qspn_bootstrap_complete);
         qspn_mgr.remove_identity.disconnect(identity_data.remove_identity);
         identity_data.qspn_handlers_disabled = true;
-        identity_mgr.unset_identity_module(identity_data.nodeid, "qspn");
         qspn_mgr.stop_operations();
         qspn_mgr = null;
 

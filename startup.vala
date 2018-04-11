@@ -237,6 +237,11 @@ namespace Netsukuku
         hook_mgr.do_finish_enter.connect((enter_id, guest_gnode_level, entry_data, go_connectivity_position) =>
             per_identity_hooking_do_finish_enter(first_identity_data, enter_id, guest_gnode_level, entry_data, go_connectivity_position));
 
+        // AndnaManager  TODO
+        AndnaManager andna_mgr = new AndnaManager();
+        identity_mgr.set_identity_module(nodeid, "andna", andna_mgr);
+        first_identity_data.andna_mgr = andna_mgr;  // weak ref
+
         // TODO continue
     }
 }

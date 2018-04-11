@@ -186,6 +186,11 @@ namespace Netsukuku.EnterNetwork
         hook_mgr.do_finish_enter.connect((enter_id, guest_gnode_level, entry_data, go_connectivity_position) =>
             per_identity_hooking_do_finish_enter(new_identity_data, enter_id, guest_gnode_level, entry_data, go_connectivity_position));
 
+        // AndnaManager  TODO
+        AndnaManager andna_mgr = new AndnaManager();
+        identity_mgr.set_identity_module(new_nodeid, "andna", andna_mgr);
+        new_identity_data.andna_mgr = andna_mgr;  // weak ref
+
         foreach (IdentityArc ia in old_identity_data.identity_arcs)
         {
             ia.prev_peer_mac = null;

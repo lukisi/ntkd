@@ -184,6 +184,7 @@ namespace Netsukuku
         public int on_bootstrap_complete_create_peers_manager_host_gnode_level;
         public weak CoordinatorManager coord_mgr;
         public weak HookingManager hook_mgr;
+        public weak AndnaManager andna_mgr;
 
         public ArrayList<IdentityArc> identity_arcs;
 
