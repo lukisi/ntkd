@@ -185,6 +185,7 @@ ntkd_tester_01_SOURCES =  \
 	tester_01/coordinator_helpers.vala \
 	tester_01/hooking_helpers.vala \
 	tester_01/hooking_signals.vala \
+	tester_01/tester_common.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -274,6 +275,7 @@ ntkd_tester_02_SOURCES =  \
 	tester_02/coordinator_helpers.vala \
 	tester_02/hooking_helpers.vala \
 	tester_02/hooking_signals.vala \
+	tester_02/tester_common.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -363,6 +365,7 @@ ntkd_tester_03_SOURCES =  \
 	tester_03/coordinator_helpers.vala \
 	tester_03/hooking_helpers.vala \
 	tester_03/hooking_signals.vala \
+	tester_03/tester_common.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \
@@ -452,6 +455,7 @@ ntkd_tester_05_SOURCES =  \
 	tester_05/coordinator_helpers.vala \
 	tester_05/hooking_helpers.vala \
 	tester_05/hooking_signals.vala \
+	tester_05/tester_common.vala \
 	mac-getter/hw.vapi \
 	identities/identities.vapi \
 	neighborhood/neighborhood.vapi \

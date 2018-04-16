@@ -65,6 +65,8 @@ namespace Netsukuku
         {
             if (line.has_prefix("ntkv"))
             {
+                // line could be like "ntkv1". But it also could be like "ntkv1 (id: 0)".
+                if (" " in line) line = line.substring(0, line.index_of(" "));
                 cm.start_console_log();
                 cm.command(new ArrayList<string>.wrap({
                     @"ip", @"netns", @"del", @"$(line)"}));

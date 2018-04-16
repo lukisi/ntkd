@@ -299,7 +299,16 @@ namespace Netsukuku.EnterNetwork
         ChangeFingerprintDelegate update_copied_internal_fingerprints = (_f) => {
             Fingerprint f = (Fingerprint)_f;
             for (int l = guest_gnode_level; l < levels; l++)
-                f.elderships[l] = new_id.my_fp.elderships[l];
+            {
+                // f.elderships has n items, where f.level + n = levels.
+                // f.elderships[0] refers to l=f.level.
+                // f.elderships[n-1] refers to l=f.level+n-1=levels-1.
+                // so, f.elderships[i] refers to l=f.level+i.
+                int i = l - f.level;
+                if (i >= 0)
+                    f.elderships[i] = new_id.my_fp.elderships[l];
+                // f.elderships_seed doesn't need to change.
+            }
             return f;
             // Returning the same instance is ok, because the delegate is alway
             // called like "x = update_internal_fingerprints(x)"

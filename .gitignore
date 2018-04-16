@@ -26,6 +26,7 @@ peers_helpers.c
 coordinator_helpers.c
 hooking_helpers.c
 hooking_signals.c
+tester_common.c
 *.stamp
 *.stamp-t
 Makefile.in
