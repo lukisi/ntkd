@@ -45,10 +45,22 @@ const int TESTER_TIME_03 = 6000;
 
 
 
-const int TESTER_TIME_04 = 90000;
-const int TESTER_TIME_05 = 90000;
-const int TESTER_TIME_06 = 90000;
-const int TESTER_TIME_07 = 90000;
+const int TESTER_TIME_04 = 7000;
+
+
+const int TESTER_TIME_05 = 10000;
+
+
+
+const int TESTER_TIME_06 = 11000;
+
+
+
+const int TESTER_TIME_07 = 14000;
+
+
+
+
 const int TESTER_TIME_08 = 90000;
 const int TESTER_TIME_09 = 90000;
 const int TESTER_TIME_10 = 90000;

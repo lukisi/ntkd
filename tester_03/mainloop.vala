@@ -34,8 +34,6 @@ namespace Netsukuku
         Posix.@signal(Posix.SIGINT, safe_exit);
         Posix.@signal(Posix.SIGTERM, safe_exit);
 
-        OldTasklet tsold = new OldTasklet();
-        tasklet.spawn(tsold);
         Tasklet01 ts01 = new Tasklet01();
         tasklet.spawn(ts01);
         Tasklet02 ts02 = new Tasklet02();
@@ -153,7 +151,27 @@ namespace Netsukuku
             tasklet.ms_wait(TESTER_TIME_04);
             print("tester03: TIME_04\n");
 
-            // ...
+            // Simulation: Hooking says we must enter in network_id = TESTER_SERVER02_NETWORK01
+            int64 enter_into_network_id = TESTER_SERVER02_NETWORK01;
+            int guest_gnode_level = 1;
+            int go_connectivity_position = PRNGen.int_range(gsizes[guest_gnode_level], int32.MAX); // not important on entering another network.
+            ArrayList<int> new_gnode_positions = new ArrayList<int>.wrap({1, 0, 0});
+            ArrayList<int> new_gnode_elderships = new ArrayList<int>.wrap({1, 0, 0});
+            int enter_id = 2;
+
+            first_identity_data.hook_mgr.do_prepare_enter(enter_id);
+            tasklet.ms_wait(0);
+            EntryData entry_data = new EntryData();
+            entry_data.network_id = enter_into_network_id;
+            entry_data.pos = new_gnode_positions;
+            entry_data.elderships = new_gnode_elderships;
+            first_identity_data.hook_mgr.do_finish_enter(enter_id, guest_gnode_level, entry_data, go_connectivity_position);
+
+            // first identity should already have been removed
+            assert(local_identities.size == 1);
+            second_identity_data = local_identities[0];
+
+            // second_identity_data nodeid 399143400 should be in about 3 more seconds bootstrapped in network_id TESTER_SERVER02_NETWORK01.
 
             return null;
         }
@@ -364,57 +382,6 @@ namespace Netsukuku
             // ...
 
             return null;
-        }
-    }
-
-
-    class OldTasklet : Object, ITaskletSpawnable
-    {
-        public void * func()
-        {
-            tasklet.ms_wait(2000);
-            tasklet.ms_wait(4000);
-            print("tester03: after 6 seconds.\n");
-
-            // Simulation: Hooking says we must enter in network_id = TESTER_SERVER02_NETWORK01
-            int64 enter_into_network_id = TESTER_SERVER02_NETWORK01;
-            int guest_gnode_level = 1;
-            int go_connectivity_position = PRNGen.int_range(gsizes[guest_gnode_level], int32.MAX); // not important on entering another network.
-            ArrayList<int> new_gnode_positions = new ArrayList<int>.wrap({1, 0, 0});
-            ArrayList<int> new_gnode_elderships = new ArrayList<int>.wrap({1, 0, 0});
-            int enter_id = 2;
-
-            first_identity_data.hook_mgr.do_prepare_enter(enter_id);
-            tasklet.ms_wait(0);
-            EntryData entry_data = new EntryData();
-            entry_data.network_id = enter_into_network_id;
-            entry_data.pos = new_gnode_positions;
-            entry_data.elderships = new_gnode_elderships;
-            first_identity_data.hook_mgr.do_finish_enter(enter_id, guest_gnode_level, entry_data, go_connectivity_position);
-
-            // first identity should already have been removed
-            assert(local_identities.size == 1);
-            second_identity_data = local_identities[0];
-
-            // second_identity_data nodeid 399143400 should be in about 3 more seconds bootstrapped in network_id TESTER_SERVER02_NETWORK01.
-
-            // TODO continue
-
-            return null;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
     }
 }

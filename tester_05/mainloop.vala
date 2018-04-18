@@ -34,8 +34,6 @@ namespace Netsukuku
         Posix.@signal(Posix.SIGINT, safe_exit);
         Posix.@signal(Posix.SIGTERM, safe_exit);
 
-        OldTasklet tsold = new OldTasklet();
-        tasklet.spawn(tsold);
         Tasklet01 ts01 = new Tasklet01();
         tasklet.spawn(ts01);
         Tasklet02 ts02 = new Tasklet02();
@@ -207,7 +205,20 @@ namespace Netsukuku
             tasklet.ms_wait(TESTER_TIME_07);
             print("tester05: TIME_07\n");
 
-            // ...
+            // Some more identity arcs have been passed to the module Hooking:
+            // * there is one with 659630486 on network TESTER_SERVER05_NETWORK01.
+            HookingIdentityArc arc_04 = null;
+            foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
+            {
+                HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
+                IdentityArc ia = __idarc.ia;
+                if (ia.id_arc.get_peer_nodeid().id == 659630486) arc_04 = __idarc;
+            }
+            assert(arc_04 != null);
+
+            // Simulation: Hooking informs us that this id_arc's peer is of our same network.
+            print(@"Simulation: Peer 659630486 on network $(TESTER_SERVER05_NETWORK01).\n");
+            first_identity_data.hook_mgr.same_network(arc_04);
 
             return null;
         }
@@ -379,52 +390,6 @@ namespace Netsukuku
             // ...
 
             return null;
-        }
-    }
-
-
-    class OldTasklet : Object, ITaskletSpawnable
-    {
-        public void * func()
-        {
-            tasklet.ms_wait(2000);
-            tasklet.ms_wait(4000);
-            tasklet.ms_wait(4000);
-            print("tester05: after 10 seconds.\n");
-
-            // Some more identity arcs have been passed to the module Hooking:
-            // * there is one with 659630486 on network TESTER_SERVER05_NETWORK01.
-            HookingIdentityArc arc_04 = null;
-            foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
-            {
-                HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
-                IdentityArc ia = __idarc.ia;
-                if (ia.id_arc.get_peer_nodeid().id == 659630486) arc_04 = __idarc;
-            }
-            assert(arc_04 != null);
-
-            // Simulation: Hooking informs us that this id_arc's peer is of our same network.
-            print(@"Simulation: Peer 659630486 on network $(TESTER_SERVER05_NETWORK01).\n");
-            first_identity_data.hook_mgr.same_network(arc_04);
-
-            // TODO continue
-
-            return null;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
     }
 }
