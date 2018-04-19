@@ -123,6 +123,31 @@ namespace Netsukuku
         qspn_manager_getter()
         {
             // member qspn_mgr of identity_data is QspnManager, which is a IQspnManagerSkeleton
+            if (identity_data.qspn_mgr == null)
+            {
+                print(@"IdentitySkeleton.qspn_manager_getter: id $(identity_data.nodeid.id) has qspn_mgr NULL. Might be too early, wait a bit.\n");
+                bool once_more = true; int times_again = 0;
+                while (once_more)
+                {
+                    once_more = false;
+                    if (identity_data.qspn_mgr == null)
+                    {
+                        //  let's wait a bit and try again a few times.
+                        if (times_again < 3000) {
+                            tasklet.ms_wait(100); times_again += 100; once_more = true;
+                        }
+                    }
+                    else
+                    {
+                        print(@"IdentitySkeleton.qspn_manager_getter: id $(identity_data.nodeid.id) now has qspn_mgr valid.\n");
+                    }
+                }
+            }
+            if (identity_data.qspn_mgr == null)
+            {
+                print(@"IdentitySkeleton.qspn_manager_getter: id $(identity_data.nodeid.id) has qspn_mgr NULL yet. Might be too late, abort responding.\n");
+                tasklet.exit_tasklet(null);
+            }
             return identity_data.qspn_mgr;
         }
 
