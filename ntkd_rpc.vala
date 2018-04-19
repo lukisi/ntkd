@@ -42,15 +42,18 @@ namespace Netsukuku
                 if (unicastid is PeersUnicastID)
                 {
                     IdentityData main_id = null;
-                    foreach (IdentityData identity_data in local_identities)
+                    while (main_id == null)
                     {
-                        if (identity_data.main_id)
+                        foreach (IdentityData identity_data in local_identities)
                         {
-                            main_id = identity_data;
-                            break;
+                            if (identity_data.main_id)
+                            {
+                                main_id = identity_data;
+                                break;
+                            }
                         }
+                        if (main_id == null) tasklet.ms_wait(5); // avoid rare (but possible) temporary condition.
                     }
-                    assert(main_id != null);
                     ret.add(main_id.identity_skeleton);
                     return ret;
                 }
