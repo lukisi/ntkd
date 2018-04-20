@@ -84,6 +84,7 @@ namespace Netsukuku
     }
 
     IdentityData first_identity_data;
+    IdentityData second_identity_data;
 
     class Tasklet01 : Object, ITaskletSpawnable
     {
@@ -186,18 +187,18 @@ namespace Netsukuku
             print("tester02: TIME_05\n");
 
             // Some more identity arcs have been passed to the module Hooking:
-            // * there is one with 399143400 on network TESTER_SERVER02_NETWORK01.
+            // * there is one with TESTER_SERVER03_ID02 on network TESTER_SERVER02_NETWORK01.
             HookingIdentityArc arc_04 = null;
             foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
             {
                 HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
                 IdentityArc ia = __idarc.ia;
-                if (ia.id_arc.get_peer_nodeid().id == 399143400) arc_04 = __idarc;
+                if (ia.id_arc.get_peer_nodeid().id == TESTER_SERVER03_ID02) arc_04 = __idarc;
             }
             assert(arc_04 != null);
 
             // Simulation: Hooking informs us that this id_arc's peer is of our same network.
-            print(@"Simulation: Peer 399143400 on network $(TESTER_SERVER02_NETWORK01).\n");
+            print(@"Simulation: Peer $(TESTER_SERVER03_ID02) on network $(TESTER_SERVER02_NETWORK01).\n");
             first_identity_data.hook_mgr.same_network(arc_04);
 
             return null;
@@ -211,7 +212,25 @@ namespace Netsukuku
             tasklet.ms_wait(TESTER_TIME_06);
             print("tester02: TIME_06\n");
 
-            // ...
+            // Simulation: Hooking says we must enter in network_id = TESTER_SERVER05_NETWORK01
+            int64 enter_into_network_id = TESTER_SERVER05_NETWORK01;
+            int guest_gnode_level = 2;
+            int go_connectivity_position = PRNGen.int_range(gsizes[guest_gnode_level], int32.MAX); // not important on entering another network.
+            ArrayList<int> new_gnode_positions = new ArrayList<int>.wrap({1, 0});
+            ArrayList<int> new_gnode_elderships = new ArrayList<int>.wrap({1, 0});
+            int enter_id = 3;
+
+            first_identity_data.hook_mgr.do_prepare_enter(enter_id);
+            tasklet.ms_wait(1000);
+            EntryData entry_data = new EntryData();
+            entry_data.network_id = enter_into_network_id;
+            entry_data.pos = new_gnode_positions;
+            entry_data.elderships = new_gnode_elderships;
+            first_identity_data.hook_mgr.do_finish_enter(enter_id, guest_gnode_level, entry_data, go_connectivity_position);
+
+            // first identity should already have been removed
+            assert(local_identities.size == 1);
+            second_identity_data = local_identities[0];
 
             return null;
         }

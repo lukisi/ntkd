@@ -283,7 +283,11 @@ namespace Netsukuku.EnterNetwork
                 prev_peermacs, new_peermacs, both_peermacs);
         }
 
-        IpCommands.connectivity_stop(old_id, old_id_peermacs);
+        ArrayList<string> peermacs = new ArrayList<string>();
+        foreach (IdentityArc id_arc in old_id.identity_arcs)
+            if (id_arc.qspn_arc != null)
+            peermacs.add(id_arc.peer_mac);
+        IpCommands.connectivity_stop(old_id, peermacs);
     }
 
     QspnManager enter_another_network_qspn(IdentityData old_id, IdentityData new_id,

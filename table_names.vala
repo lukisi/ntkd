@@ -73,6 +73,7 @@ namespace Netsukuku
             }
             assert(! free_tid.is_empty);
             tid = free_tid.remove_at(0);
+            print(@"TableNames.get_table=>create_table($(peer_mac))\n");
             mac_tid[peer_mac] = new ReservedTid(tid);
             ArrayList<string> cmd = new ArrayList<string>.wrap({
                 @"sed", @"-i", @"s/$(tid) reserved_ntk_from_$(tid)/$(tid) $(tablename)/", RT_TABLES});
@@ -82,19 +83,23 @@ namespace Netsukuku
 
         public void incref_table(string peer_mac)
         {
+            print(@"TableNames.incref_table($(peer_mac))\n");
             assert(mac_tid.has_key(peer_mac));
             mac_tid[peer_mac].refcount = mac_tid[peer_mac].refcount + 1;
         }
 
         public int decref_table(string peer_mac)
         {
+            print(@"TableNames.decref_table($(peer_mac))\n");
             assert(mac_tid.has_key(peer_mac));
             mac_tid[peer_mac].refcount = mac_tid[peer_mac].refcount - 1;
+            print(@"           refcount=$(mac_tid[peer_mac].refcount)\n");
             return mac_tid[peer_mac].refcount;
         }
 
         public void release_table(int? bid, string peer_mac)
         {
+            print(@"TableNames.release_table($(peer_mac))\n");
             string tablename = @"ntk_from_$(peer_mac)";
             assert(mac_tid.has_key(peer_mac));
             assert(mac_tid[peer_mac].refcount <= 0);
