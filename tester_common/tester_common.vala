@@ -47,21 +47,21 @@ const int TESTER_TIME_03 = 6000;
 // whilst hooking module on server05 report signal 'another_network' for identity-arc with server01.
 // thanks to new qspn_arc server01 bootstraps.
 
-// then, after 1 second...
-const int TESTER_TIME_04 = 7000;
+// then, after 15 seconds...
+const int TESTER_TIME_04 = 21000;
 
 // SERVER03_ID02 joins network SERVER02_NETWORK01.
 
 const int TESTER_SERVER03_ID02 = 399143400;
 
 // then, after 3 seconds...
-const int TESTER_TIME_05 = 10000;
+const int TESTER_TIME_05 = 24000;
 
 // hooking module on server02 report signal 'same_network' for identity-arc with server03.
 // thanks to new qspn_arc server03 bootstraps.
 
-// then, after 1 second...
-const int TESTER_TIME_06 = 11000;
+// then, after 15 seconds...
+const int TESTER_TIME_06 = 39000;
 
 // SERVER01_ID03, SERVER02_ID02, SERVER03_ID03, all joins network SERVER02_NETWORK01.
 // They all do prepare_enter, then wait 1 more second, then do finish_enter.
@@ -71,7 +71,7 @@ const int TESTER_SERVER02_ID02 = 1176976973;
 const int TESTER_SERVER03_ID03 = 1721517748;
 
 // then, after 5 seconds... + 1 second per wait between prepare_enter and finish_enter...
-const int TESTER_TIME_07 = 17000;
+const int TESTER_TIME_07 = 45000;
 
 
 

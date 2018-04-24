@@ -197,6 +197,37 @@ namespace Netsukuku.EnterNetwork
             ia.prev_peer_linklocal = null;
         }
 
+        // In a tasklet, after a while, we'll remove old identity.
+        RemoveOldIdentityTasklet ts = new RemoveOldIdentityTasklet();
+        ts.old_qspn = old_qspn;
+        ts.old_identity_data = old_identity_data;
+        tasklet.spawn(ts);
+
+        return new_identity_data;
+    }
+
+    class RemoveOldIdentityTasklet : Object, ITaskletSpawnable
+    {
+        public QspnManager old_qspn;
+        public IdentityData old_identity_data;
+        public void * func()
+        {
+            tasklet_remove_old_identity(old_qspn, old_identity_data);
+            return null;
+        }
+    }
+
+    void tasklet_remove_old_identity(QspnManager old_qspn, IdentityData old_identity_data)
+    {
+        // wait to safely remove old_identity_data
+        tasklet.ms_wait(10000);
+
+        ArrayList<string> peermacs = new ArrayList<string>();
+        foreach (IdentityArc id_arc in old_identity_data.identity_arcs)
+            if (id_arc.qspn_arc != null)
+            peermacs.add(id_arc.peer_mac);
+        IpCommands.connectivity_stop(old_identity_data, peermacs);
+
         // remove old identity.
         old_qspn.destroy();
         old_qspn.arc_removed.disconnect(old_identity_data.arc_removed);
@@ -215,8 +246,6 @@ namespace Netsukuku.EnterNetwork
         old_identity_data.qspn_handlers_disabled = true;
         old_qspn.stop_operations();
         remove_local_identity(old_identity_data.nodeid);
-
-        return new_identity_data;
     }
 
     void enter_another_network_commands(IdentityData old_id, IdentityData new_id,
@@ -282,12 +311,6 @@ namespace Netsukuku.EnterNetwork
                 prev_dest_ip_set,
                 prev_peermacs, new_peermacs, both_peermacs);
         }
-
-        ArrayList<string> peermacs = new ArrayList<string>();
-        foreach (IdentityArc id_arc in old_id.identity_arcs)
-            if (id_arc.qspn_arc != null)
-            peermacs.add(id_arc.peer_mac);
-        IpCommands.connectivity_stop(old_id, peermacs);
     }
 
     QspnManager enter_another_network_qspn(IdentityData old_id, IdentityData new_id,
@@ -332,19 +355,25 @@ namespace Netsukuku.EnterNetwork
             NodeID sourceid = w1.id; // == new_id
             w1.qspn_arc = new QspnArc(sourceid, destid, w1, w1.peer_mac);
 
-            assert(w0.qspn_arc != null);
-            IQspnNaddr? _w0_peer_naddr = old_id_qspn_mgr.get_naddr_for_arc(w0.qspn_arc);
-            assert(_w0_peer_naddr != null);
-            Naddr w0_peer_naddr = (Naddr)_w0_peer_naddr;
-            ArrayList<int> _w1_peer_naddr = new ArrayList<int>();
-            _w1_peer_naddr.add_all(w0_peer_naddr.pos.slice(0, host_gnode_level-1));
-            _w1_peer_naddr.add_all(new_id.my_naddr.pos.slice(host_gnode_level-1, levels));
-            Naddr w1_peer_naddr = new Naddr(_w1_peer_naddr.to_array(), gsizes.to_array());
+            // Handle rare (but possible) situation where right in the middle of a duplication
+            //  some of the qspn-arcs of the old identity are removed for bad-link.
+            if (w0.qspn_arc != null)
+            {
+                IQspnNaddr? _w0_peer_naddr = old_id_qspn_mgr.get_naddr_for_arc(w0.qspn_arc);
+                if (_w0_peer_naddr != null)
+                {
+                    Naddr w0_peer_naddr = (Naddr)_w0_peer_naddr;
+                    ArrayList<int> _w1_peer_naddr = new ArrayList<int>();
+                    _w1_peer_naddr.add_all(w0_peer_naddr.pos.slice(0, host_gnode_level-1));
+                    _w1_peer_naddr.add_all(new_id.my_naddr.pos.slice(host_gnode_level-1, levels));
+                    Naddr w1_peer_naddr = new Naddr(_w1_peer_naddr.to_array(), gsizes.to_array());
 
-            // Now add: the 3 ArrayList should have same size at the end.
-            internal_arc_set.add(w1.qspn_arc);
-            internal_arc_peer_naddr_set.add(w1_peer_naddr);
-            internal_arc_prev_arc_set.add(w0.qspn_arc);
+                    // Now add: the 3 ArrayList should have same size at the end.
+                    internal_arc_set.add(w1.qspn_arc);
+                    internal_arc_peer_naddr_set.add(w1_peer_naddr);
+                    internal_arc_prev_arc_set.add(w0.qspn_arc);
+                }
+            }
         }
 
         // Prepare external arcs

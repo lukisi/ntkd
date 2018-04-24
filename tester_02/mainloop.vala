@@ -228,9 +228,7 @@ namespace Netsukuku
             entry_data.elderships = new_gnode_elderships;
             first_identity_data.hook_mgr.do_finish_enter(enter_id, guest_gnode_level, entry_data, go_connectivity_position);
 
-            // first identity should already have been removed
-            assert(local_identities.size == 1);
-            second_identity_data = local_identities[0];
+            second_identity_data = find_or_create_local_identity(new NodeID(TESTER_SERVER02_ID02));
 
             return null;
         }
