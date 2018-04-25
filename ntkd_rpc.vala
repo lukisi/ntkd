@@ -129,15 +129,15 @@ namespace Netsukuku
             if (identity_data.qspn_mgr == null)
             {
                 print(@"IdentitySkeleton.qspn_manager_getter: id $(identity_data.nodeid.id) has qspn_mgr NULL. Might be too early, wait a bit.\n");
-                bool once_more = true; int times_again = 0;
+                bool once_more = true; int wait_next = 5;
                 while (once_more)
                 {
                     once_more = false;
                     if (identity_data.qspn_mgr == null)
                     {
                         //  let's wait a bit and try again a few times.
-                        if (times_again < 3000) {
-                            tasklet.ms_wait(100); times_again += 100; once_more = true;
+                        if (wait_next < 3000) {
+                            wait_next = wait_next * 10; tasklet.ms_wait(wait_next); once_more = true;
                         }
                     }
                     else
