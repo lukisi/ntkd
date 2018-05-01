@@ -88,6 +88,11 @@ namespace Netsukuku
     void per_identity_qspn_map_update(IdentityData id, IQspnNodePath p)
     {
         HCoord hc = p.i_qspn_get_hops().last().i_qspn_get_hcoord();
+        per_identity_qspn_map_update_hc(id, hc);
+    }
+
+    void per_identity_qspn_map_update_hc(IdentityData id, HCoord hc)
+    {
         if (hc in id.dest_ip_set.gnode.keys)
         {
             QspnManager qspn_mgr = (QspnManager)identity_mgr.get_identity_module(id.nodeid, "qspn");
@@ -98,6 +103,14 @@ namespace Netsukuku
                 return;
             }
             UpdateGraph.update_destination(id, hc);
+        }
+    }
+
+    void per_identity_qspn_map_update_hc_reserve(IdentityData id, HCoord hc)
+    {
+        if (hc in id.dest_ip_set.gnode.keys)
+        {
+            id.bootstrap_phase_pending_updates.add(hc);
         }
     }
 

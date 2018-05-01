@@ -163,6 +163,8 @@ namespace Netsukuku
         Fingerprint my_fp = new Fingerprint(elderships.to_array());
         first_identity_data.my_naddr = my_naddr;
         first_identity_data.my_fp = my_fp;
+        print(@"startup: my id $(first_identity_data.nodeid.id) has address $(json_string_object(first_identity_data.my_naddr))");
+        print(@" and fp $(json_string_object(first_identity_data.my_fp)).\n");
 
         // iproute commands for startup first identity
         IpCompute.new_main_id(first_identity_data);

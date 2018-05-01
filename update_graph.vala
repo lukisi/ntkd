@@ -34,7 +34,7 @@ namespace Netsukuku.UpdateGraph
 
         NodeID destid = identity_arc.id_arc.get_peer_nodeid();
         NodeID sourceid = identity_arc.id; // == identity_data.nodeid
-        identity_arc.qspn_arc = new QspnArc(sourceid, destid, identity_arc, identity_arc.peer_mac);
+        identity_arc.qspn_arc = new QspnArc(sourceid, destid, identity_arc);
 
         QspnManager my_qspn = (QspnManager)identity_mgr.get_identity_module(identity_data.nodeid, "qspn");
         my_qspn.arc_add(identity_arc.qspn_arc);
@@ -54,9 +54,8 @@ namespace Netsukuku.UpdateGraph
         ArrayList<HCoord> peer_hc_set = new ArrayList<HCoord>();
         foreach (IdentityArc ia in id.identity_arcs) if (ia.qspn_arc != null)
         {
-            QspnArc qspn_arc = (QspnArc)ia.qspn_arc;
-            string peer_mac = qspn_arc.peer_mac;
-            IQspnNaddr? peer_naddr = qspn_mgr.get_naddr_for_arc(qspn_arc);
+            string peer_mac = ia.peer_mac;
+            IQspnNaddr? peer_naddr = qspn_mgr.get_naddr_for_arc(ia.qspn_arc);
             if (peer_naddr != null)
             {
                 HCoord peer_hc = id.my_naddr.i_qspn_get_coord_by_address(peer_naddr);

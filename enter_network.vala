@@ -132,6 +132,10 @@ namespace Netsukuku.EnterNetwork
             prev_arcpairs, new_arcpairs, both_arcpairs);
         if (prev_was_main) old_identity_data.gone_connectivity();
 
+        print(@"EnterNetwork.enter: my new id $(new_identity_data.nodeid.id) has address $(json_string_object(new_identity_data.my_naddr))");
+        print(@" and fp $(json_string_object(new_identity_data.my_fp)).\n");
+        print(@" my old id $(old_identity_data.nodeid.id) goes connectivity and now has address $(json_string_object(old_identity_data.my_naddr)).\n");
+
         // soon after creation, connect to signals.
         new_qspn.arc_removed.connect(new_identity_data.arc_removed);
         new_qspn.changed_fp.connect(new_identity_data.changed_fp);
@@ -353,7 +357,7 @@ namespace Netsukuku.EnterNetwork
 
             NodeID destid = w1.id_arc.get_peer_nodeid();
             NodeID sourceid = w1.id; // == new_id
-            w1.qspn_arc = new QspnArc(sourceid, destid, w1, w1.peer_mac);
+            w1.qspn_arc = new QspnArc(sourceid, destid, w1);
 
             // Handle rare (but possible) situation where right in the middle of a duplication
             //  some of the qspn-arcs of the old identity are removed for bad-link.
@@ -385,7 +389,7 @@ namespace Netsukuku.EnterNetwork
 
             NodeID destid = w1.id_arc.get_peer_nodeid();
             NodeID sourceid = w1.id; // == new_id
-            w1.qspn_arc = new QspnArc(sourceid, destid, w1, w1.peer_mac);
+            w1.qspn_arc = new QspnArc(sourceid, destid, w1);
             // Adjust network_id in new arcs.
             w1.network_id = null;
 

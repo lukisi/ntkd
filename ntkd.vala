@@ -29,6 +29,15 @@ using TaskletSystem;
 
 namespace Netsukuku
 {
+    internal string json_string_object(Object obj)
+    {
+        Json.Node n = Json.gobject_serialize(obj);
+        Json.Generator g = new Json.Generator();
+        g.root = n;
+        string ret = g.to_data(null);
+        return ret;
+    }
+
     const uint16 ntkd_port = 60269;
     const int max_paths = 5;
     const double max_common_hops_ratio = 0.6;

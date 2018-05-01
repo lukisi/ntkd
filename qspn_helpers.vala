@@ -111,12 +111,11 @@ namespace Netsukuku
 
     class QspnArc : Object, IQspnArc
     {
-        public QspnArc(NodeID sourceid, NodeID destid, IdentityArc ia, string peer_mac)
+        public QspnArc(NodeID sourceid, NodeID destid, IdentityArc ia)
         {
             this.sourceid = sourceid;
             this.destid = destid;
             this.ia = ia;
-            this.peer_mac = peer_mac;
             cost_seed = PRNGen.int_range(0, 1000);
             arc = (IdmgmtArc)ia.arc;
         }
@@ -124,7 +123,6 @@ namespace Netsukuku
         public NodeID sourceid;
         public NodeID destid;
         public weak IdentityArc ia;
-        public string peer_mac;
         private int cost_seed;
 
         public IQspnCost i_qspn_get_cost()

@@ -26,6 +26,6 @@ using Netsukuku.Hooking;
 using Netsukuku.Andna;
 using TaskletSystem;
 
-namespace Netsukuku
+namespace Netsukuku.Migrate
 {
 }

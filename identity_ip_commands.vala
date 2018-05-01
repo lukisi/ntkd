@@ -120,7 +120,7 @@ namespace Netsukuku.IpCommands
                 @"ip", @"route", @"del", @"$(prev_dest.global)", @"table", @"ntk"}));
             cm.single_command(new ArrayList<string>.wrap({
                 @"ip", @"route", @"del", @"$(prev_dest.anonymizing)", @"table", @"ntk"}));
-            for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+            for (int k = levels-1; k >= hc.lvl+1; k--) if (k > guest_gnode_level)
             {
                 cm.single_command(new ArrayList<string>.wrap({
                     @"ip", @"route", @"del", @"$(prev_dest.intern[k])", @"table", @"ntk"}));
@@ -139,7 +139,7 @@ namespace Netsukuku.IpCommands
                     @"ip", @"route", @"del", @"$(prev_dest.global)", @"table", @"$(table)"}));
                 cm.single_command(new ArrayList<string>.wrap({
                     @"ip", @"route", @"del", @"$(prev_dest.anonymizing)", @"table", @"$(table)"}));
-                for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+                for (int k = levels-1; k >= hc.lvl+1; k--) if (k > guest_gnode_level)
                 {
                     cm.single_command(new ArrayList<string>.wrap({
                         @"ip", @"route", @"del", @"$(prev_dest.intern[k])", @"table", @"$(table)"}));
@@ -278,7 +278,7 @@ namespace Netsukuku.IpCommands
                 @"ip", @"route", @"add", @"unreachable", @"$(dest.global)", @"table", @"ntk"}));
             cm.single_command(new ArrayList<string>.wrap({
                 @"ip", @"route", @"add", @"unreachable", @"$(dest.anonymizing)", @"table", @"ntk"}));
-            for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+            for (int k = levels-1; k >= hc.lvl+1; k--) if (k > guest_gnode_level)
             {
                 cm.single_command(new ArrayList<string>.wrap({
                     @"ip", @"route", @"add", @"unreachable", @"$(dest.intern[k])", @"table", @"ntk"}));
@@ -297,7 +297,7 @@ namespace Netsukuku.IpCommands
                     @"ip", @"route", @"add", @"unreachable", @"$(dest.global)", @"table", @"$(table)"}));
                 cm.single_command(new ArrayList<string>.wrap({
                     @"ip", @"route", @"add", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"}));
-                for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+                for (int k = levels-1; k >= hc.lvl+1; k--) if (k > guest_gnode_level)
                 {
                     cm.single_command(new ArrayList<string>.wrap({
                         @"ip", @"route", @"add", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"}));
@@ -330,6 +330,9 @@ namespace Netsukuku.IpCommands
                 }
             }
         }
+
+        foreach (HCoord hc in dest_ip_set.sorted_gnode_keys) if (hc.lvl < guest_gnode_level)
+            per_identity_qspn_map_update_hc_reserve(id, hc);
     }
 
     void cat_cmd(Gee.List<string> prefix_cmd, string[] cmd_array)
@@ -372,6 +375,8 @@ namespace Netsukuku.IpCommands
                 }
             }
         }
+
+        foreach (HCoord hc in dest_ip_set.sorted_gnode_keys) per_identity_qspn_map_update_hc(id, hc);
     }
 
     void connectivity_dup(IdentityData id, int host_gnode_level, int guest_gnode_level,
@@ -395,7 +400,7 @@ namespace Netsukuku.IpCommands
                     @"ip", @"route", @"del", @"$(prev_dest.global)", @"table", @"$(table)"});
                 cat_cmd(prefix_cmd, {
                     @"ip", @"route", @"del", @"$(prev_dest.anonymizing)", @"table", @"$(table)"});
-                for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+                for (int k = levels-1; k >= hc.lvl+1; k--) if (k > guest_gnode_level)
                 {
                     cat_cmd(prefix_cmd, {
                         @"ip", @"route", @"del", @"$(prev_dest.intern[k])", @"table", @"$(table)"});
@@ -430,7 +435,7 @@ namespace Netsukuku.IpCommands
                     @"ip", @"route", @"add", @"unreachable", @"$(dest.global)", @"table", @"$(table)"});
                 cat_cmd(prefix_cmd, {
                     @"ip", @"route", @"add", @"unreachable", @"$(dest.anonymizing)", @"table", @"$(table)"});
-                for (int k = levels-1; k >= hc.lvl+1; k--) if (k >= guest_gnode_level)
+                for (int k = levels-1; k >= hc.lvl+1; k--) if (k > guest_gnode_level)
                 {
                     cat_cmd(prefix_cmd, {
                         @"ip", @"route", @"add", @"unreachable", @"$(dest.intern[k])", @"table", @"$(table)"});
@@ -463,6 +468,9 @@ namespace Netsukuku.IpCommands
                 }
             }
         }
+
+        foreach (HCoord hc in dest_ip_set.sorted_gnode_keys) if (hc.lvl < guest_gnode_level)
+            per_identity_qspn_map_update_hc_reserve(id, hc);
     }
 
     void new_arc(IdentityData id, string new_peermac)

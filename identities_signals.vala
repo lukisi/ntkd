@@ -45,7 +45,9 @@ namespace Netsukuku
             while (identity_data.hook_mgr == null) tasklet.ms_wait(10);
             identity_data.hook_mgr.add_arc(new HookingIdentityArc(ia));
         }
-        else
+
+        // If we know the previous id-arc, copy the network_id
+        if (prev_id_arc != null)
         {
             // Retrieve previous IdentityArc.
             IdentityArc prev_ia = find_identity_arc(prev_id_arc);
@@ -76,7 +78,7 @@ namespace Netsukuku
 
         // This signal might happen when the module Identities of this system is doing `add_identity` on
         //  this very identity (identity_data).
-        //  In this case the program does some further operations on its own (see user_commands.vala).
+        //  In this case the program does some further operations on its own (see EnterNetwork.enter or Migrate.migrate).
         //  But this might also happen when only our neighbour is doing `add_identity`.
         if (only_neighbour_migrated)
         {
