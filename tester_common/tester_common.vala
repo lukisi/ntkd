@@ -114,11 +114,7 @@ bool ping(string peer_addr)
         print(@" Unable to spawn a command: $(e.message)\n");
         return false;
     }
-    if (com_ret.exit_status != 0)
-    {
-        print(@" ping: error $(com_ret.stdout)\n");
-        return false;
-    }
+    if (com_ret.exit_status != 0) return false;
     return true;
 }
 

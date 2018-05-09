@@ -506,6 +506,8 @@ namespace Netsukuku.IpCommands
                 }
             }
         }
+
+        foreach (HCoord hc in dest_ip_set.sorted_gnode_keys) per_identity_qspn_map_update_hc(id, hc);
     }
 
     void map_update(IdentityData id, HCoord hc, Gee.List<IQspnNodePath> paths,
