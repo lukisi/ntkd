@@ -136,6 +136,7 @@ namespace Netsukuku
                 Gee.List<int> ret = new ArrayList<int>();
                 for (int i = 0; i < gsizes[lvl]; i++) ret.add(i);
                 foreach (HCoord hc in busy) ret.remove(hc.pos);
+                ret.remove(identity_data.my_naddr.pos[lvl]);
                 return ret;
             } catch (QspnBootstrapInProgressError e) {
                 assert_not_reached();

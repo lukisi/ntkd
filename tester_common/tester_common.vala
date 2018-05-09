@@ -38,6 +38,7 @@ const int TESTER_TIME_01 = 2000;
 // hooking modules (on various servers) report signals 'another_network' for various identity-arcs.
 
 // then, after 1 second...
+const int TESTER_TIME_02_PRE = 2500;
 const int TESTER_TIME_02 = 3000;
 
 // SERVER01_ID02 joins network SERVER02_NETWORK01.
@@ -55,6 +56,7 @@ const int TESTER_TIME_03_01 = 11000;
 // here we can do some routing tests
 
 // then, after 15 seconds...
+const int TESTER_TIME_04_PRE = 20500;
 const int TESTER_TIME_04 = 21000;
 
 // SERVER03_ID02 joins network SERVER02_NETWORK01.
@@ -71,6 +73,7 @@ const int TESTER_TIME_05_01 = 29000;
 // here we can do some routing tests
 
 // then, after 15 seconds...
+const int TESTER_TIME_06_PRE = 38500;
 const int TESTER_TIME_06 = 39000;
 
 // SERVER01_ID03, SERVER02_ID02, SERVER03_ID03, all joins network SERVER02_NETWORK01.

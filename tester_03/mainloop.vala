@@ -36,18 +36,24 @@ namespace Netsukuku
 
         Tasklet01 ts01 = new Tasklet01();
         tasklet.spawn(ts01);
+        Tasklet02pre ts02pre = new Tasklet02pre();
+        tasklet.spawn(ts02pre);
         Tasklet02 ts02 = new Tasklet02();
         tasklet.spawn(ts02);
         Tasklet03 ts03 = new Tasklet03();
         tasklet.spawn(ts03);
         Tasklet0301 ts0301 = new Tasklet0301();
         tasklet.spawn(ts0301);
+        Tasklet04pre ts04pre = new Tasklet04pre();
+        tasklet.spawn(ts04pre);
         Tasklet04 ts04 = new Tasklet04();
         tasklet.spawn(ts04);
         Tasklet05 ts05 = new Tasklet05();
         tasklet.spawn(ts05);
         Tasklet0501 ts0501 = new Tasklet0501();
         tasklet.spawn(ts0501);
+        Tasklet06pre ts06pre = new Tasklet06pre();
+        tasklet.spawn(ts06pre);
         Tasklet06 ts06 = new Tasklet06();
         tasklet.spawn(ts06);
         Tasklet07 ts07 = new Tasklet07();
@@ -125,6 +131,19 @@ namespace Netsukuku
         }
     }
 
+    class Tasklet02pre : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_02_PRE);
+            print("tester03: TIME_02_PRE\n");
+
+            // ...
+
+            return null;
+        }
+    }
+
     class Tasklet02 : Object, ITaskletSpawnable
     {
         public void * func()
@@ -157,6 +176,19 @@ namespace Netsukuku
         {
             tasklet.ms_wait(TESTER_TIME_03_01);
             print("tester03: TIME_03_01\n");
+
+            // ...
+
+            return null;
+        }
+    }
+
+    class Tasklet04pre : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_04_PRE);
+            print("tester03: TIME_04_PRE\n");
 
             // ...
 
@@ -212,6 +244,19 @@ namespace Netsukuku
         {
             tasklet.ms_wait(TESTER_TIME_05_01);
             print("tester03: TIME_05_01\n");
+
+            // ...
+
+            return null;
+        }
+    }
+
+    class Tasklet06pre : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_06_PRE);
+            print("tester03: TIME_06_PRE\n");
 
             // ...
 
