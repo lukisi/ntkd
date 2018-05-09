@@ -16,6 +16,10 @@
  *  along with Netsukuku.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using Gee;
+using Netsukuku;
+using TaskletSystem;
+
 const int TESTER_SERVER01_ID01 = 87104682;
 const int TESTER_SERVER01_NETWORK01 = 1675097918;
 
@@ -47,6 +51,9 @@ const int TESTER_TIME_03 = 6000;
 // whilst hooking module on server05 report signal 'another_network' for identity-arc with server01.
 // thanks to new qspn_arc server01 bootstraps.
 
+const int TESTER_TIME_03_01 = 11000;
+// here we can do some routing tests
+
 // then, after 15 seconds...
 const int TESTER_TIME_04 = 21000;
 
@@ -59,6 +66,9 @@ const int TESTER_TIME_05 = 24000;
 
 // hooking module on server02 report signal 'same_network' for identity-arc with server03.
 // thanks to new qspn_arc server03 bootstraps.
+
+const int TESTER_TIME_05_01 = 29000;
+// here we can do some routing tests
 
 // then, after 15 seconds...
 const int TESTER_TIME_06 = 39000;
@@ -73,9 +83,14 @@ const int TESTER_SERVER03_ID03 = 1721517748;
 // then, after 5 seconds... + 1 second per wait between prepare_enter and finish_enter...
 const int TESTER_TIME_07 = 45000;
 
+const int TESTER_TIME_07_01 = 50000;
+// here we can do some routing tests
+
+// then, after 15 seconds...
+const int TESTER_TIME_08 = 60000;
 
 
-const int TESTER_TIME_08 = 90000;
+
 const int TESTER_TIME_09 = 90000;
 const int TESTER_TIME_10 = 90000;
 const int TESTER_TIME_11 = 90000;
@@ -88,4 +103,22 @@ const int TESTER_TIME_17 = 90000;
 const int TESTER_TIME_18 = 90000;
 const int TESTER_TIME_19 = 90000;
 const int TESTER_TIME_20 = 90000;
+
+bool ping(string peer_addr)
+{
+    TaskletCommandResult com_ret;
+    try {
+        ArrayList<string> cmd_args = new ArrayList<string>.wrap({"ping", "-n", "-q", "-c", "1", "-w", "1", @"$(peer_addr)"});
+        com_ret = tasklet.exec_command_argv(cmd_args);
+    } catch (Error e) {
+        print(@" Unable to spawn a command: $(e.message)\n");
+        return false;
+    }
+    if (com_ret.exit_status != 0)
+    {
+        print(@" ping: error $(com_ret.stdout)\n");
+        return false;
+    }
+    return true;
+}
 

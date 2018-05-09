@@ -40,14 +40,20 @@ namespace Netsukuku
         tasklet.spawn(ts02);
         Tasklet03 ts03 = new Tasklet03();
         tasklet.spawn(ts03);
+        Tasklet0301 ts0301 = new Tasklet0301();
+        tasklet.spawn(ts0301);
         Tasklet04 ts04 = new Tasklet04();
         tasklet.spawn(ts04);
         Tasklet05 ts05 = new Tasklet05();
         tasklet.spawn(ts05);
+        Tasklet0501 ts0501 = new Tasklet0501();
+        tasklet.spawn(ts0501);
         Tasklet06 ts06 = new Tasklet06();
         tasklet.spawn(ts06);
         Tasklet07 ts07 = new Tasklet07();
         tasklet.spawn(ts07);
+        Tasklet0701 ts0701 = new Tasklet0701();
+        tasklet.spawn(ts0701);
         Tasklet08 ts08 = new Tasklet08();
         tasklet.spawn(ts08);
         Tasklet09 ts09 = new Tasklet09();
@@ -166,6 +172,19 @@ namespace Netsukuku
         }
     }
 
+    class Tasklet0301 : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_03_01);
+            print("tester02: TIME_03_01\n");
+
+            // ...
+
+            return null;
+        }
+    }
+
     class Tasklet04 : Object, ITaskletSpawnable
     {
         public void * func()
@@ -200,6 +219,19 @@ namespace Netsukuku
             // Simulation: Hooking informs us that this id_arc's peer is of our same network.
             print(@"Simulation: Peer $(TESTER_SERVER03_ID02) on network $(TESTER_SERVER02_NETWORK01).\n");
             first_identity_data.hook_mgr.same_network(arc_04);
+
+            return null;
+        }
+    }
+
+    class Tasklet0501 : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_05_01);
+            print("tester02: TIME_05_01\n");
+
+            // ...
 
             return null;
         }
@@ -240,6 +272,19 @@ namespace Netsukuku
         {
             tasklet.ms_wait(TESTER_TIME_07);
             print("tester02: TIME_07\n");
+
+            // ...
+
+            return null;
+        }
+    }
+
+    class Tasklet0701 : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_07_01);
+            print("tester02: TIME_07_01\n");
 
             // ...
 

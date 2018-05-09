@@ -40,14 +40,20 @@ namespace Netsukuku
         tasklet.spawn(ts02);
         Tasklet03 ts03 = new Tasklet03();
         tasklet.spawn(ts03);
+        Tasklet0301 ts0301 = new Tasklet0301();
+        tasklet.spawn(ts0301);
         Tasklet04 ts04 = new Tasklet04();
         tasklet.spawn(ts04);
         Tasklet05 ts05 = new Tasklet05();
         tasklet.spawn(ts05);
+        Tasklet0501 ts0501 = new Tasklet0501();
+        tasklet.spawn(ts0501);
         Tasklet06 ts06 = new Tasklet06();
         tasklet.spawn(ts06);
         Tasklet07 ts07 = new Tasklet07();
         tasklet.spawn(ts07);
+        Tasklet0701 ts0701 = new Tasklet0701();
+        tasklet.spawn(ts0701);
         Tasklet08 ts08 = new Tasklet08();
         tasklet.spawn(ts08);
         Tasklet09 ts09 = new Tasklet09();
@@ -168,6 +174,28 @@ namespace Netsukuku
         }
     }
 
+    class Tasklet0301 : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_03_01);
+            print("tester01: TIME_03_01\n");
+
+            var should = true;
+            while (true)
+            {
+                var ret = ping("10.0.0.40");
+                if (ret != should)
+                {
+                    if (!ret) warning("Server01 is not able to ping 10.0.0.40\n");
+                    else warning("Server01 is now again able to ping 10.0.0.40\n");
+                    should = ret;
+                }
+                tasklet.ms_wait(200);
+            }
+        }
+    }
+
     class Tasklet04 : Object, ITaskletSpawnable
     {
         public void * func()
@@ -191,6 +219,36 @@ namespace Netsukuku
             // ...
 
             return null;
+        }
+    }
+
+    class Tasklet0501 : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_05_01);
+            print("tester01: TIME_05_01\n");
+
+            var should = true;
+            var should2 = true;
+            while (true)
+            {
+                var ret = ping("10.0.0.50");
+                if (ret != should)
+                {
+                    if (!ret) warning("Server01 is not able to ping 10.0.0.50\n");
+                    else warning("Server01 is now again able to ping 10.0.0.50\n");
+                    should = ret;
+                }
+                var ret2 = ping("10.0.0.51");
+                if (ret2 != should2)
+                {
+                    if (!ret2) warning("Server01 is not able to ping 10.0.0.51\n");
+                    else warning("Server01 is now again able to ping 10.0.0.51\n");
+                    should2 = ret2;
+                }
+                tasklet.ms_wait(200);
+            }
         }
     }
 
@@ -229,6 +287,19 @@ namespace Netsukuku
         {
             tasklet.ms_wait(TESTER_TIME_07);
             print("tester01: TIME_07\n");
+
+            // ...
+
+            return null;
+        }
+    }
+
+    class Tasklet0701 : Object, ITaskletSpawnable
+    {
+        public void * func()
+        {
+            tasklet.ms_wait(TESTER_TIME_07_01);
+            print("tester01: TIME_07_01\n");
 
             // ...
 
