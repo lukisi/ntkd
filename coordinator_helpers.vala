@@ -131,6 +131,7 @@ namespace Netsukuku
 
         public Gee.List<int> get_free_pos(int lvl)
         {
+            if (subnetlevel > lvl) return new ArrayList<int>();
             try {
                 Gee.List<HCoord> busy = identity_data.qspn_mgr.get_known_destinations(lvl);
                 Gee.List<int> ret = new ArrayList<int>();
