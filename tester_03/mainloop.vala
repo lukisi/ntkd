@@ -326,7 +326,9 @@ namespace Netsukuku
             tasklet.ms_wait(TESTER_TIME_08);
             print("tester03: TIME_08\n");
 
-            // ...
+            print(@"Simulation: Server $(TESTER_SERVER03_ID03) asks coordinator to reserve in lvl=1.\n");
+            Reservation res = third_identity_data.coord_mgr.reserve(1 /*lvl*/, PRNGen.int_range(0, int32.MAX) /*id*/);
+            print(@"Coordinator reserve pos $(res.new_pos) eldership $(res.new_eldership).\n");
 
             return null;
         }
@@ -339,7 +341,9 @@ namespace Netsukuku
             tasklet.ms_wait(TESTER_TIME_09);
             print("tester03: TIME_09\n");
 
-            // ...
+            print(@"Simulation: Server $(TESTER_SERVER03_ID03) asks coordinator to reserve in lvl=2.\n");
+            Reservation res = third_identity_data.coord_mgr.reserve(2 /*lvl*/, PRNGen.int_range(0, int32.MAX) /*id*/);
+            print(@"Coordinator reserve pos $(res.new_pos) eldership $(res.new_eldership).\n");
 
             return null;
         }
@@ -391,7 +395,9 @@ namespace Netsukuku
             tasklet.ms_wait(TESTER_TIME_13);
             print("tester03: TIME_13\n");
 
-            // ...
+            print(@"Simulation: Server $(TESTER_SERVER03_ID03) asks coordinator to reserve in lvl=4.\n");
+            Reservation res = third_identity_data.coord_mgr.reserve(4 /*lvl*/, PRNGen.int_range(0, int32.MAX) /*id*/);
+            print(@"Coordinator reserve pos $(res.new_pos) eldership $(res.new_eldership).\n");
 
             return null;
         }

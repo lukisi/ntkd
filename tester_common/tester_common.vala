@@ -93,14 +93,17 @@ const int TESTER_TIME_07_01 = 50000;
 const int TESTER_TIME_08 = 60000;
 
 
+const int TESTER_TIME_09 = 61000;
+const int TESTER_TIME_10 = 62000;
+const int TESTER_TIME_11 = 63000;
+const int TESTER_TIME_12 = 64000;
+const int TESTER_TIME_13 = 65000;
+const int TESTER_TIME_14 = 66000;
+const int TESTER_TIME_15 = 67000;
 
-const int TESTER_TIME_09 = 90000;
-const int TESTER_TIME_10 = 90000;
-const int TESTER_TIME_11 = 90000;
-const int TESTER_TIME_12 = 90000;
-const int TESTER_TIME_13 = 90000;
-const int TESTER_TIME_14 = 90000;
-const int TESTER_TIME_15 = 90000;
+
+
+
 const int TESTER_TIME_16 = 90000;
 const int TESTER_TIME_17 = 90000;
 const int TESTER_TIME_18 = 90000;

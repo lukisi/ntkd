@@ -430,7 +430,9 @@ namespace Netsukuku
             tasklet.ms_wait(TESTER_TIME_14);
             print("tester02: TIME_14\n");
 
-            // ...
+            print(@"Simulation: Server $(TESTER_SERVER02_ID02) asks coordinator to reserve in lvl=4.\n");
+            Reservation res = second_identity_data.coord_mgr.reserve(4 /*lvl*/, PRNGen.int_range(0, int32.MAX) /*id*/);
+            print(@"Coordinator reserve pos $(res.new_pos) eldership $(res.new_eldership).\n");
 
             return null;
         }
