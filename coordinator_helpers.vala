@@ -129,9 +129,20 @@ namespace Netsukuku
             return identity_data.my_naddr.pos[lvl];
         }
 
+        public bool can_reserve(int lvl)
+        {
+            if (subnetlevel > lvl) return false;
+            if (lvl > levels) return false;
+            return true;
+        }
+
         public Gee.List<int> get_free_pos(int lvl)
         {
-            if (subnetlevel > lvl) return new ArrayList<int>();
+            if (subnetlevel > lvl)
+            {
+                warning(@"CoordinatorMap.get_free_pos($(lvl)): This is a gateway for g-node of level $(subnetlevel). Why should Coordinator ask for it?");
+                return new ArrayList<int>();
+            }
             try {
                 Gee.List<HCoord> busy = identity_data.qspn_mgr.get_known_destinations(lvl);
                 Gee.List<int> ret = new ArrayList<int>();
