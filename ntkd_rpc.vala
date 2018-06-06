@@ -194,14 +194,12 @@ namespace Netsukuku
             return identity_data.coord_mgr;
         }
 
-        /* TODO in ntkdrpc
         public unowned IHookingManagerSkeleton
         hooking_manager_getter()
         {
             // member hook_mgr of identity_data is HookingManager, which is a IHookingManagerSkeleton
             return identity_data.hook_mgr;
         }
-        */
 
         /* TODO in ntkdrpc
         public unowned IAndnaManagerSkeleton
@@ -252,14 +250,12 @@ namespace Netsukuku
             tasklet.exit_tasklet(null);
         }
 
-        /* TODO in ntkdrpc
         public unowned IHookingManagerSkeleton
         hooking_manager_getter()
         {
             warning("NodeSkeleton.hooking_manager_getter: not for node");
             tasklet.exit_tasklet(null);
         }
-        */
 
         /* TODO in ntkdrpc
         public unowned IAndnaManagerSkeleton
@@ -548,6 +544,83 @@ namespace Netsukuku
         public void execute_we_have_splitted(ICoordTupleGNode tuple, int64 fp_id, int propagation_id, int lvl, ICoordObject we_have_splitted_data)
         throws StubError, DeserializeError
         {
+        }
+    }
+
+    class HookingManagerStubHolder : Object, IHookingManagerStub
+    {
+        public HookingManagerStubHolder(IAddressManagerStub addr)
+        {
+            this.addr = addr;
+        }
+        private IAddressManagerStub addr;
+
+        public INetworkData retrieve_network_data(bool ask_coord)
+        throws HookingNotPrincipalError, StubError, DeserializeError
+        {
+            return addr.hooking_manager.retrieve_network_data(ask_coord);
+        }
+
+        public IEntryData search_migration_path(int lvl)
+        throws NoMigrationPathFoundError, MigrationPathExecuteFailureError, StubError, DeserializeError
+        {
+            return addr.hooking_manager.search_migration_path(lvl);
+        }
+
+        public void
+        route_delete_reserve_request(Netsukuku.IDeleteReservationRequest p0)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_delete_reserve_request(p0);
+        }
+
+        public void
+        route_explore_request(Netsukuku.IExploreGNodeRequest p0)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_explore_request(p0);
+        }
+
+        public void
+        route_explore_response(Netsukuku.IExploreGNodeResponse p1)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_explore_response(p1);
+        }
+
+        public void
+        route_mig_request(Netsukuku.IRequestPacket p0)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_mig_request(p0);
+        }
+
+        public void
+        route_mig_response(Netsukuku.IResponsePacket p1)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_mig_response(p1);
+        }
+
+        public void
+        route_search_error(Netsukuku.ISearchMigrationPathErrorPkt p2)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_search_error(p2);
+        }
+
+        public void
+        route_search_request(Netsukuku.ISearchMigrationPathRequest p0)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_search_request(p0);
+        }
+
+        public void
+        route_search_response(Netsukuku.ISearchMigrationPathResponse p1)
+        throws StubError, DeserializeError
+        {
+            addr.hooking_manager.route_search_response(p1);
         }
     }
 }
