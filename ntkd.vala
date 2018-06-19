@@ -315,6 +315,7 @@ namespace Netsukuku
         public int64? network_id;
         public string? prev_peer_mac;
         public string? prev_peer_linklocal;
+        public HookingIdentityArc? hooking_arc;
 
         public IdentityArc(IdentityData identity_data, IIdmgmtArc arc, IIdmgmtIdentityArc id_arc)
         {
@@ -329,6 +330,7 @@ namespace Netsukuku
             network_id = null;
             prev_peer_mac = null;
             prev_peer_linklocal = null;
+            hooking_arc = null;
         }
     }
 

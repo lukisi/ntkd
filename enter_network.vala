@@ -173,7 +173,9 @@ namespace Netsukuku.EnterNetwork
         new_identity_data.coord_mgr = coord_mgr;  // weak ref
 
         // HookingManager
-        HookingManager hook_mgr = new HookingManager();
+        HookingManager hook_mgr = new HookingManager(
+            new HookingMapPaths(new_identity_data),
+            new HookingCoordinator(new_identity_data));
         identity_mgr.set_identity_module(new_nodeid, "hooking", hook_mgr);
         new_identity_data.hook_mgr = hook_mgr;  // weak ref
         // immediately after creation, connect to signals.

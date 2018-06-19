@@ -114,11 +114,9 @@ namespace Netsukuku
             // Some identity arcs have been passed to the module Hooking:
             // * there is one with TESTER_SERVER02_ID01 on network TESTER_SERVER02_NETWORK01.
             HookingIdentityArc arc_01 = null;
-            foreach (var _idarc in first_identity_data.hook_mgr.arc_list)
+            foreach (IdentityArc ia in first_identity_data.identity_arcs)
             {
-                HookingIdentityArc __idarc = (HookingIdentityArc)_idarc;
-                IdentityArc ia = __idarc.ia;
-                if (ia.id_arc.get_peer_nodeid().id == TESTER_SERVER02_ID01) arc_01 = __idarc;
+                if (ia.id_arc.get_peer_nodeid().id == TESTER_SERVER02_ID01) arc_01 = ia.hooking_arc;
             }
             assert(arc_01 != null);
 

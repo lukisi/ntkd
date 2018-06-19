@@ -222,7 +222,9 @@ namespace Netsukuku
             first_identity_data.gone_connectivity.connect(first_identity_data.handle_gone_connectivity_for_coord);
 
         // HookingManager
-        HookingManager hook_mgr = new HookingManager();
+        HookingManager hook_mgr = new HookingManager(
+            new HookingMapPaths(first_identity_data),
+            new HookingCoordinator(first_identity_data));
         identity_mgr.set_identity_module(nodeid, "hooking", hook_mgr);
         first_identity_data.hook_mgr = hook_mgr;  // weak ref
         // immediately after creation, connect to signals.

@@ -43,7 +43,8 @@ namespace Netsukuku
         {
             print(@" Passing it to the module Hooking.\n");
             while (identity_data.hook_mgr == null) tasklet.ms_wait(10);
-            identity_data.hook_mgr.add_arc(new HookingIdentityArc(ia));
+            ia.hooking_arc = new HookingIdentityArc(ia);
+            identity_data.hook_mgr.add_arc(ia.hooking_arc);
         }
 
         // If we know the previous id-arc, copy the network_id
