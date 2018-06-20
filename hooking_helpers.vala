@@ -18,6 +18,8 @@
 
 using Gee;
 using Netsukuku.Hooking;
+using Netsukuku.Qspn;
+using Netsukuku.Coordinator;
 using TaskletSystem;
 
 namespace Netsukuku
@@ -46,22 +48,30 @@ namespace Netsukuku
 
         public int64 get_network_id()
         {
-            error("not implemented yet");
+            QspnManager qspn_mgr = identity_data.qspn_mgr;
+            while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(10);
+            Fingerprint fp_levels;
+            try {
+                fp_levels = (Fingerprint)qspn_mgr.get_fingerprint(levels);
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
+            return fp_levels.id;
         }
 
         public int get_levels()
         {
-            error("not implemented yet");
+            return levels;
         }
 
         public int get_gsize(int level)
         {
-            error("not implemented yet");
+            return gsizes[level];
         }
 
         public int get_epsilon(int level)
         {
-            error("not implemented yet");
+            return hooking_epsilon[level];
         }
 
         public int get_n_nodes()
