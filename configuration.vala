@@ -36,21 +36,31 @@ namespace Netsukuku
         naddr = new ArrayList<int>();
         gsizes = new ArrayList<int>();
         g_exp = new ArrayList<int>();
-        foreach (int gsize in new int[]{4,2,2,2}) // hard-wired topology.
+        foreach (int _g_exp in new int[]{2,1,1,1}) // hard-wired topology in bits.
         {
-            if (gsize < 2) error(@"Bad gsize $(gsize).");
-            int _g_exp = 0;
-            for (int k = 1; k < 17; k++)
-            {
-                if (gsize == (1 << k)) _g_exp = k;
-            }
-            if (_g_exp == 0) error(@"Bad gsize $(gsize): must be power of 2 up to 2^16.");
+            if (_g_exp < 1 || _g_exp > 16) error(@"Bad g_exp $(_g_exp): must be between 1 and 16");
+            int gsize = 1 << _g_exp;
             g_exp.insert(0, _g_exp);
             gsizes.insert(0, gsize);
 
             naddr.insert(0, 0); // Random(0..gsize-1) or 0.
         }
         levels = gsizes.size;
+        hooking_epsilon = new ArrayList<int>();
+        for (int i = 0; i < levels; i++)
+        {
+            int delta_bits = 5;
+            int eps = 0;
+            int j = i;
+            while (delta_bits > 0 && j < levels)
+            {
+                eps++;
+                delta_bits -= g_exp[j];
+                j++;
+            }
+            eps++;
+            hooking_epsilon.add(eps);
+        }
 
         // Names of the network interfaces to monitor.
         devs = new ArrayList<string>();

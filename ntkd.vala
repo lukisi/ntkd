@@ -54,6 +54,7 @@ namespace Netsukuku
     TableNames tn;
     ArrayList<int> gsizes;
     ArrayList<int> g_exp;
+    ArrayList<int> hooking_epsilon;
     int levels;
     NeighborhoodManager? neighborhood_mgr;
     IdentityManager? identity_mgr;
