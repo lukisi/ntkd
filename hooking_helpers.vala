@@ -76,42 +76,92 @@ namespace Netsukuku
 
         public int get_n_nodes()
         {
-            error("not implemented yet");
+            QspnManager qspn_mgr = identity_data.qspn_mgr;
+            while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(10);
+            try {
+                return qspn_mgr.get_nodes_inside(levels);
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
         }
 
         public int get_my_pos(int level)
         {
-            error("not implemented yet");
+            Naddr my_naddr = identity_data.my_naddr;
+            return my_naddr.pos[level];
         }
 
         public int get_my_eldership(int level)
         {
-            error("not implemented yet");
+            Fingerprint my_fp = identity_data.my_fp;
+            return my_fp.elderships[level];
         }
 
         public int get_subnetlevel()
         {
-            error("not implemented yet");
+            return subnetlevel;
         }
 
         public bool exists(int level, int pos)
         {
-            error("not implemented yet");
+            QspnManager qspn_mgr = identity_data.qspn_mgr;
+            while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(10);
+            try {
+                return qspn_mgr.is_known_destination(new HCoord(level, pos));
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
         }
 
         public int get_eldership(int level, int pos)
         {
-            error("not implemented yet");
-        }
-
-        public Gee.List<IPairHCoordInt> adjacent_to_my_gnode(int level_adjacent_gnodes, int level_my_gnode)
-        {
-            error("not implemented yet");
+            // requires: exists(int level, int pos) == true
+            QspnManager qspn_mgr = identity_data.qspn_mgr;
+            while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(10);
+            try {
+                IQspnFingerprint _fp = qspn_mgr.get_fingerprint_of_known_destination(new HCoord(level, pos));
+                Fingerprint fp = (Fingerprint)_fp;
+                return fp.elderships[0];
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
         }
 
         public IHookingManagerStub gateway(int level, int pos)
         {
-            error("not implemented yet");
+            // requires: exists(int level, int pos) == true
+            QspnManager qspn_mgr = identity_data.qspn_mgr;
+            while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(10);
+            try {
+                Gee.List<IQspnNodePath> paths = qspn_mgr.get_paths_to(new HCoord(level, pos));
+                assert(! paths.is_empty);
+                IQspnNodePath best_path = paths[0];
+                QspnArc gw_qspn_arc = (QspnArc)best_path.i_qspn_get_arc();
+                // find gw_ia by gw_qspn_arc, otherwise error.
+                IdentityArc? gw_ia = null;
+                foreach (IdentityArc _ia in identity_data.identity_arcs) if (_ia.qspn_arc == gw_qspn_arc)
+                {
+                    gw_ia = _ia;
+                    break;
+                }
+                assert (gw_ia != null);
+                IAddressManagerStub addrstub = root_stub_unicast_from_ia(gw_ia, false);
+                // return new HookingManagerStubHolder(addrstub);
+                error("not implemented yet");
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
+        }
+
+        public Gee.List<IPairHCoordInt> adjacent_to_my_gnode(int level_adjacent_gnodes, int level_my_gnode)
+        {
+            QspnManager qspn_mgr = identity_data.qspn_mgr;
+            while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(10);
+            try {
+                error("not implemented yet");
+            } catch (QspnBootstrapInProgressError e) {
+                assert_not_reached();
+            }
         }
     }
 
