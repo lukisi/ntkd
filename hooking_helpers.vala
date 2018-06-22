@@ -34,7 +34,8 @@ namespace Netsukuku
 
         public IHookingManagerStub get_stub()
         {
-            error("not implemented yet");
+            IAddressManagerStub addrstub = root_stub_unicast_from_ia(ia, true);
+            return new HookingManagerStubHolder(addrstub);
         }
     }
 
@@ -146,31 +147,15 @@ namespace Netsukuku
                 }
                 assert (gw_ia != null);
                 IAddressManagerStub addrstub = root_stub_unicast_from_ia(gw_ia, false);
-                // return new HookingManagerStubHolder(addrstub);
-                error("not implemented yet");
+                return new HookingManagerStubHolder(addrstub);
             } catch (QspnBootstrapInProgressError e) {
                 assert_not_reached();
             }
         }
 
-        private class PairHCoordInt : Object, IPairHCoordInt
+        private class HookingAdjacentGNode : Object, IPairHCoordInt
         {
-            public HCoord get_hc_adjacent()
-            {
-                return hc_adjacent;
-            }
-
-            public int get_level_my_gnode()
-            {
-                return level_my_gnode;
-            }
-
-            public int get_pos_my_border_gnode()
-            {
-                return pos_my_border_gnode;
-            }
-
-            public PairHCoordInt(int level_my_gnode, HCoord hc_adjacent, int pos_my_border_gnode)
+            public HookingAdjacentGNode(int level_my_gnode, HCoord hc_adjacent, int pos_my_border_gnode)
             {
                 this.hc_adjacent = hc_adjacent;
                 this.level_my_gnode = level_my_gnode;
@@ -179,6 +164,21 @@ namespace Netsukuku
             private int level_my_gnode;
             private HCoord hc_adjacent;
             private int pos_my_border_gnode;
+
+            public int get_level_my_gnode()
+            {
+                return level_my_gnode;
+            }
+
+            public HCoord get_hc_adjacent()
+            {
+                return hc_adjacent;
+            }
+
+            public int get_pos_my_border_gnode()
+            {
+                return pos_my_border_gnode;
+            }
         }
         public Gee.List<IPairHCoordInt> adjacent_to_my_gnode(int level_adjacent_gnodes, int level_my_gnode)
         {
@@ -216,41 +216,12 @@ namespace Netsukuku
                     // It is adjacent. Is my border_gnode not virtual?
                     if (border_gnode.pos >= gsizes[level_my_gnode-1]) break;
                     // All ok.
-                    ret.add(new PairHCoordInt(level_my_gnode, hc, border_gnode.pos));
+                    ret.add(new HookingAdjacentGNode(level_my_gnode, hc, border_gnode.pos));
                 }
                 return ret;
             } catch (QspnBootstrapInProgressError e) {
                 assert_not_reached();
             }
-        }
-    }
-
-    class HookingAdjacentGNode : Object, IPairHCoordInt
-    {
-        public int my_gnode_lvl {get; private set;}
-        public HCoord hc {get; private set;}
-        public int border_pos {get; private set;}
-
-        public HookingAdjacentGNode(int my_gnode_lvl, HCoord hc, int border_pos)
-        {
-            this.my_gnode_lvl = my_gnode_lvl;
-            this.hc = hc;
-            this.border_pos = border_pos;
-        }
-
-        public int get_level_my_gnode()
-        {
-            return my_gnode_lvl;
-        }
-
-        public int get_pos_my_border_gnode()
-        {
-            return border_pos;
-        }
-
-        public HCoord get_hc_adjacent()
-        {
-            return hc;
         }
     }
 
