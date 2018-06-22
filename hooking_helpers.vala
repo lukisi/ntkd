@@ -153,12 +153,72 @@ namespace Netsukuku
             }
         }
 
+        private class PairHCoordInt : Object, IPairHCoordInt
+        {
+            public HCoord get_hc_adjacent()
+            {
+                return hc_adjacent;
+            }
+
+            public int get_level_my_gnode()
+            {
+                return level_my_gnode;
+            }
+
+            public int get_pos_my_border_gnode()
+            {
+                return pos_my_border_gnode;
+            }
+
+            public PairHCoordInt(int level_my_gnode, HCoord hc_adjacent, int pos_my_border_gnode)
+            {
+                this.hc_adjacent = hc_adjacent;
+                this.level_my_gnode = level_my_gnode;
+                this.pos_my_border_gnode = pos_my_border_gnode;
+            }
+            private int level_my_gnode;
+            private HCoord hc_adjacent;
+            private int pos_my_border_gnode;
+        }
         public Gee.List<IPairHCoordInt> adjacent_to_my_gnode(int level_adjacent_gnodes, int level_my_gnode)
         {
             QspnManager qspn_mgr = identity_data.qspn_mgr;
             while (! qspn_mgr.is_bootstrap_complete()) tasklet.ms_wait(10);
             try {
-                error("not implemented yet");
+                assert(level_adjacent_gnodes >= level_my_gnode);
+                // Find g-nodes of level level_adjacent_gnodes in my next-higher g-node.
+                Gee.List<HCoord> existing_gnodes = qspn_mgr.get_known_destinations(level_adjacent_gnodes);
+                ArrayList<IPairHCoordInt> ret = new ArrayList<IPairHCoordInt>();
+                foreach (HCoord hc in existing_gnodes)
+                {
+                    // Is hc adjacent to my g-node of level level_my_gnode?
+                    IQspnNodePath p = qspn_mgr.get_paths_to(hc)[0];
+                    Gee.List<IQspnHop> hops = p.i_qspn_get_hops();
+                    // We must save last intermediate hop of level level_my_gnode-1
+                    HCoord border_gnode = new HCoord(level_my_gnode-1, get_my_pos(level_my_gnode-1));
+                    bool adj = true;
+                    foreach (IQspnHop hop in hops)
+                    {
+                        HCoord hop_hc = hop.i_qspn_get_hcoord();
+                        if (hop_hc.equals(hc)) break; // for each hop but last.
+                        if (hop_hc.lvl == level_my_gnode-1)
+                        {
+                            border_gnode = hop_hc;
+                        }
+                        if (hop_hc.lvl >= level_my_gnode)
+                        {
+                            // not adjacent.
+                            adj = false;
+                            break;
+                        }
+                    }
+                    if (! adj) break;
+                    // It is adjacent. Is my border_gnode not virtual?
+                    if (border_gnode.pos >= gsizes[level_my_gnode-1]) break;
+                    // All ok.
+                    ret.add(new PairHCoordInt(level_my_gnode, hc, border_gnode.pos));
+                }
+                return ret;
             } catch (QspnBootstrapInProgressError e) {
                 assert_not_reached();
             }
