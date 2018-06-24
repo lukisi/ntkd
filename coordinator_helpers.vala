@@ -30,10 +30,10 @@ namespace Netsukuku
         }
         private weak IdentityData identity_data;
 
-        public Object evaluate_enter(int lvl, Object evaluate_enter_data)
+        public Object evaluate_enter(int lvl, Object evaluate_enter_data, Gee.List<int> client_address)
         throws HandlingImpossibleError
         {
-            error("not implemented yet");
+            return identity_data.hook_mgr.evaluate_enter(evaluate_enter_data, client_address);
         }
     }
 

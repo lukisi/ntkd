@@ -233,14 +233,20 @@ namespace Netsukuku
         }
         private weak IdentityData identity_data;
 
-        public Object evaluate_enter(int lvl, Object evaluate_enter_data) throws CoordProxyError
-        {
-            error("not implemented yet");
-        }
-
         public int get_n_nodes()
         {
-            error("not implemented yet");
+            return identity_data.coord_mgr.get_n_nodes();
+        }
+
+        public Object evaluate_enter(int lvl, Object evaluate_enter_data) throws CoordProxyError
+        {
+            Object ret;
+            try {
+                ret = identity_data.coord_mgr.evaluate_enter(lvl, evaluate_enter_data);
+            } catch (Coordinator.ProxyError e) {
+                throw new CoordProxyError.GENERIC("");
+            }
+            return ret;
         }
 
         public void reserve(int host_lvl, int reserve_request_id, out int new_pos, out int new_eldership) throws CoordReserveError
