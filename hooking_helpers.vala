@@ -238,11 +238,11 @@ namespace Netsukuku
             return identity_data.coord_mgr.get_n_nodes();
         }
 
-        public Object evaluate_enter(int lvl, Object evaluate_enter_data) throws CoordProxyError
+        public Object evaluate_enter(Object evaluate_enter_data) throws CoordProxyError
         {
             Object ret;
             try {
-                ret = identity_data.coord_mgr.evaluate_enter(lvl, evaluate_enter_data);
+                ret = identity_data.coord_mgr.evaluate_enter(levels, evaluate_enter_data);
             } catch (Coordinator.ProxyError e) {
                 throw new CoordProxyError.GENERIC("");
             }
