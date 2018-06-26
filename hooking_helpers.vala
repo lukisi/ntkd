@@ -244,9 +244,33 @@ namespace Netsukuku
             try {
                 ret = identity_data.coord_mgr.evaluate_enter(levels, evaluate_enter_data);
             } catch (Coordinator.ProxyError e) {
-                throw new CoordProxyError.GENERIC("");
+                throw new CoordProxyError.GENERIC(@"Coordinator.ProxyError: $(e.message)");
             }
             return ret;
+        }
+
+        public Object get_hooking_memory(int lvl) throws CoordProxyError
+        {
+            Object ret;
+            try {
+                ret = identity_data.coord_mgr.get_hooking_memory(lvl);
+            } catch (Coordinator.ProxyError e) {
+                throw new CoordProxyError.GENERIC(@"Coordinator.ProxyError: $(e.message)");
+            } catch (Coordinator.NotCoordinatorNodeError e) {
+                throw new CoordProxyError.GENERIC(@"Coordinator.NotCoordinatorNodeError: $(e.message)");
+            }
+            return ret;
+        }
+
+        public void set_hooking_memory(int lvl, Object memory) throws CoordProxyError
+        {
+            try {
+                identity_data.coord_mgr.set_hooking_memory(lvl, memory);
+            } catch (Coordinator.ProxyError e) {
+                throw new CoordProxyError.GENERIC(@"Coordinator.ProxyError: $(e.message)");
+            } catch (Coordinator.NotCoordinatorNodeError e) {
+                throw new CoordProxyError.GENERIC(@"Coordinator.NotCoordinatorNodeError: $(e.message)");
+            }
         }
 
         public void reserve(int host_lvl, int reserve_request_id, out int new_pos, out int new_eldership) throws CoordReserveError
