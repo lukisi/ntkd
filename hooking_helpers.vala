@@ -273,6 +273,17 @@ namespace Netsukuku
             }
         }
 
+        public Object begin_enter(int lvl, Object begin_enter_data) throws CoordProxyError
+        {
+            Object ret;
+            try {
+                ret = identity_data.coord_mgr.begin_enter(lvl, begin_enter_data);
+            } catch (Coordinator.ProxyError e) {
+                throw new CoordProxyError.GENERIC(@"Coordinator.ProxyError: $(e.message)");
+            }
+            return ret;
+        }
+
         public void reserve(int host_lvl, int reserve_request_id, out int new_pos, out int new_eldership) throws CoordReserveError
         {
             error("not implemented yet");

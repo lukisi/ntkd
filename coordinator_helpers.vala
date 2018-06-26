@@ -45,10 +45,10 @@ namespace Netsukuku
         }
         private weak IdentityData identity_data;
 
-        public Object begin_enter(int lvl, Object begin_enter_data)
+        public Object begin_enter(int lvl, Object begin_enter_data, Gee.List<int> client_address)
         throws HandlingImpossibleError
         {
-            error("not implemented yet");
+            return identity_data.hook_mgr.begin_enter(lvl, begin_enter_data, client_address);
         }
     }
 
@@ -60,7 +60,7 @@ namespace Netsukuku
         }
         private weak IdentityData identity_data;
 
-        public Object completed_enter(int lvl, Object completed_enter_data)
+        public Object completed_enter(int lvl, Object completed_enter_data, Gee.List<int> client_address)
         throws HandlingImpossibleError
         {
             error("not implemented yet");
@@ -75,7 +75,7 @@ namespace Netsukuku
         }
         private weak IdentityData identity_data;
 
-        public Object abort_enter(int lvl, Object abort_enter_data)
+        public Object abort_enter(int lvl, Object abort_enter_data, Gee.List<int> client_address)
         throws HandlingImpossibleError
         {
             error("not implemented yet");
