@@ -63,7 +63,7 @@ namespace Netsukuku
         public Object completed_enter(int lvl, Object completed_enter_data, Gee.List<int> client_address)
         throws HandlingImpossibleError
         {
-            error("not implemented yet");
+            return identity_data.hook_mgr.completed_enter(lvl, completed_enter_data, client_address);
         }
     }
 
@@ -78,7 +78,7 @@ namespace Netsukuku
         public Object abort_enter(int lvl, Object abort_enter_data, Gee.List<int> client_address)
         throws HandlingImpossibleError
         {
-            error("not implemented yet");
+            return identity_data.hook_mgr.abort_enter(lvl, abort_enter_data, client_address);
         }
     }
 
