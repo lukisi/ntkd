@@ -102,12 +102,12 @@ namespace Netsukuku
 
         public void prepare_enter(int lvl, Object prepare_enter_data)
         {
-            error("not implemented yet");
+            identity_data.hook_mgr.prepare_enter(lvl, prepare_enter_data);
         }
 
         public void finish_enter(int lvl, Object finish_enter_data)
         {
-            error("not implemented yet");
+            identity_data.hook_mgr.finish_enter(lvl, finish_enter_data);
         }
 
         public void we_have_splitted(int lvl, Object we_have_splitted_data)
