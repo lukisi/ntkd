@@ -318,22 +318,28 @@ namespace Netsukuku
 
         public void reserve(int host_lvl, int reserve_request_id, out int new_pos, out int new_eldership) throws CoordReserveError
         {
-            error("not implemented yet");
+            try {
+                Reservation ret = identity_data.coord_mgr.reserve(host_lvl, reserve_request_id);
+                new_pos = ret.new_pos;
+                new_eldership = ret.new_eldership;
+            } catch (ReserveError e) {
+                throw new CoordReserveError.GENERIC(@"$(e.message)");
+            }
         }
 
         public void delete_reserve(int host_lvl, int reserve_request_id)
         {
-            error("not implemented yet");
+            identity_data.coord_mgr.delete_reserve(host_lvl, reserve_request_id);
         }
 
-        public void prepare_migration(/*TODO*/)
+        public void prepare_migration(int lvl, Object prepare_migration_data)
         {
-            error("not implemented yet");
+            identity_data.coord_mgr.prepare_migration(lvl, prepare_migration_data);
         }
 
-        public void finish_migration(/*TODO*/)
+        public void finish_migration(int lvl, Object finish_migration_data)
         {
-            error("not implemented yet");
+            identity_data.coord_mgr.finish_migration(lvl, finish_migration_data);
         }
     }
 }
