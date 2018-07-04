@@ -92,12 +92,12 @@ namespace Netsukuku
 
         public void prepare_migration(int lvl, Object prepare_migration_data)
         {
-            error("not implemented yet");
+            identity_data.hook_mgr.prepare_migration(lvl, prepare_migration_data);
         }
 
         public void finish_migration(int lvl, Object finish_migration_data)
         {
-            error("not implemented yet");
+            identity_data.hook_mgr.finish_migration(lvl, finish_migration_data);
         }
 
         public void prepare_enter(int lvl, Object prepare_enter_data)

@@ -232,14 +232,20 @@ namespace Netsukuku
             per_identity_hooking_same_network(first_identity_data, _ia));
         hook_mgr.another_network.connect((_ia, network_id) =>
             per_identity_hooking_another_network(first_identity_data, _ia, network_id));
-        hook_mgr.do_prepare_migration.connect(() =>
-            per_identity_hooking_do_prepare_migration(first_identity_data));
-        hook_mgr.do_finish_migration.connect(() =>
-            per_identity_hooking_do_finish_migration(first_identity_data));
+        hook_mgr.do_prepare_migration.connect((migration_id) =>
+            per_identity_hooking_do_prepare_migration(first_identity_data, migration_id));
+        hook_mgr.do_finish_migration.connect(
+            (migration_id, guest_gnode_level, migration_data, go_connectivity_position) =>
+            per_identity_hooking_do_finish_migration
+            (first_identity_data, migration_id, guest_gnode_level,
+            migration_data, go_connectivity_position));
         hook_mgr.do_prepare_enter.connect((enter_id) =>
             per_identity_hooking_do_prepare_enter(first_identity_data, enter_id));
-        hook_mgr.do_finish_enter.connect((enter_id, guest_gnode_level, entry_data, go_connectivity_position) =>
-            per_identity_hooking_do_finish_enter(first_identity_data, enter_id, guest_gnode_level, entry_data, go_connectivity_position));
+        hook_mgr.do_finish_enter.connect(
+            (enter_id, guest_gnode_level, entry_data, go_connectivity_position) =>
+            per_identity_hooking_do_finish_enter
+            (first_identity_data, enter_id, guest_gnode_level,
+            entry_data, go_connectivity_position));
 
         // AndnaManager  TODO
         AndnaManager andna_mgr = new AndnaManager();
