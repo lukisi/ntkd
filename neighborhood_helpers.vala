@@ -69,18 +69,6 @@ namespace Netsukuku
         }
 
         public IAddressManagerStub
-        get_unicast(
-            string dev,
-            string src_ip,
-            ISourceID source_id,
-            IUnicastID unicast_id,
-            bool wait_reply = true)
-        {
-            var uc = get_addr_unicast(dev, ntkd_port, src_ip, source_id, unicast_id, wait_reply);
-            return uc;
-        }
-
-        public IAddressManagerStub
         get_tcp(
             string dest,
             ISourceID source_id,

@@ -146,11 +146,6 @@ namespace Netsukuku
             {
                 return neighbour_nic_addr == ((BroadcastCallerInfo)rpc_caller).peer_address;
             }
-            else if (rpc_caller is UnicastCallerInfo)
-            {
-                warning("QspnArc.i_qspn_comes_from: got a call in udp-unicast. Ignore it.");
-                tasklet.exit_tasklet(null);
-            }
             else
             {
                 assert_not_reached();

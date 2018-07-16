@@ -61,18 +61,6 @@ namespace Netsukuku
                 if (d != null) ret.add(d);
                 return ret;
             }
-            else if (caller is UnicastCallerInfo)
-            {
-                UnicastCallerInfo c = (UnicastCallerInfo)caller;
-                string peer_address = c.peer_address;
-                string dev = c.dev;
-                ISourceID sourceid = c.sourceid;
-                IUnicastID unicastid = c.unicastid;
-                var ret = new ArrayList<IAddressManagerSkeleton>();
-                IAddressManagerSkeleton? d = neighborhood_mgr.get_dispatcher(sourceid, unicastid, peer_address, dev);
-                if (d != null) ret.add(d);
-                return ret;
-            }
             else if (caller is BroadcastCallerInfo)
             {
                 BroadcastCallerInfo c = (BroadcastCallerInfo)caller;
