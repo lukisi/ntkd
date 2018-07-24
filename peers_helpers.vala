@@ -134,7 +134,8 @@ namespace Netsukuku
                 break;
             }
             if (gw_ia == null) tasklet.exit_tasklet();
-            IAddressManagerStub addrstub = root_stub_unicast_from_ia(gw_ia, false);
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(gw_ia, false);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             ret.neighborhood_arc = ((IdmgmtArc)gw_ia.arc).neighborhood_arc;
             return ret;
@@ -165,7 +166,8 @@ namespace Netsukuku
                 HCoord gw = identity_data.my_naddr.i_qspn_get_coord_by_address(naddr_for_ia);
                 if (gw.lvl == level)
                 {
-                    IAddressManagerStub addrstub = root_stub_unicast_from_ia(ia, true);
+                    StubFactory f = new StubFactory(neighborhood_mgr);
+                    IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, true);
                     PeersManagerStubHolder _ret = new PeersManagerStubHolder(addrstub);
                     _ret.neighborhood_arc = ((IdmgmtArc)ia.arc).neighborhood_arc;
                     ret = _ret;
@@ -186,12 +188,9 @@ namespace Netsukuku
 
         public IPeersManagerStub i_peers_get_tcp_inside(Gee.List<int> positions)
         {
-            ArrayList<int> n_addr = new ArrayList<int>();
-            n_addr.add_all(positions);
-            int inside_level = n_addr.size;
-            for (int i = inside_level; i < levels; i++) n_addr.add(0);
-            string dest = ip_internal_node(n_addr, inside_level);
-            PeersManagerStubHolder ret = new PeersManagerStubHolder(root_stub_from_address(dest, true));
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_inside_gnode(positions, identity_data);
+            PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;
         }
     }
@@ -213,14 +212,13 @@ namespace Netsukuku
                     broadcast_node_id_set.add(ia.id_arc.get_peer_nodeid());
             }
             if(broadcast_node_id_set.is_empty) return new PeersManagerStubVoid();
-            NodeID source_node_id = identity_data.nodeid;
-            INeighborhoodMissingArcHandler n_missing_handler =
-                new NeighborhoodMissingArcHandlerForPeers(missing_handler, identity_data);
-            IAddressManagerStub addrstub =
-                neighborhood_mgr.get_stub_identity_aware_broadcast(
-                source_node_id,
+            MissingArcHandlerForPeers identity_missing_handler =
+                new MissingArcHandlerForPeers(missing_handler);
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_identity_aware_broadcast(
+                identity_data,
                 broadcast_node_id_set,
-                n_missing_handler);
+                identity_missing_handler);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;
         }
@@ -228,39 +226,28 @@ namespace Netsukuku
         public IPeersManagerStub i_peers_get_tcp(IPeersArc arc)
         {
             IdentityArc ia = ((PeersArc)arc).ia;
-            IAddressManagerStub addrstub = root_stub_unicast_from_ia(ia, true);
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, true);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;
         }
     }
 
-    class NeighborhoodMissingArcHandlerForPeers : Object, INeighborhoodMissingArcHandler
+    class MissingArcHandlerForPeers : Object, IIdentityAwareMissingArcHandler
     {
-        public NeighborhoodMissingArcHandlerForPeers(IPeersMissingArcHandler peers_missing, IdentityData identity_data)
+        public MissingArcHandlerForPeers(IPeersMissingArcHandler peers_missing)
         {
             this.peers_missing = peers_missing;
-            this.identity_data = identity_data;
         }
         private IPeersMissingArcHandler peers_missing;
-        private weak IdentityData identity_data;
 
-        public void missing(INeighborhoodArc arc)
+        public void missing(IdentityData identity_data, IdentityArc identity_arc)
         {
-            foreach (IdentityArc ia in identity_data.identity_arcs)
+            if (identity_arc.qspn_arc != null)
             {
-                // ia is an identity-arc of my node
-                IdmgmtArc _arc = (IdmgmtArc)ia.arc;
-                INeighborhoodArc n_arc = _arc.neighborhood_arc;
-                if (n_arc == arc)
-                {
-                    // ia is over this physical arc
-                    if (ia.qspn_arc != null)
-                    {
-                        // ia is on this network
-                        PeersArc peers_arc = new PeersArc(ia);
-                        peers_missing.i_peers_missing(peers_arc);
-                    }
-                }
+                // identity_arc is on this network
+                PeersArc peers_arc = new PeersArc(identity_arc);
+                peers_missing.i_peers_missing(peers_arc);
             }
         }
     }
@@ -272,32 +259,5 @@ namespace Netsukuku
             this.ia = ia;
         }
         public weak IdentityArc ia;
-    }
-
-    IAddressManagerStub root_stub_unicast_from_ia(IdentityArc ia, bool wait_reply)
-    {
-        return neighborhood_mgr.get_stub_identity_aware_unicast(
-            ((IdmgmtArc)ia.arc).neighborhood_arc,
-            ia.id,  // sourceid
-            ia.id_arc.get_peer_nodeid(),  // destid
-            wait_reply);
-    }
-
-    IAddressManagerStub root_stub_from_address(string dest, bool wait_reply)
-    {
-        ISourceID source_id = new PeersSourceID();
-        IUnicastID unicast_id = new PeersUnicastID();
-        IAddressManagerStub addrstub = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
-        assert(addrstub is ITcpClientRootStub);
-        ((ITcpClientRootStub)addrstub).wait_reply = wait_reply;
-        return addrstub;
-    }
-
-    class PeersSourceID : Object, ISourceID
-    {
-    }
-
-    class PeersUnicastID : Object, IUnicastID
-    {
     }
 }

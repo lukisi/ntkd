@@ -6,13 +6,14 @@ startup.c
 mainloop.c
 cleanup.c
 ntkd_rpc.c
-serialize_helpers.c
+serializables.c
+rpc.c
+rpc_src_dest_id.c
 commander.c
 table_names.c
 ipv4_compute.c
 identity_ip_compute.c
 identity_ip_commands.c
-naddr.c
 enter_network.c
 migrate.c
 update_graph.c

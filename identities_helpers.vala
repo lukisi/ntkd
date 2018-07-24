@@ -168,9 +168,9 @@ namespace Netsukuku
 
         public IIdentityManagerStub get_stub(IIdmgmtArc arc)
         {
+            StubFactory f = new StubFactory(neighborhood_mgr);
             IdmgmtArc _arc = (IdmgmtArc)arc;
-            IAddressManagerStub addrstub =
-                neighborhood_mgr.get_stub_whole_node_unicast(_arc.neighborhood_arc);
+            IAddressManagerStub addrstub = f.get_stub_whole_node_unicast(_arc.neighborhood_arc);
             IdentityManagerStubHolder ret = new IdentityManagerStubHolder(addrstub);
             return ret;
         }

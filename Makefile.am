@@ -42,13 +42,14 @@ ntkd_SOURCES =  \
 	mainloop.vala \
 	cleanup.vala \
 	ntkd_rpc.vala \
-	serialize_helpers.vala \
+	serializables.vala \
+	rpc/rpc.vala \
+	rpc_src_dest_id.vala \
 	commander.vala \
 	table_names.vala \
 	ipv4_compute.vala \
 	identity_ip_compute.vala \
 	identity_ip_commands.vala \
-	naddr.vala \
 	enter_network.vala \
 	migrate.vala \
 	update_graph.vala \
@@ -165,13 +166,14 @@ ntkd_tester_01_SOURCES =  \
 	tester_01/mainloop.vala \
 	tester_01/cleanup.vala \
 	tester_01/ntkd_rpc.vala \
-	tester_01/serialize_helpers.vala \
+	tester_01/serializables.vala \
+	tester_01/rpc/rpc.vala \
+	tester_01/rpc_src_dest_id.vala \
 	tester_01/commander.vala \
 	tester_01/table_names.vala \
 	tester_01/ipv4_compute.vala \
 	tester_01/identity_ip_compute.vala \
 	tester_01/identity_ip_commands.vala \
-	tester_01/naddr.vala \
 	tester_01/enter_network.vala \
 	tester_01/migrate.vala \
 	tester_01/update_graph.vala \
@@ -255,13 +257,14 @@ ntkd_tester_02_SOURCES =  \
 	tester_02/mainloop.vala \
 	tester_02/cleanup.vala \
 	tester_02/ntkd_rpc.vala \
-	tester_02/serialize_helpers.vala \
+	tester_02/serializables.vala \
+	tester_02/rpc/rpc.vala \
+	tester_02/rpc_src_dest_id.vala \
 	tester_02/commander.vala \
 	tester_02/table_names.vala \
 	tester_02/ipv4_compute.vala \
 	tester_02/identity_ip_compute.vala \
 	tester_02/identity_ip_commands.vala \
-	tester_02/naddr.vala \
 	tester_02/enter_network.vala \
 	tester_02/migrate.vala \
 	tester_02/update_graph.vala \
@@ -345,13 +348,14 @@ ntkd_tester_03_SOURCES =  \
 	tester_03/mainloop.vala \
 	tester_03/cleanup.vala \
 	tester_03/ntkd_rpc.vala \
-	tester_03/serialize_helpers.vala \
+	tester_03/serializables.vala \
+	tester_03/rpc/rpc.vala \
+	tester_03/rpc_src_dest_id.vala \
 	tester_03/commander.vala \
 	tester_03/table_names.vala \
 	tester_03/ipv4_compute.vala \
 	tester_03/identity_ip_compute.vala \
 	tester_03/identity_ip_commands.vala \
-	tester_03/naddr.vala \
 	tester_03/enter_network.vala \
 	tester_03/migrate.vala \
 	tester_03/update_graph.vala \
@@ -435,13 +439,14 @@ ntkd_tester_05_SOURCES =  \
 	tester_05/mainloop.vala \
 	tester_05/cleanup.vala \
 	tester_05/ntkd_rpc.vala \
-	tester_05/serialize_helpers.vala \
+	tester_05/serializables.vala \
+	tester_05/rpc/rpc.vala \
+	tester_05/rpc_src_dest_id.vala \
 	tester_05/commander.vala \
 	tester_05/table_names.vala \
 	tester_05/ipv4_compute.vala \
 	tester_05/identity_ip_compute.vala \
 	tester_05/identity_ip_commands.vala \
-	tester_05/naddr.vala \
 	tester_05/enter_network.vala \
 	tester_05/migrate.vala \
 	tester_05/update_graph.vala \

@@ -54,31 +54,24 @@ namespace Netsukuku
 
     class NeighborhoodStubFactory : Object, INeighborhoodStubFactory
     {
-        public IAddressManagerStub
-        get_broadcast(
-            Gee.List<string> devs,
-            Gee.List<string> src_ips,
-            ISourceID source_id,
-            IBroadcastID broadcast_id,
-            IAckCommunicator? ack_com = null)
+        public INeighborhoodManagerStub
+        get_broadcast_for_radar(INeighborhoodNetworkInterface nic)
         {
-            assert(! devs.is_empty);
-            assert(devs.size == src_ips.size);
-            var bc = get_addr_broadcast(devs, src_ips, ntkd_port, source_id, broadcast_id, ack_com);
-            return bc;
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_whole_node_broadcast_for_radar(nic);
+            NeighborhoodManagerStubHolder ret = new NeighborhoodManagerStubHolder(addrstub);
+            return ret;
         }
 
-        public IAddressManagerStub
+        public INeighborhoodManagerStub
         get_tcp(
-            string dest,
-            ISourceID source_id,
-            IUnicastID unicast_id,
+            INeighborhoodArc arc,
             bool wait_reply = true)
         {
-            var tc = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
-            assert(tc is ITcpClientRootStub);
-            ((ITcpClientRootStub)tc).wait_reply = wait_reply;
-            return tc;
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_whole_node_unicast(arc, wait_reply);
+            NeighborhoodManagerStubHolder ret = new NeighborhoodManagerStubHolder(addrstub);
+            return ret;
         }
     }
 

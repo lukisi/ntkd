@@ -40,23 +40,22 @@ namespace Netsukuku
                         )
         {
             if(arcs.is_empty) return new QspnManagerStubVoid();
-            NodeID source_node_id = ((QspnArc)arcs[0]).sourceid;
             ArrayList<NodeID> broadcast_node_id_set = new ArrayList<NodeID>();
             foreach (IQspnArc arc in arcs)
             {
                 QspnArc _arc = (QspnArc)arc;
                 broadcast_node_id_set.add(_arc.destid);
             }
-            INeighborhoodMissingArcHandler? n_missing_handler = null;
+            MissingArcHandlerForQspn? identity_missing_handler = null;
             if (missing_handler != null)
             {
-                n_missing_handler = new NeighborhoodMissingArcHandlerForQspn(missing_handler, identity_data);
+                identity_missing_handler = new MissingArcHandlerForQspn(missing_handler);
             }
-            IAddressManagerStub addrstub =
-                neighborhood_mgr.get_stub_identity_aware_broadcast(
-                source_node_id,
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_identity_aware_broadcast(
+                identity_data,
                 broadcast_node_id_set,
-                n_missing_handler);
+                identity_missing_handler);
             QspnManagerStubHolder ret = new QspnManagerStubHolder(addrstub);
             return ret;
         }
@@ -68,35 +67,28 @@ namespace Netsukuku
                         )
         {
             QspnArc _arc = (QspnArc)arc;
-            IAddressManagerStub addrstub =
-                neighborhood_mgr.get_stub_identity_aware_unicast(
-                _arc.arc.neighborhood_arc,
-                _arc.sourceid,
-                _arc.destid,
-                wait_reply);
+            IdentityArc ia = _arc.ia;
+            StubFactory f = new StubFactory(neighborhood_mgr);
+            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, wait_reply);
             QspnManagerStubHolder ret = new QspnManagerStubHolder(addrstub);
             return ret;
         }
     }
 
-    class NeighborhoodMissingArcHandlerForQspn : Object, INeighborhoodMissingArcHandler
+    class MissingArcHandlerForQspn : Object, IIdentityAwareMissingArcHandler
     {
-        public NeighborhoodMissingArcHandlerForQspn(IQspnMissingArcHandler qspn_missing, IdentityData identity_data)
+        public MissingArcHandlerForQspn(IQspnMissingArcHandler qspn_missing)
         {
             this.qspn_missing = qspn_missing;
-            this.identity_data = identity_data;
         }
         private IQspnMissingArcHandler? qspn_missing;
-        private weak IdentityData identity_data;
 
-        public void missing(INeighborhoodArc arc)
+        public void missing(IdentityData identity_data, IdentityArc identity_arc)
         {
-            if (qspn_missing != null)
+            if (identity_arc.qspn_arc != null)
             {
-                // from a INeighborhoodArc get a list of QspnArc
-                foreach (IdentityArc ia in identity_data.identity_arcs) if (ia.qspn_arc != null)
-                    if (ia.qspn_arc.arc.neighborhood_arc == arc)
-                        qspn_missing.i_qspn_missing(ia.qspn_arc);
+                // identity_arc is on this network
+                qspn_missing.i_qspn_missing(identity_arc.qspn_arc);
             }
         }
     }
@@ -152,5 +144,7 @@ namespace Netsukuku
             }
         }
     }
+
+    // For IQspnNaddr, IQspnMyNaddr, IQspnCost, IQspnFingerprint see Naddr, Cost, Fingerprint in serializables.vala
 }
 
