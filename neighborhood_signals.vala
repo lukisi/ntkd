@@ -44,9 +44,9 @@ namespace Netsukuku
     void neighborhood_arc_added(INeighborhoodArc neighborhood_arc)
     {
         // Add arc to module Identities and to arc_list
-        IdmgmtArc arc = new IdmgmtArc(neighborhood_arc);
-        arc_list.add(arc);
-        identity_mgr.add_arc(arc);
+        IdmgmtArc i_arc = new IdmgmtArc(neighborhood_arc);
+        arc_list.add(new NodeArc(neighborhood_arc, i_arc));
+        identity_mgr.add_arc(i_arc);
     }
 
     void neighborhood_arc_changed(INeighborhoodArc neighborhood_arc)
@@ -58,7 +58,7 @@ namespace Netsukuku
     {
         // Remove arc from module Identities
         IdmgmtArc? to_del = null;
-        foreach (IdmgmtArc arc in arc_list) if (arc.neighborhood_arc == neighborhood_arc) {to_del = arc; break;}
+        foreach (NodeArc arc in arc_list) if (arc.neighborhood_arc == neighborhood_arc) {to_del = arc.i_arc; break;}
         if (to_del == null) return;
         identity_mgr.remove_arc(to_del);
     }
@@ -66,8 +66,8 @@ namespace Netsukuku
     void neighborhood_arc_removed(INeighborhoodArc neighborhood_arc)
     {
         // Remove arc from arc_list
-        IdmgmtArc? to_del = null;
-        foreach (IdmgmtArc arc in arc_list) if (arc.neighborhood_arc == neighborhood_arc) {to_del = arc; break;}
+        NodeArc? to_del = null;
+        foreach (NodeArc arc in arc_list) if (arc.neighborhood_arc == neighborhood_arc) {to_del = arc; break;}
         if (to_del == null) return;
         arc_list.remove(to_del);
         // TODO ?

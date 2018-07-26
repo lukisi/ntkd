@@ -57,7 +57,8 @@ namespace Netsukuku
                     ret.add(main_id.identity_skeleton);
                     return ret;
                 }
-                IAddressManagerSkeleton? d = neighborhood_mgr.get_dispatcher(sourceid, unicastid, peer_address, null);
+                StubFactory f = new StubFactory();
+                IAddressManagerSkeleton? d = f.get_dispatcher(sourceid, unicastid, peer_address);
                 if (d != null) ret.add(d);
                 return ret;
             }
@@ -68,7 +69,8 @@ namespace Netsukuku
                 string dev = c.dev;
                 ISourceID sourceid = c.sourceid;
                 IBroadcastID broadcastid = c.broadcastid;
-                return neighborhood_mgr.get_dispatcher_set(sourceid, broadcastid, peer_address, dev);
+                StubFactory f = new StubFactory();
+                return f.get_dispatcher_set(sourceid, broadcastid, peer_address, dev);
             }
             else
             {
@@ -203,6 +205,12 @@ namespace Netsukuku
      */
     class NodeSkeleton : Object, IAddressManagerSkeleton
     {
+        public NodeSkeleton(NeighborhoodNodeID id)
+        {
+            this.id = id;
+        }
+        public NeighborhoodNodeID id {get; private set;}
+
         public unowned INeighborhoodManagerSkeleton
         neighborhood_manager_getter()
         {
@@ -253,6 +261,65 @@ namespace Netsukuku
             tasklet.exit_tasklet(null);
         }
         */
+    }
+
+    NodeSkeleton node_skeleton;
+
+    IAddressManagerSkeleton?
+    get_identity_skeleton(
+        NodeID source_id,
+        NodeID unicast_id,
+        string peer_address)
+    {
+        foreach (IdentityData local_identity_data in local_identities)
+        {
+            NodeID local_nodeid = local_identity_data.nodeid;
+            if (local_nodeid.equals(unicast_id))
+            {
+                foreach (IdentityArc ia in local_identity_data.identity_arcs)
+                {
+                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
+                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address)
+                    {
+                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
+                        {
+                            return local_identity_data.identity_skeleton;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    Gee.List<IAddressManagerSkeleton>
+    get_identity_skeleton_set(
+        NodeID source_id,
+        Gee.List<NodeID> broadcast_set,
+        string peer_address,
+        string dev)
+    {
+        ArrayList<IAddressManagerSkeleton> ret = new ArrayList<IAddressManagerSkeleton>();
+        foreach (IdentityData local_identity_data in local_identities)
+        {
+            NodeID local_nodeid = local_identity_data.nodeid;
+            if (local_nodeid in broadcast_set)
+            {
+                foreach (IdentityArc ia in local_identity_data.identity_arcs)
+                {
+                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
+                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address
+                        && _arc.neighborhood_arc.nic.dev == dev)
+                    {
+                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
+                        {
+                            ret.add(local_identity_data.identity_skeleton);
+                        }
+                    }
+                }
+            }
+        }
+        return ret;
     }
 
     class NeighborhoodManagerStubHolder : Object, INeighborhoodManagerStub

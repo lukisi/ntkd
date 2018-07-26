@@ -35,11 +35,9 @@ namespace Netsukuku
 
     class StubFactory : Object
     {
-        public StubFactory(NeighborhoodManager neighborhood_manager)
+        public StubFactory()
         {
-            this.neighborhood_manager = neighborhood_manager;
         }
-        private NeighborhoodManager neighborhood_manager;
 
         public IAddressManagerStub
         get_stub_identity_aware_unicast(
@@ -99,8 +97,10 @@ namespace Netsukuku
             ArrayList<string> devs = new ArrayList<string>();
             ArrayList<string> src_ips = new ArrayList<string>();
             ArrayList<INeighborhoodNetworkInterface> nics = new ArrayList<INeighborhoodNetworkInterface>();
-            Gee.List<INeighborhoodArc> current_arcs = neighborhood_manager.current_arcs();
-            foreach (INeighborhoodArc arc in current_arcs) if (! (arc.nic.dev in devs))
+
+            ArrayList<INeighborhoodArc> neighborhood_arc_list = new ArrayList<INeighborhoodArc>();
+            foreach (NodeArc node_arc in arc_list) neighborhood_arc_list.add(node_arc.neighborhood_arc);
+            foreach (INeighborhoodArc arc in neighborhood_arc_list) if (! (arc.nic.dev in devs))
             {
                 string local_address = null;
                 foreach (HandledNic n in handlednic_list)
@@ -131,13 +131,9 @@ namespace Netsukuku
         public Gee.List<INeighborhoodArc> get_current_arcs_for_broadcast(Gee.List<INeighborhoodNetworkInterface> nics)
         {
             var ret = new ArrayList<INeighborhoodArc>();
-            foreach (INeighborhoodArc arc in neighborhood_manager.current_arcs())
-            {
-                // test arc against nics.
-                if (! (arc.nic in nics)) continue;
-                // This should receive
-                ret.add(arc);
-            }
+            foreach (NodeArc node_arc in arc_list)
+                if (node_arc.neighborhood_arc.nic in nics)
+                    ret.add(node_arc.neighborhood_arc);
             return ret;
         }
 
@@ -251,10 +247,10 @@ namespace Netsukuku
             INeighborhoodArc arc,
             bool wait_reply=true)
         {
-            WholeNodeSourceID source_id = new WholeNodeSourceID(neighborhood_manager.get_my_neighborhood_id());
+            WholeNodeSourceID source_id = new WholeNodeSourceID(node_skeleton.id);
             WholeNodeUnicastID unicast_id = new WholeNodeUnicastID(arc.neighbour_id);
             string dest = arc.neighbour_nic_addr;
-            var tc = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
+            IAddressManagerStub tc = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
             assert(tc is ITcpClientRootStub);
             ((ITcpClientRootStub)tc).wait_reply = wait_reply;
             return tc;
@@ -271,12 +267,122 @@ namespace Netsukuku
                 if (n.dev == nic.dev) local_address = n.linklocal;
             }
             assert(local_address != null);
-            WholeNodeSourceID source_id = new WholeNodeSourceID(neighborhood_manager.get_my_neighborhood_id());
+            WholeNodeSourceID source_id = new WholeNodeSourceID(node_skeleton.id);
             EveryWholeNodeBroadcastID broadcast_id = new EveryWholeNodeBroadcastID();
             var devs = new ArrayList<string>.wrap({nic.dev});
             var src_ips = new ArrayList<string>.wrap({local_address});
-            var bc = get_addr_broadcast(devs, src_ips, ntkd_port, source_id, broadcast_id, null);
+            IAddressManagerStub bc = get_addr_broadcast(devs, src_ips, ntkd_port, source_id, broadcast_id, null);
             return bc;
+        }
+
+        /* Get root-dispatcher if the received message is to be processed.
+         */
+        public IAddressManagerSkeleton?
+        get_dispatcher(
+            ISourceID _source_id,
+            IUnicastID _unicast_id,
+            string peer_address)
+        {
+            if (_unicast_id is IdentityAwareUnicastID)
+            {
+                IdentityAwareUnicastID unicast_id = (IdentityAwareUnicastID)_unicast_id;
+                if (! (_source_id is IdentityAwareSourceID)) return null;
+                IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
+                NodeID identity_aware_unicast_id = unicast_id.id;
+                NodeID identity_aware_source_id = source_id.id;
+                return get_identity_skeleton(identity_aware_source_id, identity_aware_unicast_id, peer_address);
+            }
+            if (_unicast_id is WholeNodeUnicastID)
+            {
+                if (! (_source_id is WholeNodeSourceID)) return null;
+                WholeNodeSourceID source_id = (WholeNodeSourceID)_source_id;
+                NeighborhoodNodeID whole_node_source_id = source_id.id;
+                foreach (NodeArc arc in arc_list)
+                {
+                    if (arc.neighborhood_arc.neighbour_nic_addr == peer_address &&
+                            arc.neighborhood_arc.neighbour_id.equals(whole_node_source_id)) return node_skeleton;
+                }
+                return null;
+            }
+            warning(@"Unknown IUnicastID class $(_unicast_id.get_type().name())");
+            return null;
+        }
+
+        /* Get root-dispatchers if the received message is to be processed.
+         */
+        public Gee.List<IAddressManagerSkeleton>
+        get_dispatcher_set(
+            ISourceID _source_id,
+            IBroadcastID _broadcast_id,
+            string peer_address,
+            string dev)
+        {
+            // If it is a radar scan, accept.
+            if (_broadcast_id is EveryWholeNodeBroadcastID)
+            {
+                Gee.List<IAddressManagerSkeleton> ret = new ArrayList<IAddressManagerSkeleton>();
+                ret.add(node_skeleton);
+                return ret;
+            }
+            // If it's not a radar scan and there's not an arc, refuse.
+            INeighborhoodArc? i = null;
+            foreach (NodeArc arc in arc_list)
+            {
+                if (arc.neighborhood_arc.neighbour_nic_addr == peer_address && arc.neighborhood_arc.nic.dev == dev)
+                {
+                    i = arc.neighborhood_arc;
+                    break;
+                }
+            }
+            if (i == null) return new ArrayList<IAddressManagerSkeleton>();
+            // There's an arc. It must be an identity-aware broadcast message.
+            if (_broadcast_id is IdentityAwareBroadcastID)
+            {
+                IdentityAwareBroadcastID broadcast_id = (IdentityAwareBroadcastID)_broadcast_id;
+                if (! (_source_id is IdentityAwareSourceID)) return new ArrayList<IAddressManagerSkeleton>();
+                IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
+                Gee.List<NodeID> identity_aware_broadcast_set = broadcast_id.id_set;
+                NodeID identity_aware_source_id = source_id.id;
+                return get_identity_skeleton_set
+                    (identity_aware_source_id,
+                    identity_aware_broadcast_set,
+                    peer_address,
+                    dev);
+            }
+            return new ArrayList<IAddressManagerSkeleton>();
+        }
+
+        /* Get NodeID for the source of a received message. For identity-aware requests.
+         */
+        public NodeID?
+        get_identity(
+            ISourceID _source_id)
+        {
+            if (! (_source_id is IdentityAwareSourceID)) return null;
+            IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
+            return source_id.id;
+        }
+
+        /* Get the arc for the source of a received message. For whole-node requests.
+         */
+        public INeighborhoodArc?
+        get_node_arc(
+            ISourceID _source_id,
+            string dev)
+        {
+            if (! (_source_id is WholeNodeSourceID)) return null;
+            WholeNodeSourceID source_id = (WholeNodeSourceID)_source_id;
+            NeighborhoodNodeID whole_node_source_id = source_id.id;
+            INeighborhoodArc? i = null;
+            foreach (NodeArc arc in arc_list)
+            {
+                if (arc.neighborhood_arc.neighbour_id.equals(whole_node_source_id) && arc.neighborhood_arc.nic.dev == dev)
+                {
+                    i = arc.neighborhood_arc;
+                    break;
+                }
+            }
+            return i;
         }
     }
 }

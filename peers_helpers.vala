@@ -76,8 +76,9 @@ namespace Netsukuku
             if (failed != null)
             {
                 INeighborhoodArc neighborhood_arc = ((PeersManagerStubHolder)failed).neighborhood_arc;
-                Gee.List<INeighborhoodArc> current_arcs = neighborhood_mgr.current_arcs();
-                foreach (INeighborhoodArc arc in current_arcs)
+                ArrayList<INeighborhoodArc> neighborhood_arc_list = new ArrayList<INeighborhoodArc>();
+                foreach (NodeArc node_arc in arc_list) neighborhood_arc_list.add(node_arc.neighborhood_arc);
+                foreach (INeighborhoodArc arc in neighborhood_arc_list)
                 {
                     if (arc == neighborhood_arc)
                     {
@@ -96,7 +97,8 @@ namespace Netsukuku
                 if (received_from is TcpclientCallerInfo)
                 {
                     TcpclientCallerInfo tcp = (TcpclientCallerInfo)received_from;
-                    received_from_nodeid = neighborhood_mgr.get_identity(tcp.sourceid);
+                    StubFactory f = new StubFactory();
+                    received_from_nodeid = f.get_identity(tcp.sourceid);
                 }
                 else
                 {
@@ -134,7 +136,7 @@ namespace Netsukuku
                 break;
             }
             if (gw_ia == null) tasklet.exit_tasklet();
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(gw_ia, false);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             ret.neighborhood_arc = ((IdmgmtArc)gw_ia.arc).neighborhood_arc;
@@ -147,8 +149,9 @@ namespace Netsukuku
             if (failed != null)
             {
                 INeighborhoodArc neighborhood_arc = ((PeersManagerStubHolder)failed).neighborhood_arc;
-                Gee.List<INeighborhoodArc> current_arcs = neighborhood_mgr.current_arcs();
-                foreach (INeighborhoodArc arc in current_arcs)
+                ArrayList<INeighborhoodArc> neighborhood_arc_list = new ArrayList<INeighborhoodArc>();
+                foreach (NodeArc node_arc in arc_list) neighborhood_arc_list.add(node_arc.neighborhood_arc);
+                foreach (INeighborhoodArc arc in neighborhood_arc_list)
                 {
                     if (arc == neighborhood_arc)
                     {
@@ -166,7 +169,7 @@ namespace Netsukuku
                 HCoord gw = identity_data.my_naddr.i_qspn_get_coord_by_address(naddr_for_ia);
                 if (gw.lvl == level)
                 {
-                    StubFactory f = new StubFactory(neighborhood_mgr);
+                    StubFactory f = new StubFactory();
                     IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, true);
                     PeersManagerStubHolder _ret = new PeersManagerStubHolder(addrstub);
                     _ret.neighborhood_arc = ((IdmgmtArc)ia.arc).neighborhood_arc;
@@ -188,7 +191,7 @@ namespace Netsukuku
 
         public IPeersManagerStub i_peers_get_tcp_inside(Gee.List<int> positions)
         {
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_inside_gnode(positions, identity_data);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;
@@ -214,7 +217,7 @@ namespace Netsukuku
             if(broadcast_node_id_set.is_empty) return new PeersManagerStubVoid();
             MissingArcHandlerForPeers identity_missing_handler =
                 new MissingArcHandlerForPeers(missing_handler);
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_identity_aware_broadcast(
                 identity_data,
                 broadcast_node_id_set,
@@ -226,7 +229,7 @@ namespace Netsukuku
         public IPeersManagerStub i_peers_get_tcp(IPeersArc arc)
         {
             IdentityArc ia = ((PeersArc)arc).ia;
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, true);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;

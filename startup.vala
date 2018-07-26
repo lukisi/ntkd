@@ -87,20 +87,17 @@ namespace Netsukuku
         cm.end_block(bid);
 
         handlednic_list = new ArrayList<HandledNic>();
-        arc_list = new ArrayList<IdmgmtArc>();
+        arc_list = new ArrayList<NodeArc>();
         local_identities = new ArrayList<IdentityData>();
 
         // Init module Neighborhood
         identity_mgr = null;
-        node_skeleton = new NodeSkeleton();
         neighborhood_mgr = new NeighborhoodManager(
-            get_identity_skeleton,
-            get_identity_skeleton_set,
-            node_skeleton,
             1000 /*very high max_arcs*/,
             new NeighborhoodStubFactory(),
             new NeighborhoodIPRouteManager(),
             () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
+        node_skeleton = new NodeSkeleton(neighborhood_mgr.get_my_neighborhood_id());
         // connect signals
         neighborhood_mgr.nic_address_set.connect(neighborhood_nic_address_set);
         neighborhood_mgr.arc_added.connect(neighborhood_arc_added);

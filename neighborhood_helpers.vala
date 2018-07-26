@@ -57,7 +57,7 @@ namespace Netsukuku
         public INeighborhoodManagerStub
         get_broadcast_for_radar(INeighborhoodNetworkInterface nic)
         {
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_whole_node_broadcast_for_radar(nic);
             NeighborhoodManagerStubHolder ret = new NeighborhoodManagerStubHolder(addrstub);
             return ret;
@@ -68,7 +68,7 @@ namespace Netsukuku
             INeighborhoodArc arc,
             bool wait_reply = true)
         {
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_whole_node_unicast(arc, wait_reply);
             NeighborhoodManagerStubHolder ret = new NeighborhoodManagerStubHolder(addrstub);
             return ret;
@@ -146,64 +146,5 @@ namespace Netsukuku
             if (log_console) print(@" ping: could not parse $(com_ret.stdout)\n");
             throw new NeighborhoodGetRttError.GENERIC(@"ping: could not parse $(com_ret.stdout)");
         }
-    }
-
-    NodeSkeleton node_skeleton;
-
-    IAddressManagerSkeleton?
-    get_identity_skeleton(
-        NodeID source_id,
-        NodeID unicast_id,
-        string peer_address)
-    {
-        foreach (IdentityData local_identity_data in local_identities)
-        {
-            NodeID local_nodeid = local_identity_data.nodeid;
-            if (local_nodeid.equals(unicast_id))
-            {
-                foreach (IdentityArc ia in local_identity_data.identity_arcs)
-                {
-                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
-                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address)
-                    {
-                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
-                        {
-                            return local_identity_data.identity_skeleton;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    Gee.List<IAddressManagerSkeleton>
-    get_identity_skeleton_set(
-        NodeID source_id,
-        Gee.List<NodeID> broadcast_set,
-        string peer_address,
-        string dev)
-    {
-        ArrayList<IAddressManagerSkeleton> ret = new ArrayList<IAddressManagerSkeleton>();
-        foreach (IdentityData local_identity_data in local_identities)
-        {
-            NodeID local_nodeid = local_identity_data.nodeid;
-            if (local_nodeid in broadcast_set)
-            {
-                foreach (IdentityArc ia in local_identity_data.identity_arcs)
-                {
-                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
-                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address
-                        && _arc.neighborhood_arc.nic.dev == dev)
-                    {
-                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
-                        {
-                            ret.add(local_identity_data.identity_skeleton);
-                        }
-                    }
-                }
-            }
-        }
-        return ret;
     }
 }

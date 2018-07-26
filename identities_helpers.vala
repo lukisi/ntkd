@@ -139,17 +139,18 @@ namespace Netsukuku
                 foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address)
                 {
                     string dev = n.dev;
-                    INeighborhoodArc? neighborhood_arc = neighborhood_mgr.get_node_arc(sourceid, dev);
+                    StubFactory f = new StubFactory();
+                    INeighborhoodArc? neighborhood_arc = f.get_node_arc(sourceid, dev);
                     if (neighborhood_arc == null)
                     {
                         // some warning message?
                         return null;
                     }
-                    foreach (IdmgmtArc arc in arc_list)
+                    foreach (NodeArc arc in arc_list)
                     {
                         if (arc.neighborhood_arc == neighborhood_arc)
                         {
-                            return arc;
+                            return arc.i_arc;
                         }
                     }
                     error("missing something?");
@@ -168,7 +169,7 @@ namespace Netsukuku
 
         public IIdentityManagerStub get_stub(IIdmgmtArc arc)
         {
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IdmgmtArc _arc = (IdmgmtArc)arc;
             IAddressManagerStub addrstub = f.get_stub_whole_node_unicast(_arc.neighborhood_arc);
             IdentityManagerStubHolder ret = new IdentityManagerStubHolder(addrstub);

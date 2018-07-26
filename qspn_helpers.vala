@@ -51,7 +51,7 @@ namespace Netsukuku
             {
                 identity_missing_handler = new MissingArcHandlerForQspn(missing_handler);
             }
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_identity_aware_broadcast(
                 identity_data,
                 broadcast_node_id_set,
@@ -68,7 +68,7 @@ namespace Netsukuku
         {
             QspnArc _arc = (QspnArc)arc;
             IdentityArc ia = _arc.ia;
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, wait_reply);
             QspnManagerStubHolder ret = new QspnManagerStubHolder(addrstub);
             return ret;

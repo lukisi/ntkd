@@ -34,7 +34,7 @@ namespace Netsukuku
 
         public IHookingManagerStub get_stub()
         {
-            StubFactory f = new StubFactory(neighborhood_mgr);
+            StubFactory f = new StubFactory();
             IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, true);
             return new HookingManagerStubHolder(addrstub);
         }
@@ -147,7 +147,7 @@ namespace Netsukuku
                     break;
                 }
                 assert (gw_ia != null);
-                StubFactory f = new StubFactory(neighborhood_mgr);
+                StubFactory f = new StubFactory();
                 IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(gw_ia, false);
                 return new HookingManagerStubHolder(addrstub);
             } catch (QspnBootstrapInProgressError e) {
