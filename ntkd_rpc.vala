@@ -26,66 +26,13 @@ using Netsukuku.Hooking;
 using Netsukuku.Andna;
 using TaskletSystem;
 
+/** This file should contain code relative to RPC
+    that is pertinent to the API specified in ntkdrpc.
+ */
+
 namespace Netsukuku
 {
-    class ServerDelegate : Object, IRpcDelegate
-    {
-        public Gee.List<IAddressManagerSkeleton> get_addr_set(CallerInfo caller)
-        {
-            if (caller is TcpclientCallerInfo)
-            {
-                TcpclientCallerInfo c = (TcpclientCallerInfo)caller;
-                string peer_address = c.peer_address;
-                ISourceID sourceid = c.sourceid;
-                IUnicastID unicastid = c.unicastid;
-                var ret = new ArrayList<IAddressManagerSkeleton>();
-                if (unicastid is PeersUnicastID)
-                {
-                    IdentityData main_id = null;
-                    while (main_id == null)
-                    {
-                        foreach (IdentityData identity_data in local_identities)
-                        {
-                            if (identity_data.main_id)
-                            {
-                                main_id = identity_data;
-                                break;
-                            }
-                        }
-                        if (main_id == null) tasklet.ms_wait(5); // avoid rare (but possible) temporary condition.
-                    }
-                    ret.add(main_id.identity_skeleton);
-                    return ret;
-                }
-                StubFactory f = new StubFactory();
-                IAddressManagerSkeleton? d = f.get_dispatcher(sourceid, unicastid, peer_address);
-                if (d != null) ret.add(d);
-                return ret;
-            }
-            else if (caller is BroadcastCallerInfo)
-            {
-                BroadcastCallerInfo c = (BroadcastCallerInfo)caller;
-                string peer_address = c.peer_address;
-                string dev = c.dev;
-                ISourceID sourceid = c.sourceid;
-                IBroadcastID broadcastid = c.broadcastid;
-                StubFactory f = new StubFactory();
-                return f.get_dispatcher_set(sourceid, broadcastid, peer_address, dev);
-            }
-            else
-            {
-                error(@"Unexpected class $(caller.get_type().name())");
-            }
-        }
-    }
-
-    class ServerErrorHandler : Object, IRpcErrorHandler
-    {
-        public void error_handler(Error e)
-        {
-            error(@"error_handler: $(e.message)");
-        }
-    }
+    // Server side
 
     /* A skeleton for the identity remotable methods
      */
@@ -263,64 +210,7 @@ namespace Netsukuku
         */
     }
 
-    NodeSkeleton node_skeleton;
-
-    IAddressManagerSkeleton?
-    get_identity_skeleton(
-        NodeID source_id,
-        NodeID unicast_id,
-        string peer_address)
-    {
-        foreach (IdentityData local_identity_data in local_identities)
-        {
-            NodeID local_nodeid = local_identity_data.nodeid;
-            if (local_nodeid.equals(unicast_id))
-            {
-                foreach (IdentityArc ia in local_identity_data.identity_arcs)
-                {
-                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
-                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address)
-                    {
-                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
-                        {
-                            return local_identity_data.identity_skeleton;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    Gee.List<IAddressManagerSkeleton>
-    get_identity_skeleton_set(
-        NodeID source_id,
-        Gee.List<NodeID> broadcast_set,
-        string peer_address,
-        string dev)
-    {
-        ArrayList<IAddressManagerSkeleton> ret = new ArrayList<IAddressManagerSkeleton>();
-        foreach (IdentityData local_identity_data in local_identities)
-        {
-            NodeID local_nodeid = local_identity_data.nodeid;
-            if (local_nodeid in broadcast_set)
-            {
-                foreach (IdentityArc ia in local_identity_data.identity_arcs)
-                {
-                    IdmgmtArc _arc = (IdmgmtArc)ia.arc;
-                    if (_arc.neighborhood_arc.neighbour_nic_addr == peer_address
-                        && _arc.neighborhood_arc.nic.dev == dev)
-                    {
-                        if (ia.id_arc.get_peer_nodeid().equals(source_id))
-                        {
-                            ret.add(local_identity_data.identity_skeleton);
-                        }
-                    }
-                }
-            }
-        }
-        return ret;
-    }
+    // Client side
 
     class NeighborhoodManagerStubHolder : Object, INeighborhoodManagerStub
     {

@@ -97,7 +97,7 @@ namespace Netsukuku
             new NeighborhoodStubFactory(),
             new NeighborhoodIPRouteManager(),
             () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
-        node_skeleton = new NodeSkeleton(neighborhood_mgr.get_my_neighborhood_id());
+        SkeletonFactory.node_skeleton = new NodeSkeleton(neighborhood_mgr.get_my_neighborhood_id());
         // connect signals
         neighborhood_mgr.nic_address_set.connect(neighborhood_nic_address_set);
         neighborhood_mgr.arc_added.connect(neighborhood_arc_added);

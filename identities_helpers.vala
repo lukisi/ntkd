@@ -139,7 +139,7 @@ namespace Netsukuku
                 foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address)
                 {
                     string dev = n.dev;
-                    StubFactory f = new StubFactory();
+                    SkeletonFactory f = new SkeletonFactory();
                     INeighborhoodArc? neighborhood_arc = f.get_node_arc(sourceid, dev);
                     if (neighborhood_arc == null)
                     {

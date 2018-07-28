@@ -97,7 +97,7 @@ namespace Netsukuku
                 if (received_from is TcpclientCallerInfo)
                 {
                     TcpclientCallerInfo tcp = (TcpclientCallerInfo)received_from;
-                    StubFactory f = new StubFactory();
+                    SkeletonFactory f = new SkeletonFactory();
                     received_from_nodeid = f.get_identity(tcp.sourceid);
                 }
                 else
