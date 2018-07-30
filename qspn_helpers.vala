@@ -129,19 +129,8 @@ namespace Netsukuku
 
         public bool i_qspn_comes_from(CallerInfo rpc_caller)
         {
-            string neighbour_nic_addr = arc.neighborhood_arc.neighbour_nic_addr;
-            if (rpc_caller is TcpclientCallerInfo)
-            {
-                return neighbour_nic_addr == ((TcpclientCallerInfo)rpc_caller).peer_address;
-            }
-            else if (rpc_caller is BroadcastCallerInfo)
-            {
-                return neighbour_nic_addr == ((BroadcastCallerInfo)rpc_caller).peer_address;
-            }
-            else
-            {
-                assert_not_reached();
-            }
+            SkeletonFactory f = new SkeletonFactory();
+            return destid.equals(f.from_caller_get_identity(rpc_caller));
         }
     }
 

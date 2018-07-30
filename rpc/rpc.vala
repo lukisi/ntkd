@@ -245,6 +245,35 @@ namespace Netsukuku
             return source_id.id;
         }
 
+        /* Get NodeID for the source of a received message. For identity-aware requests.
+         */
+        public NodeID
+        from_caller_get_identity(CallerInfo rpc_caller)
+        {
+            // This method should be called by a identity module
+            if (rpc_caller is TcpclientCallerInfo)
+            {
+                TcpclientCallerInfo tcp = (TcpclientCallerInfo)rpc_caller;
+                ISourceID _source_id = tcp.sourceid;
+                if (! (_source_id is IdentityAwareSourceID)) tasklet.exit_tasklet(null); // ignore message.
+                IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
+                return source_id.id;
+            }
+            else if (rpc_caller is BroadcastCallerInfo)
+            {
+                BroadcastCallerInfo brd = (BroadcastCallerInfo)rpc_caller;
+                ISourceID _source_id = brd.sourceid;
+                if (! (_source_id is IdentityAwareSourceID)) tasklet.exit_tasklet(null); // ignore message.
+                IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
+                return source_id.id;
+            }
+            else
+            {
+                // unexpected class. ignore message.
+                tasklet.exit_tasklet(null);
+            }
+        }
+
         /* Get the arc for the source of a received message. For whole-node requests.
          */
         public INeighborhoodArc?
