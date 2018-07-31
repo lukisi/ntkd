@@ -236,17 +236,6 @@ namespace Netsukuku
 
         /* Get NodeID for the source of a received message. For identity-aware requests.
          */
-        public NodeID?
-        get_identity(
-            ISourceID _source_id)
-        {
-            if (! (_source_id is IdentityAwareSourceID)) return null;
-            IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
-            return source_id.id;
-        }
-
-        /* Get NodeID for the source of a received message. For identity-aware requests.
-         */
         public NodeID
         from_caller_get_identity(CallerInfo rpc_caller)
         {
@@ -277,6 +266,31 @@ namespace Netsukuku
         /* Get the arc for the source of a received message. For whole-node requests.
          */
         public INeighborhoodArc?
+        from_caller_get_node_arc(CallerInfo rpc_caller)
+        {
+            if (rpc_caller is TcpclientCallerInfo)
+            {
+                TcpclientCallerInfo c = (TcpclientCallerInfo)rpc_caller;
+                ISourceID sourceid = c.sourceid;
+                string my_address = c.my_address;
+                foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address)
+                {
+                    string dev = n.dev;
+                    return get_node_arc(sourceid, dev);
+                }
+                warning(@"from_caller_get_node_arc: got a unknown caller: my_address was $(my_address).\n");
+                foreach (HandledNic n in handlednic_list)
+                {
+                    string dev = n.dev;
+                    print(@"  in $(dev) we have $(n.linklocal).\n");
+                }
+                return null;
+            }
+            warning(@"from_caller_get_node_arc: not a expected type of caller $(rpc_caller.get_type().name()).");
+            return null;
+        }
+
+        private INeighborhoodArc?
         get_node_arc(
             ISourceID _source_id,
             string dev)

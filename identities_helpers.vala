@@ -129,42 +129,24 @@ namespace Netsukuku
 
     class IdmgmtStubFactory : Object, IIdmgmtStubFactory
     {
-        public IIdmgmtArc? get_arc(CallerInfo caller)
+        public IIdmgmtArc? get_arc(CallerInfo rpc_caller)
         {
-            if (caller is TcpclientCallerInfo)
+            SkeletonFactory f = new SkeletonFactory();
+            INeighborhoodArc? neighborhood_arc = f.from_caller_get_node_arc(rpc_caller);
+            if (neighborhood_arc == null)
             {
-                TcpclientCallerInfo c = (TcpclientCallerInfo)caller;
-                ISourceID sourceid = c.sourceid;
-                string my_address = c.my_address;
-                foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address)
-                {
-                    string dev = n.dev;
-                    SkeletonFactory f = new SkeletonFactory();
-                    INeighborhoodArc? neighborhood_arc = f.get_node_arc(sourceid, dev);
-                    if (neighborhood_arc == null)
-                    {
-                        // some warning message?
-                        return null;
-                    }
-                    foreach (NodeArc arc in arc_list)
-                    {
-                        if (arc.neighborhood_arc == neighborhood_arc)
-                        {
-                            return arc.i_arc;
-                        }
-                    }
-                    error("missing something?");
-                }
-                print(@"got a unknown caller:\n");
-                print(@"  my_address was $(my_address).\n");
-                foreach (HandledNic n in handlednic_list)
-                {
-                    string dev = n.dev;
-                    print(@"  in $(dev) we have $(n.linklocal).\n");
-                }
+                // some warning message?
                 return null;
             }
-            error(@"not a expected type of caller $(caller.get_type().name()).");
+            foreach (NodeArc arc in arc_list)
+            {
+                if (arc.neighborhood_arc == neighborhood_arc)
+                {
+                    return arc.i_arc;
+                }
+            }
+            warning("IdmgmtStubFactory.get_arc: found a neighborhood_arc, not in arc_list.");
+            return null;
         }
 
         public IIdentityManagerStub get_stub(IIdmgmtArc arc)

@@ -94,16 +94,8 @@ namespace Netsukuku
             NodeID? received_from_nodeid = null;
             if (received_from != null)
             {
-                if (received_from is TcpclientCallerInfo)
-                {
-                    TcpclientCallerInfo tcp = (TcpclientCallerInfo)received_from;
-                    SkeletonFactory f = new SkeletonFactory();
-                    received_from_nodeid = f.get_identity(tcp.sourceid);
-                }
-                else
-                {
-                    warning(@"PeersMapPaths.i_peers_gateway: not a expected type of caller $(received_from.get_type().name()).");
-                }
+                SkeletonFactory f = new SkeletonFactory();
+                received_from_nodeid = f.from_caller_get_identity(received_from);
             }
             Gee.List<IQspnNodePath> paths;
             try {
