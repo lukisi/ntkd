@@ -44,7 +44,6 @@ ntkd_SOURCES =  \
 	ntkd_rpc.vala \
 	serializables.vala \
 	rpc/rpc.vala \
-	rpc_src_dest_id.vala \
 	commander.vala \
 	table_names.vala \
 	ipv4_compute.vala \
@@ -168,7 +167,6 @@ ntkd_tester_01_SOURCES =  \
 	tester_01/ntkd_rpc.vala \
 	tester_01/serializables.vala \
 	tester_01/rpc/rpc.vala \
-	tester_01/rpc_src_dest_id.vala \
 	tester_01/commander.vala \
 	tester_01/table_names.vala \
 	tester_01/ipv4_compute.vala \
@@ -259,7 +257,6 @@ ntkd_tester_02_SOURCES =  \
 	tester_02/ntkd_rpc.vala \
 	tester_02/serializables.vala \
 	tester_02/rpc/rpc.vala \
-	tester_02/rpc_src_dest_id.vala \
 	tester_02/commander.vala \
 	tester_02/table_names.vala \
 	tester_02/ipv4_compute.vala \
@@ -350,7 +347,6 @@ ntkd_tester_03_SOURCES =  \
 	tester_03/ntkd_rpc.vala \
 	tester_03/serializables.vala \
 	tester_03/rpc/rpc.vala \
-	tester_03/rpc_src_dest_id.vala \
 	tester_03/commander.vala \
 	tester_03/table_names.vala \
 	tester_03/ipv4_compute.vala \
@@ -441,7 +437,6 @@ ntkd_tester_05_SOURCES =  \
 	tester_05/ntkd_rpc.vala \
 	tester_05/serializables.vala \
 	tester_05/rpc/rpc.vala \
-	tester_05/rpc_src_dest_id.vala \
 	tester_05/commander.vala \
 	tester_05/table_names.vala \
 	tester_05/ipv4_compute.vala \

@@ -130,7 +130,10 @@ namespace Netsukuku
         public bool i_qspn_comes_from(CallerInfo rpc_caller)
         {
             SkeletonFactory f = new SkeletonFactory();
-            return destid.equals(f.from_caller_get_identity(rpc_caller));
+            IdentityData identity_data = ia.identity_data;
+            IdentityArc? caller_ia = f.from_caller_get_identityarc(rpc_caller, identity_data);
+            if (caller_ia == null) return false;
+            return caller_ia == ia;
         }
     }
 

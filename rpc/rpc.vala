@@ -234,80 +234,96 @@ namespace Netsukuku
             return ret;
         }
 
-        /* Get NodeID for the source of a received message. For identity-aware requests.
+        /* Get NodeArc where a received message has transited. For whole-node requests.
          */
-        public NodeID
-        from_caller_get_identity(CallerInfo rpc_caller)
+        public NodeArc?
+        from_caller_get_nodearc(CallerInfo rpc_caller)
         {
-            // This method should be called by a identity module
+            NeighborhoodNodeID peer_node_id;
+            string peer_address;
+            string my_dev;
             if (rpc_caller is TcpclientCallerInfo)
             {
                 TcpclientCallerInfo tcp = (TcpclientCallerInfo)rpc_caller;
                 ISourceID _source_id = tcp.sourceid;
-                if (! (_source_id is IdentityAwareSourceID)) tasklet.exit_tasklet(null); // ignore message.
-                IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
-                return source_id.id;
+                if (! (_source_id is WholeNodeSourceID)) return null;
+                peer_node_id = ((WholeNodeSourceID)_source_id).id;
+                peer_address = tcp.peer_address;
+                string my_address = tcp.my_address;
+                my_dev = null;
+                foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address) my_dev = n.dev;
+                if (my_dev == null) return null;
+            }
+            else
+            {
+                // unexpected class.
+                return null;
+            }
+            foreach (NodeArc node_arc in arc_list)
+            {
+                INeighborhoodArc neighborhood_arc = node_arc.neighborhood_arc;
+                // check my_dev
+                if (neighborhood_arc.nic.dev != my_dev) continue;
+                // check peer_address
+                if (neighborhood_arc.neighbour_nic_addr != peer_address) continue;
+                // check peer_node_id
+                if (neighborhood_arc.neighbour_id.equals(peer_node_id)) return node_arc;
+            }
+            return null;
+        }
+
+        /* Get IdentityArc where a received message has transited. For identity-aware requests.
+         */
+        public IdentityArc?
+        from_caller_get_identityarc(CallerInfo rpc_caller, IdentityData identity_data)
+        {
+            NodeID peer_identity_id;
+            string peer_address;
+            string my_dev;
+            if (rpc_caller is TcpclientCallerInfo)
+            {
+                TcpclientCallerInfo tcp = (TcpclientCallerInfo)rpc_caller;
+                ISourceID _source_id = tcp.sourceid;
+                if (! (_source_id is IdentityAwareSourceID)) return null;
+                peer_identity_id = ((IdentityAwareSourceID)_source_id).id;
+                peer_address = tcp.peer_address;
+                string my_address = tcp.my_address;
+                my_dev = null;
+                foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address) my_dev = n.dev;
+                if (my_dev == null) return null;
             }
             else if (rpc_caller is BroadcastCallerInfo)
             {
                 BroadcastCallerInfo brd = (BroadcastCallerInfo)rpc_caller;
                 ISourceID _source_id = brd.sourceid;
-                if (! (_source_id is IdentityAwareSourceID)) tasklet.exit_tasklet(null); // ignore message.
-                IdentityAwareSourceID source_id = (IdentityAwareSourceID)_source_id;
-                return source_id.id;
+                if (! (_source_id is IdentityAwareSourceID)) return null;
+                peer_identity_id = ((IdentityAwareSourceID)_source_id).id;
+                peer_address = brd.peer_address;
+                my_dev = brd.dev;
             }
             else
             {
-                // unexpected class. ignore message.
-                tasklet.exit_tasklet(null);
-            }
-        }
-
-        /* Get the arc for the source of a received message. For whole-node requests.
-         */
-        public INeighborhoodArc?
-        from_caller_get_node_arc(CallerInfo rpc_caller)
-        {
-            if (rpc_caller is TcpclientCallerInfo)
-            {
-                TcpclientCallerInfo c = (TcpclientCallerInfo)rpc_caller;
-                ISourceID sourceid = c.sourceid;
-                string my_address = c.my_address;
-                foreach (HandledNic n in handlednic_list) if (n.linklocal == my_address)
-                {
-                    string dev = n.dev;
-                    return get_node_arc(sourceid, dev);
-                }
-                warning(@"from_caller_get_node_arc: got a unknown caller: my_address was $(my_address).\n");
-                foreach (HandledNic n in handlednic_list)
-                {
-                    string dev = n.dev;
-                    print(@"  in $(dev) we have $(n.linklocal).\n");
-                }
+                // unexpected class.
                 return null;
             }
-            warning(@"from_caller_get_node_arc: not a expected type of caller $(rpc_caller.get_type().name()).");
-            return null;
-        }
-
-        private INeighborhoodArc?
-        get_node_arc(
-            ISourceID _source_id,
-            string dev)
-        {
-            if (! (_source_id is WholeNodeSourceID)) return null;
-            WholeNodeSourceID source_id = (WholeNodeSourceID)_source_id;
-            NeighborhoodNodeID whole_node_source_id = source_id.id;
-            INeighborhoodArc? i = null;
-            foreach (NodeArc arc in arc_list)
+            foreach (IdentityArc ia in identity_data.identity_arcs)
             {
-                if (arc.neighborhood_arc.neighbour_id.equals(whole_node_source_id) && arc.neighborhood_arc.nic.dev == dev)
+                // get where ia is laid upon.
+                INeighborhoodArc neighborhood_arc = null;
+                foreach (NodeArc node_arc in arc_list)
                 {
-                    i = arc.neighborhood_arc;
-                    break;
+                    if (node_arc.i_arc == ia.arc) neighborhood_arc = node_arc.neighborhood_arc;
                 }
+                if (neighborhood_arc == null) continue;
+                // got it.
+                // check my_dev
+                if (neighborhood_arc.nic.dev != my_dev) continue;
+                // check peer_address
+                if (neighborhood_arc.neighbour_nic_addr != peer_address) continue;
+                // check peer_identity_id
+                if (ia.id_arc.get_peer_nodeid().equals(peer_identity_id)) return ia;
             }
-            return i;
+            return null;
         }
     }
 

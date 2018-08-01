@@ -132,20 +132,8 @@ namespace Netsukuku
         public IIdmgmtArc? get_arc(CallerInfo rpc_caller)
         {
             SkeletonFactory f = new SkeletonFactory();
-            INeighborhoodArc? neighborhood_arc = f.from_caller_get_node_arc(rpc_caller);
-            if (neighborhood_arc == null)
-            {
-                // some warning message?
-                return null;
-            }
-            foreach (NodeArc arc in arc_list)
-            {
-                if (arc.neighborhood_arc == neighborhood_arc)
-                {
-                    return arc.i_arc;
-                }
-            }
-            warning("IdmgmtStubFactory.get_arc: found a neighborhood_arc, not in arc_list.");
+            NodeArc? node_arc = f.from_caller_get_nodearc(rpc_caller);
+            if (node_arc != null) return node_arc.i_arc;
             return null;
         }
 

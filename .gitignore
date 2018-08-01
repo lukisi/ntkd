@@ -8,7 +8,6 @@ cleanup.c
 ntkd_rpc.c
 serializables.c
 rpc.c
-rpc_src_dest_id.c
 commander.c
 table_names.c
 ipv4_compute.c

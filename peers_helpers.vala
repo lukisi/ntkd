@@ -95,7 +95,8 @@ namespace Netsukuku
             if (received_from != null)
             {
                 SkeletonFactory f = new SkeletonFactory();
-                received_from_nodeid = f.from_caller_get_identity(received_from);
+                IdentityArc? caller_ia = f.from_caller_get_identityarc(received_from, identity_data);
+                if (caller_ia != null) received_from_nodeid = caller_ia.id;
             }
             Gee.List<IQspnNodePath> paths;
             try {
