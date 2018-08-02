@@ -412,10 +412,10 @@ namespace Netsukuku
             IAckCommunicator? ack_com = null;
             if (identity_missing_handler != null)
             {
-                NeighborhoodMissingArcHandlerForIdentityAware neighborhood_missing_handler
-                    = new NeighborhoodMissingArcHandlerForIdentityAware(identity_missing_handler, identity_data);
+                NodeMissingArcHandlerForIdentityAware node_missing_handler
+                    = new NodeMissingArcHandlerForIdentityAware(identity_missing_handler, identity_data);
                 Gee.List<INeighborhoodArc> lst_expected = get_current_arcs_for_broadcast(nics);
-                ack_com = new NeighborhoodAcknowledgementsCommunicator(this, nics, neighborhood_missing_handler, lst_expected);
+                ack_com = new AcknowledgementsCommunicator(this, nics, node_missing_handler, lst_expected);
             }
             assert(! devs.is_empty);
             assert(devs.size == src_ips.size);
@@ -432,9 +432,9 @@ namespace Netsukuku
             return ret;
         }
 
-        class NeighborhoodMissingArcHandlerForIdentityAware : Object, INeighborhoodMissingArcHandler
+        class NodeMissingArcHandlerForIdentityAware : Object
         {
-            public NeighborhoodMissingArcHandlerForIdentityAware(IIdentityAwareMissingArcHandler identity_missing_handler, IdentityData identity_data)
+            public NodeMissingArcHandlerForIdentityAware(IIdentityAwareMissingArcHandler identity_missing_handler, IdentityData identity_data)
             {
                 this.identity_missing_handler = identity_missing_handler;
                 this.identity_data = identity_data;
@@ -476,23 +476,23 @@ namespace Netsukuku
         /* The instance of this class is created when the stub factory is invoked to
          * obtain a stub for broadcast.
          */
-        private class NeighborhoodAcknowledgementsCommunicator : Object, IAckCommunicator
+        private class AcknowledgementsCommunicator : Object, IAckCommunicator
         {
             public StubFactory stub_factory;
             public ArrayList<INeighborhoodNetworkInterface> nics;
-            public INeighborhoodMissingArcHandler neighborhood_missing_handler;
+            public NodeMissingArcHandlerForIdentityAware node_missing_handler;
             public ArrayList<INeighborhoodArc> lst_expected;
 
-            public NeighborhoodAcknowledgementsCommunicator(
+            public AcknowledgementsCommunicator(
                                 StubFactory stub_factory,
                                 Gee.List<INeighborhoodNetworkInterface> nics,
-                                INeighborhoodMissingArcHandler neighborhood_missing_handler,
+                                NodeMissingArcHandlerForIdentityAware node_missing_handler,
                                 Gee.List<INeighborhoodArc> lst_expected)
             {
                 this.stub_factory = stub_factory;
                 this.nics = new ArrayList<INeighborhoodNetworkInterface>();
                 this.nics.add_all(nics);
-                this.neighborhood_missing_handler = neighborhood_missing_handler;
+                this.node_missing_handler = node_missing_handler;
                 this.lst_expected = new ArrayList<INeighborhoodArc>();
                 this.lst_expected.add_all(lst_expected);
             }
@@ -517,7 +517,7 @@ namespace Netsukuku
                 {
                     // each neighborhood_arc in its tasklet:
                     ActOnMissingTasklet ts = new ActOnMissingTasklet();
-                    ts.neighborhood_missing_handler = neighborhood_missing_handler;
+                    ts.node_missing_handler = node_missing_handler;
                     ts.missed = missed;
                     tasklet.spawn(ts);
                 }
@@ -525,11 +525,11 @@ namespace Netsukuku
 
             private class ActOnMissingTasklet : Object, ITaskletSpawnable
             {
-                public INeighborhoodMissingArcHandler neighborhood_missing_handler;
+                public NodeMissingArcHandlerForIdentityAware node_missing_handler;
                 public INeighborhoodArc missed;
                 public void * func()
                 {
-                    neighborhood_missing_handler.missing(missed);
+                    node_missing_handler.missing(missed);
                     return null;
                 }
             }
