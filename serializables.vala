@@ -485,11 +485,11 @@ namespace Netsukuku
         }
     }
 
-    class PeersSourceID : Object, ISourceID
+    class MainIdentitySourceID : Object, ISourceID
     {
     }
 
-    class PeersUnicastID : Object, IUnicastID
+    class MainIdentityUnicastID : Object, IUnicastID
     {
     }
 

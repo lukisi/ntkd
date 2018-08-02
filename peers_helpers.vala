@@ -185,7 +185,7 @@ namespace Netsukuku
         public IPeersManagerStub i_peers_get_tcp_inside(Gee.List<int> positions)
         {
             StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_inside_gnode(positions, identity_data);
+            IAddressManagerStub addrstub = f.get_stub_main_identity_unicast_inside_gnode(positions);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;
         }

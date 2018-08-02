@@ -98,19 +98,7 @@ namespace Netsukuku
                 NodeID identity_aware_source_id = source_id.id;
                 return get_identity_skeleton(identity_aware_source_id, identity_aware_unicast_id, peer_address);
             }
-            if (_unicast_id is WholeNodeUnicastID)
-            {
-                if (! (_source_id is WholeNodeSourceID)) return null;
-                WholeNodeSourceID source_id = (WholeNodeSourceID)_source_id;
-                NeighborhoodNodeID whole_node_source_id = source_id.id;
-                foreach (NodeArc arc in arc_list)
-                {
-                    if (arc.neighborhood_arc.neighbour_nic_addr == peer_address &&
-                            arc.neighborhood_arc.neighbour_id.equals(whole_node_source_id)) return node_skeleton;
-                }
-                return null;
-            }
-            if (_unicast_id is PeersUnicastID)
+            if (_unicast_id is MainIdentityUnicastID)
             {
                 IdentityData main_id = null;
                 while (main_id == null)
@@ -126,6 +114,18 @@ namespace Netsukuku
                     if (main_id == null) tasklet.ms_wait(5); // avoid rare (but possible) temporary condition.
                 }
                 return main_id.identity_skeleton;
+            }
+            if (_unicast_id is WholeNodeUnicastID)
+            {
+                if (! (_source_id is WholeNodeSourceID)) return null;
+                WholeNodeSourceID source_id = (WholeNodeSourceID)_source_id;
+                NeighborhoodNodeID whole_node_source_id = source_id.id;
+                foreach (NodeArc arc in arc_list)
+                {
+                    if (arc.neighborhood_arc.neighbour_nic_addr == peer_address &&
+                            arc.neighborhood_arc.neighbour_id.equals(whole_node_source_id)) return node_skeleton;
+                }
+                return null;
             }
             warning(@"Unknown IUnicastID class $(_unicast_id.get_type().name())");
             return null;
@@ -309,13 +309,8 @@ namespace Netsukuku
             foreach (IdentityArc ia in identity_data.identity_arcs)
             {
                 // get where ia is laid upon.
-                INeighborhoodArc neighborhood_arc = null;
-                foreach (NodeArc node_arc in arc_list)
-                {
-                    if (node_arc.i_arc == ia.arc) neighborhood_arc = node_arc.neighborhood_arc;
-                }
-                if (neighborhood_arc == null) continue;
-                // got it.
+                IdmgmtArc _arc = (IdmgmtArc)ia.arc;
+                INeighborhoodArc neighborhood_arc = _arc.neighborhood_arc;
                 // check my_dev
                 if (neighborhood_arc.nic.dev != my_dev) continue;
                 // check peer_address
@@ -368,9 +363,8 @@ namespace Netsukuku
         }
 
         public IAddressManagerStub
-        get_stub_identity_aware_unicast_inside_gnode(
+        get_stub_main_identity_unicast_inside_gnode(
             Gee.List<int> positions,
-            IdentityData identity_data, // TODO use it in ZCD
             bool wait_reply=true)
         {
             ArrayList<int> n_addr = new ArrayList<int>();
@@ -378,8 +372,8 @@ namespace Netsukuku
             int inside_level = n_addr.size;
             for (int i = inside_level; i < levels; i++) n_addr.add(0);
             string dest = ip_internal_node(n_addr, inside_level);
-            ISourceID source_id = new PeersSourceID();
-            IUnicastID unicast_id = new PeersUnicastID();
+            ISourceID source_id = new MainIdentitySourceID();
+            IUnicastID unicast_id = new MainIdentityUnicastID();
             IAddressManagerStub tc = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
             assert(tc is ITcpClientRootStub);
             ((ITcpClientRootStub)tc).wait_reply = wait_reply;

@@ -43,8 +43,8 @@ namespace Netsukuku
         CoordinatorManager.init(tasklet);
         HookingManager.init(tasklet);
         AndnaManager.init(tasklet);
-        typeof(PeersSourceID).class_peek();
-        typeof(PeersUnicastID).class_peek();
+        typeof(MainIdentitySourceID).class_peek();
+        typeof(MainIdentityUnicastID).class_peek();
 
         // Initialize pseudo-random number generators.
         uint32 seed_prn = 0;
