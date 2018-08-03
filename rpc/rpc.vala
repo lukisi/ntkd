@@ -414,8 +414,7 @@ namespace Netsukuku
             {
                 NodeMissingArcHandlerForIdentityAware node_missing_handler
                     = new NodeMissingArcHandlerForIdentityAware(identity_missing_handler, identity_data);
-                Gee.List<INeighborhoodArc> lst_expected = get_current_arcs_for_broadcast(nics);
-                ack_com = new AcknowledgementsCommunicator(this, nics, node_missing_handler, lst_expected);
+                ack_com = new AcknowledgementsCommunicator(this, nics, node_missing_handler);
             }
             assert(! devs.is_empty);
             assert(devs.size == src_ips.size);
@@ -481,20 +480,18 @@ namespace Netsukuku
             public StubFactory stub_factory;
             public ArrayList<INeighborhoodNetworkInterface> nics;
             public NodeMissingArcHandlerForIdentityAware node_missing_handler;
-            public ArrayList<INeighborhoodArc> lst_expected;
+            public Gee.List<INeighborhoodArc> lst_expected;
 
             public AcknowledgementsCommunicator(
                                 StubFactory stub_factory,
                                 Gee.List<INeighborhoodNetworkInterface> nics,
-                                NodeMissingArcHandlerForIdentityAware node_missing_handler,
-                                Gee.List<INeighborhoodArc> lst_expected)
+                                NodeMissingArcHandlerForIdentityAware node_missing_handler)
             {
                 this.stub_factory = stub_factory;
                 this.nics = new ArrayList<INeighborhoodNetworkInterface>();
                 this.nics.add_all(nics);
                 this.node_missing_handler = node_missing_handler;
-                this.lst_expected = new ArrayList<INeighborhoodArc>();
-                this.lst_expected.add_all(lst_expected);
+                lst_expected = stub_factory.get_current_arcs_for_broadcast(nics);
             }
 
             public void process_macs_list(Gee.List<string> responding_macs)
