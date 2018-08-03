@@ -25,8 +25,9 @@ using TaskletSystem;
 
 namespace Netsukuku
 {
-    void neighborhood_nic_address_set(string my_dev, string my_addr)
+    void neighborhood_nic_address_set(INeighborhoodNetworkInterface nic, string my_addr)
     {
+        string my_dev = nic.dev;
         if (identity_mgr != null)
         {
             print(@"Warning: Signal `nic_address_set($(my_dev),$(my_addr))` when module Identities is already initialized.\n");
@@ -34,10 +35,7 @@ namespace Netsukuku
             return;
         }
         string my_mac = macgetter.get_mac(my_dev).up();
-        HandledNic n = new HandledNic();
-        n.dev = my_dev;
-        n.mac = my_mac;
-        n.linklocal = my_addr;
+        HandledNic n = new HandledNic(my_dev, my_mac, my_addr, nic);
         handlednic_list.add(n);
     }
 
@@ -73,8 +71,9 @@ namespace Netsukuku
         // TODO ?
     }
 
-    void neighborhood_nic_address_unset(string my_dev, string my_addr)
+    void neighborhood_nic_address_unset(INeighborhoodNetworkInterface nic, string my_addr)
     {
+        string my_dev = nic.dev;
         // TODO ?
     }
 }

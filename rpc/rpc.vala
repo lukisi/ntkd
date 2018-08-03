@@ -234,6 +234,20 @@ namespace Netsukuku
             return ret;
         }
 
+        /* Get dev name where a received message has transited. For broadcast requests of any kind.
+         */
+        public string?
+        from_caller_get_mydev(CallerInfo _rpc_caller)
+        {
+            if (_rpc_caller is BroadcastCallerInfo)
+            {
+                BroadcastCallerInfo rpc_caller = (BroadcastCallerInfo)_rpc_caller;
+                return rpc_caller.dev;
+            }
+            return null;
+        }
+
+
         /* Get NodeArc where a received message has transited. For whole-node requests.
          */
         public NodeArc?

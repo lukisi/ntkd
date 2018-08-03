@@ -75,6 +75,28 @@ namespace Netsukuku
         }
     }
 
+    class NeighborhoodQueryCallerInfo : Object, INeighborhoodQueryCallerInfo
+    {
+        public INeighborhoodNetworkInterface?
+        is_from_broadcast(CallerInfo _rpc_caller)
+        {
+            SkeletonFactory f = new SkeletonFactory();
+            string? my_dev = f.from_caller_get_mydev(_rpc_caller);
+            if (my_dev == null) return null;
+            foreach (HandledNic handlednic in handlednic_list) if (handlednic.dev == my_dev) return handlednic.nic;
+            return null;
+        }
+
+        public INeighborhoodArc?
+        is_from_unicast(CallerInfo _rpc_caller)
+        {
+            SkeletonFactory f = new SkeletonFactory();
+            NodeArc? _arc = f.from_caller_get_nodearc(_rpc_caller);
+            if (_arc == null) return null;
+            return _arc.neighborhood_arc;
+        }
+    }
+
     class NeighborhoodNetworkInterface : Object, INeighborhoodNetworkInterface
     {
         public NeighborhoodNetworkInterface(string dev)

@@ -95,6 +95,7 @@ namespace Netsukuku
         neighborhood_mgr = new NeighborhoodManager(
             1000 /*very high max_arcs*/,
             new NeighborhoodStubFactory(),
+            new NeighborhoodQueryCallerInfo(),
             new NeighborhoodIPRouteManager(),
             () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
         SkeletonFactory.node_skeleton = new NodeSkeleton(neighborhood_mgr.get_my_neighborhood_id());

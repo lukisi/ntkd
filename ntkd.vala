@@ -155,9 +155,18 @@ namespace Netsukuku
 
     class HandledNic : Object
     {
-        public string dev;
-        public string mac;
-        public string linklocal;
+        public HandledNic(string dev, string mac, string linklocal, INeighborhoodNetworkInterface nic)
+        {
+            this.dev = dev;
+            this.mac = mac;
+            this.linklocal = linklocal;
+            this.nic = nic;
+        }
+
+        public string dev {get; private set;}
+        public string mac {get; private set;}
+        public string linklocal {get; private set;}
+        public INeighborhoodNetworkInterface nic {get; private set;}
     }
 
     class NodeArc : Object
