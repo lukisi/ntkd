@@ -57,8 +57,7 @@ namespace Netsukuku
         public INeighborhoodManagerStub
         get_broadcast_for_radar(INeighborhoodNetworkInterface nic)
         {
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_whole_node_broadcast_for_radar(nic);
+            IAddressManagerStub addrstub = stub_factory.get_stub_whole_node_broadcast_for_radar(nic);
             NeighborhoodManagerStubHolder ret = new NeighborhoodManagerStubHolder(addrstub);
             return ret;
         }
@@ -68,8 +67,7 @@ namespace Netsukuku
             INeighborhoodArc arc,
             bool wait_reply = true)
         {
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_whole_node_unicast(arc, wait_reply);
+            IAddressManagerStub addrstub = stub_factory.get_stub_whole_node_unicast(arc, wait_reply);
             NeighborhoodManagerStubHolder ret = new NeighborhoodManagerStubHolder(addrstub);
             return ret;
         }
@@ -80,8 +78,7 @@ namespace Netsukuku
         public INeighborhoodNetworkInterface?
         is_from_broadcast(CallerInfo _rpc_caller)
         {
-            SkeletonFactory f = new SkeletonFactory();
-            string? my_dev = f.from_caller_get_mydev(_rpc_caller);
+            string? my_dev = skeleton_factory.from_caller_get_mydev(_rpc_caller);
             if (my_dev == null) return null;
             foreach (HandledNic handlednic in handlednic_list) if (handlednic.dev == my_dev) return handlednic.nic;
             return null;
@@ -90,8 +87,7 @@ namespace Netsukuku
         public INeighborhoodArc?
         is_from_unicast(CallerInfo _rpc_caller)
         {
-            SkeletonFactory f = new SkeletonFactory();
-            NodeArc? _arc = f.from_caller_get_nodearc(_rpc_caller);
+            NodeArc? _arc = skeleton_factory.from_caller_get_nodearc(_rpc_caller);
             if (_arc == null) return null;
             return _arc.neighborhood_arc;
         }

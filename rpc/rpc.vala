@@ -36,6 +36,12 @@ namespace Netsukuku
 
     class ServerDelegate : Object, IRpcDelegate
     {
+        public ServerDelegate(SkeletonFactory skeleton_factory)
+        {
+            this.skeleton_factory = skeleton_factory;
+        }
+        private SkeletonFactory skeleton_factory;
+
         public Gee.List<IAddressManagerSkeleton> get_addr_set(CallerInfo caller)
         {
             if (caller is TcpclientCallerInfo)
@@ -45,8 +51,7 @@ namespace Netsukuku
                 ISourceID sourceid = c.sourceid;
                 IUnicastID unicastid = c.unicastid;
                 var ret = new ArrayList<IAddressManagerSkeleton>();
-                SkeletonFactory f = new SkeletonFactory();
-                IAddressManagerSkeleton? d = f.get_dispatcher(sourceid, unicastid, peer_address);
+                IAddressManagerSkeleton? d = skeleton_factory.get_dispatcher(sourceid, unicastid, peer_address);
                 if (d != null) ret.add(d);
                 return ret;
             }
@@ -57,8 +62,7 @@ namespace Netsukuku
                 string dev = c.dev;
                 ISourceID sourceid = c.sourceid;
                 IBroadcastID broadcastid = c.broadcastid;
-                SkeletonFactory f = new SkeletonFactory();
-                return f.get_dispatcher_set(sourceid, broadcastid, peer_address, dev);
+                return skeleton_factory.get_dispatcher_set(sourceid, broadcastid, peer_address, dev);
             }
             else
             {
@@ -75,10 +79,29 @@ namespace Netsukuku
         }
     }
 
+    const uint16 ntkd_port = 60269;
+
     class SkeletonFactory : Object
     {
-        public SkeletonFactory()
+        public SkeletonFactory(NodeSkeleton node_skeleton)
         {
+            this.node_skeleton = node_skeleton;
+            dlg = new ServerDelegate(this);
+            err = new ServerErrorHandler();
+        }
+
+        public NodeSkeleton node_skeleton {get; private set;}
+        public ServerDelegate dlg;
+        public ServerErrorHandler err;
+
+        public ITaskletHandle start_tcp_listen()
+        {
+            return tcp_listen(dlg, err, ntkd_port);
+        }
+
+        public ITaskletHandle start_udp_listen(string dev)
+        {
+            return udp_listen(dlg, err, ntkd_port, dev);
         }
 
         /* Get root-dispatcher if the received message is to be processed.
@@ -174,8 +197,6 @@ namespace Netsukuku
             }
             return new ArrayList<IAddressManagerSkeleton>();
         }
-
-        public static NodeSkeleton node_skeleton;
 
         private IAddressManagerSkeleton?
         get_identity_skeleton(
@@ -553,7 +574,7 @@ namespace Netsukuku
             INeighborhoodArc arc,
             bool wait_reply=true)
         {
-            WholeNodeSourceID source_id = new WholeNodeSourceID(SkeletonFactory.node_skeleton.id);
+            WholeNodeSourceID source_id = new WholeNodeSourceID(skeleton_factory.node_skeleton.id);
             WholeNodeUnicastID unicast_id = new WholeNodeUnicastID(arc.neighbour_id);
             string dest = arc.neighbour_nic_addr;
             IAddressManagerStub tc = get_addr_tcp_client(dest, ntkd_port, source_id, unicast_id);
@@ -573,7 +594,7 @@ namespace Netsukuku
                 if (n.dev == nic.dev) local_address = n.linklocal;
             }
             assert(local_address != null);
-            WholeNodeSourceID source_id = new WholeNodeSourceID(SkeletonFactory.node_skeleton.id);
+            WholeNodeSourceID source_id = new WholeNodeSourceID(skeleton_factory.node_skeleton.id);
             EveryWholeNodeBroadcastID broadcast_id = new EveryWholeNodeBroadcastID();
             var devs = new ArrayList<string>.wrap({nic.dev});
             var src_ips = new ArrayList<string>.wrap({local_address});

@@ -192,8 +192,7 @@ namespace Netsukuku
                     broadcast_node_id_set.add(ia.id_arc.get_peer_nodeid());
             }
             if (broadcast_node_id_set.is_empty) return new CoordinatorManagerStubVoid();
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_identity_aware_broadcast(
+            IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_broadcast(
                 identity_data,
                 broadcast_node_id_set,
                 null);
@@ -207,8 +206,7 @@ namespace Netsukuku
             {
                 if (ia.qspn_arc != null)
                 {
-                    StubFactory f = new StubFactory();
-                    IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, false);
+                    IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_unicast_from_ia(ia, false);
                     ret.add(new CoordinatorManagerStubHolder(addrstub));
                 }
             }

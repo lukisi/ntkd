@@ -69,13 +69,14 @@ namespace Netsukuku
         // TableNames
         tn = TableNames.get_singleton(cm);
 
+        // RPC
+        skeleton_factory = new SkeletonFactory(new NodeSkeleton());
+        stub_factory = new StubFactory();
         // The RPC library will need a tasklet for TCP connections and many
         // tasklets (one per NIC) for UDP connecions.
-        dlg = new ServerDelegate();
-        err = new ServerErrorHandler();
         t_udp_list = new ArrayList<ITaskletHandle>();
         // Start listen TCP
-        t_tcp = tcp_listen(dlg, err, ntkd_port);
+        t_tcp = skeleton_factory.start_tcp_listen();
         // The UDP tasklets will be launched after the NeighborhoodManager is
         // created and ready to start_monitor.
 
@@ -98,7 +99,7 @@ namespace Netsukuku
             new NeighborhoodQueryCallerInfo(),
             new NeighborhoodIPRouteManager(),
             () => @"169.254.$(PRNGen.int_range(0, 255)).$(PRNGen.int_range(0, 255))");
-        SkeletonFactory.node_skeleton = new NodeSkeleton(neighborhood_mgr.get_my_neighborhood_id());
+        skeleton_factory.node_skeleton.id = neighborhood_mgr.get_my_neighborhood_id();
         // connect signals
         neighborhood_mgr.nic_address_set.connect(neighborhood_nic_address_set);
         neighborhood_mgr.arc_added.connect(neighborhood_arc_added);
@@ -122,7 +123,7 @@ namespace Netsukuku
             cm.end_block(bid);
 
             // Start listen UDP on dev
-            t_udp_list.add(udp_listen(dlg, err, ntkd_port, dev));
+            t_udp_list.add(skeleton_factory.start_udp_listen(dev));
             // Run monitor. This will also set the IP link-local address and the list
             //  `handlednic_list` will be compiled.
             var _nic = new NeighborhoodNetworkInterface(dev);

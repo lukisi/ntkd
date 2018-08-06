@@ -152,11 +152,7 @@ namespace Netsukuku
      */
     class NodeSkeleton : Object, IAddressManagerSkeleton
     {
-        public NodeSkeleton(NeighborhoodNodeID id)
-        {
-            this.id = id;
-        }
-        public NeighborhoodNodeID id {get; private set;}
+        public NeighborhoodNodeID id;
 
         public unowned INeighborhoodManagerSkeleton
         neighborhood_manager_getter()

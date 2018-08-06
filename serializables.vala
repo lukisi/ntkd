@@ -485,11 +485,11 @@ namespace Netsukuku
         }
     }
 
-    class MainIdentitySourceID : Object, ISourceID
+    public class MainIdentitySourceID : Object, ISourceID
     {
     }
 
-    class MainIdentityUnicastID : Object, IUnicastID
+    public class MainIdentityUnicastID : Object, IUnicastID
     {
     }
 

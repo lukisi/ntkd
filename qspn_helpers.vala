@@ -51,8 +51,7 @@ namespace Netsukuku
             {
                 identity_missing_handler = new MissingArcHandlerForQspn(missing_handler);
             }
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_identity_aware_broadcast(
+            IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_broadcast(
                 identity_data,
                 broadcast_node_id_set,
                 identity_missing_handler);
@@ -68,8 +67,7 @@ namespace Netsukuku
         {
             QspnArc _arc = (QspnArc)arc;
             IdentityArc ia = _arc.ia;
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, wait_reply);
+            IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_unicast_from_ia(ia, wait_reply);
             QspnManagerStubHolder ret = new QspnManagerStubHolder(addrstub);
             return ret;
         }
@@ -129,9 +127,8 @@ namespace Netsukuku
 
         public bool i_qspn_comes_from(CallerInfo rpc_caller)
         {
-            SkeletonFactory f = new SkeletonFactory();
             IdentityData identity_data = ia.identity_data;
-            IdentityArc? caller_ia = f.from_caller_get_identityarc(rpc_caller, identity_data);
+            IdentityArc? caller_ia = skeleton_factory.from_caller_get_identityarc(rpc_caller, identity_data);
             if (caller_ia == null) return false;
             return caller_ia == ia;
         }

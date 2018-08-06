@@ -94,8 +94,7 @@ namespace Netsukuku
             NodeID? received_from_nodeid = null;
             if (received_from != null)
             {
-                SkeletonFactory f = new SkeletonFactory();
-                IdentityArc? caller_ia = f.from_caller_get_identityarc(received_from, identity_data);
+                IdentityArc? caller_ia = skeleton_factory.from_caller_get_identityarc(received_from, identity_data);
                 if (caller_ia != null) received_from_nodeid = caller_ia.id;
             }
             Gee.List<IQspnNodePath> paths;
@@ -129,8 +128,7 @@ namespace Netsukuku
                 break;
             }
             if (gw_ia == null) tasklet.exit_tasklet();
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(gw_ia, false);
+            IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_unicast_from_ia(gw_ia, false);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             ret.neighborhood_arc = ((IdmgmtArc)gw_ia.arc).neighborhood_arc;
             return ret;
@@ -162,8 +160,7 @@ namespace Netsukuku
                 HCoord gw = identity_data.my_naddr.i_qspn_get_coord_by_address(naddr_for_ia);
                 if (gw.lvl == level)
                 {
-                    StubFactory f = new StubFactory();
-                    IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, true);
+                    IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_unicast_from_ia(ia, true);
                     PeersManagerStubHolder _ret = new PeersManagerStubHolder(addrstub);
                     _ret.neighborhood_arc = ((IdmgmtArc)ia.arc).neighborhood_arc;
                     ret = _ret;
@@ -184,8 +181,7 @@ namespace Netsukuku
 
         public IPeersManagerStub i_peers_get_tcp_inside(Gee.List<int> positions)
         {
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_main_identity_unicast_inside_gnode(positions);
+            IAddressManagerStub addrstub = stub_factory.get_stub_main_identity_unicast_inside_gnode(positions);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;
         }
@@ -210,8 +206,7 @@ namespace Netsukuku
             if(broadcast_node_id_set.is_empty) return new PeersManagerStubVoid();
             MissingArcHandlerForPeers identity_missing_handler =
                 new MissingArcHandlerForPeers(missing_handler);
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_identity_aware_broadcast(
+            IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_broadcast(
                 identity_data,
                 broadcast_node_id_set,
                 identity_missing_handler);
@@ -222,8 +217,7 @@ namespace Netsukuku
         public IPeersManagerStub i_peers_get_tcp(IPeersArc arc)
         {
             IdentityArc ia = ((PeersArc)arc).ia;
-            StubFactory f = new StubFactory();
-            IAddressManagerStub addrstub = f.get_stub_identity_aware_unicast_from_ia(ia, true);
+            IAddressManagerStub addrstub = stub_factory.get_stub_identity_aware_unicast_from_ia(ia, true);
             PeersManagerStubHolder ret = new PeersManagerStubHolder(addrstub);
             return ret;
         }

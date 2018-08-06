@@ -131,17 +131,15 @@ namespace Netsukuku
     {
         public IIdmgmtArc? get_arc(CallerInfo rpc_caller)
         {
-            SkeletonFactory f = new SkeletonFactory();
-            NodeArc? node_arc = f.from_caller_get_nodearc(rpc_caller);
+            NodeArc? node_arc = skeleton_factory.from_caller_get_nodearc(rpc_caller);
             if (node_arc != null) return node_arc.i_arc;
             return null;
         }
 
         public IIdentityManagerStub get_stub(IIdmgmtArc arc)
         {
-            StubFactory f = new StubFactory();
             IdmgmtArc _arc = (IdmgmtArc)arc;
-            IAddressManagerStub addrstub = f.get_stub_whole_node_unicast(_arc.neighborhood_arc);
+            IAddressManagerStub addrstub = stub_factory.get_stub_whole_node_unicast(_arc.neighborhood_arc);
             IdentityManagerStubHolder ret = new IdentityManagerStubHolder(addrstub);
             return ret;
         }

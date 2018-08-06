@@ -38,7 +38,6 @@ namespace Netsukuku
         return ret;
     }
 
-    const uint16 ntkd_port = 60269;
     const int max_paths = 5;
     const double max_common_hops_ratio = 0.6;
     const int arc_timeout = 10000;
@@ -61,6 +60,8 @@ namespace Netsukuku
     ArrayList<HandledNic> handlednic_list;
     ArrayList<NodeArc> arc_list;
     ArrayList<IdentityData> local_identities;
+    SkeletonFactory skeleton_factory;
+    StubFactory stub_factory;
 
     IdentityData find_or_create_local_identity(NodeID node_id)
     {
@@ -104,8 +105,6 @@ namespace Netsukuku
         error("IdentityArc not found");
     }
 
-    ServerDelegate dlg;
-    ServerErrorHandler err;
     ITaskletHandle t_tcp;
     ArrayList<ITaskletHandle> t_udp_list;
 
