@@ -1,0 +1,1 @@
+../../rpc/stub_factory.vala

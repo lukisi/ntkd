@@ -70,7 +70,7 @@ namespace Netsukuku
         tn = TableNames.get_singleton(cm);
 
         // RPC
-        skeleton_factory = new SkeletonFactory(new NodeSkeleton());
+        skeleton_factory = new SkeletonFactory();
         stub_factory = new StubFactory();
         // The RPC library will need a tasklet for TCP connections and many
         // tasklets (one per NIC) for UDP connecions.

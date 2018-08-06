@@ -5,9 +5,11 @@ configuration.c
 startup.c
 mainloop.c
 cleanup.c
-ntkd_rpc.c
 serializables.c
-rpc.c
+skeleton_factory.c
+module_skeletons.c
+stub_factory.c
+module_stubs.c
 commander.c
 table_names.c
 ipv4_compute.c
