@@ -88,15 +88,102 @@ namespace Netsukuku
         public ServerDelegate dlg;
         public ServerErrorHandler err;
 
+
+        // DEPRECATED
         public ITaskletHandle start_tcp_listen()
         {
             return tcp_listen(dlg, err, ntkd_port);
         }
 
+        // DEPRECATED
         public ITaskletHandle start_udp_listen(string dev)
         {
             return udp_listen(dlg, err, ntkd_port, dev);
         }
+
+
+        public void start_stream_ip_listen(string ip)
+        {
+            error("not implemented yet");
+            /*
+            In ntkdrpc there will be a function stream_ip_listen(ip,tcp_port)
+            Will do:
+            handles_by_ip[ip] = stream_ip_listen(dlg, err, ip, ntkd_port);
+            */
+        }
+
+        public void stop_stream_ip_listen(string ip)
+        {
+            error("not implemented yet");
+            /*
+            Will do:
+            ITaskletHandle th = handles_by_ip[ip];
+            th.kill();
+            */
+        }
+
+        public void start_stream_pathname_listen(string pathname)
+        {
+            error("not implemented yet");
+            /*
+            In ntkdrpc there will be a function stream_pathname_listen(pathname)
+            Will do:
+            handles_by_pathname[pathname] = stream_pathname_listen(dlg, err, pathname);
+            */
+        }
+
+        public void stop_stream_pathname_listen(string pathname)
+        {
+            error("not implemented yet");
+            /*
+            Will do:
+            ITaskletHandle th = handles_by_pathname[pathname];
+            th.kill();
+            */
+        }
+
+        public void start_datagram_nic_listen(string dev)
+        {
+            error("not implemented yet");
+            /*
+            In ntkdrpc there will be a function datagram_nic_listen(dev,udp_port)
+            Will do:
+            handles_by_dev[dev] = datagram_nic_listen(dlg, err, dev, ntkd_port);
+            */
+        }
+
+        public void stop_datagram_nic_listen(string dev)
+        {
+            error("not implemented yet");
+            /*
+            Will do:
+            ITaskletHandle th = handles_by_dev[dev];
+            th.kill();
+            */
+        }
+
+        public void start_datagram_pathname_listen(string pseudodev)
+        {
+            error("not implemented yet");
+            /*
+            In ntkdrpc there will be a function datagram_pathname_listen(pseudodev)
+            Si mette in ascolto di datagram sul pathname recv_<pid>_<pseudodev>.
+            Se ne riceve trasmette ACK sul pathname send_<pid>_<pseudodev>.
+            Will do:
+            handles_by_pseudodev[pseudodev] = stream_pathname_listen(dlg, err, pathname);
+            */
+        }
+
+        public void stop_datagram_pathname_listen(string pseudodev)
+        {
+            error("not implemented yet");
+            /*
+            Will do:
+            ITaskletHandle th = handles_by_pseudodev[pseudodev];
+            th.kill();
+            */
+        }
+
 
         /* Get root-dispatcher if the received message is to be processed.
          */
